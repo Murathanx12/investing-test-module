@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Data & outputs — never commit market data or run artifacts
+data/
+runs/
+*.csv.gz
+*.parquet
+*.db
+
+# Env
+.env
+
+# OS
+Thumbs.db
+.DS_Store
