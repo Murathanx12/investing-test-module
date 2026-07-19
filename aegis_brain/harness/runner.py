@@ -165,6 +165,11 @@ def summarize(monthly: pd.DataFrame, cfg: WalkForwardConfig) -> dict:
     max_dd = float((cum / cum.cummax() - 1).min())
     excess = monthly["excess_net"]
     t_excess = float(excess.mean() / excess.std(ddof=1) * np.sqrt(n)) if excess.std(ddof=1) > 0 else 0.0
+    # Gross excess is the LEAK metric: a leak inflates gross performance, while
+    # net excess of even a random book is expected-negative by its cost drag
+    # (the TRIAL-BRAIN-001 lesson). Leak bar: |t_stat_excess_gross| >= 3.
+    excess_g = monthly["gross"] - monthly["universe_ew"]
+    t_excess_g = float(excess_g.mean() / excess_g.std(ddof=1) * np.sqrt(n)) if excess_g.std(ddof=1) > 0 else 0.0
     return {
         "months": n,
         "cagr_net": float(cum.iloc[-1] ** (ann / n) - 1),
@@ -173,6 +178,8 @@ def summarize(monthly: pd.DataFrame, cfg: WalkForwardConfig) -> dict:
         "mean_monthly_traded": round(float(monthly["traded"].mean()), 3),
         "mean_excess_vs_universe_ew": round(float(excess.mean()), 5),
         "t_stat_excess": round(t_excess, 2),
+        "mean_excess_gross": round(float(excess_g.mean()), 5),
+        "t_stat_excess_gross": round(t_excess_g, 2),
         "long_short": cfg.long_short,
         "cost_bps_one_way": cfg.cost_bps_one_way,
     }

@@ -36,9 +36,33 @@ min_names_per_month=50). Largest-500 arms use restrict_training_to_eligible=True
 ONE run per arm. Results final. Direction-check grade (Shumway stamp, no CRSP delisting
 returns until WRDS).
 
-## Result (to be filled AFTER the run — never edited afterwards)
-- Arm A:
-- Arm B (full clean universe):
-- Arm B (largest-500):
-- Survivorship bound:
-- Verdict:
+## Result (recorded 2026-07-19 after the single execution — final)
+Ran 2026-07-19, `runs/TRIAL-BRAIN-001/results.json`, clean panel (12,419 names,
+6,701 in-window deaths, ~4,500 eligible/month).
+
+- **Arm A (noise):** net excess t = −3.68 (full) / −4.02 (largest-500). **The |t| ≥ 3
+  condition fired as written.** Decomposition: GROSS excess +11 bps/mo, t = 1.19 —
+  statistically zero, no leak. The entire net drift is the cost drag (1.8 traded/mo ×
+  25 bps = 45 bps/mo) measured with high precision. **The control condition was
+  misspecified by the experimenter**: leak detection must be stated on gross excess
+  (a leak inflates gross); net excess of a random book is expected-negative by exactly
+  its costs. Recorded as a specification error, not a pipeline leak. Future trials use
+  gross-excess t for the leak bar (harness now reports both).
+- **Arm B (full clean universe):** net Sharpe 0.179, net excess t = **−1.40** →
+  kill condition 2 fires on the merits. DSR = 0.124 at n_trials = 16.
+- **Arm B (largest-500):** net Sharpe 0.63, net excess t = 0.77 → nothing.
+- **Verdict: REJECT.** On the clean panel the GKX big-three via shallow GBM ranker does
+  NOT beat its eligible-universe EW net of 25 bps. Consistent with the stated prior and
+  with the main repo's momentum-lane failures (#13, #14).
+
+### What was actually learned (the point of a baseline)
+1. **Turnover is the killer.** A monthly-refit decile book trades ~180%/month one-way →
+   45 bps/mo drag swamps any 0–60 bps/mo edge. Turnover control (hold bands, slower
+   rebalance, rank-persistence requirements) is a first-class design constraint for every
+   future L2/L3 candidate, not an afterthought.
+2. The harness is unbiased gross of costs (noise gross t ≈ 0 in both universes) and the
+   clean-universe hygiene removed the fat-tail contamination (Arm B skew fell from 8.8
+   to 0.24, kurtosis 78.7 → 4.1). Infrastructure validated.
+3. Published negative: generic price factors alone, naively rebalanced, are dead net of
+   realistic microcap costs — the corner's edge, if any, must come from EVENT signals
+   (insider/PEAD/FDA) and/or turnover-aware construction. This sharpens Phase 1–2 focus.
