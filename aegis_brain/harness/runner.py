@@ -38,6 +38,10 @@ class WalkForwardConfig:
     ranker_kwargs: dict = field(default_factory=dict)
     min_names_per_month: int = 50      # skip months with a too-thin cross-section
     largest_n_by_dollar_vol: int | None = None  # survivorship-bound subset runs
+    # For survivorship-bound runs: train ONLY on formation rows that were
+    # eligible at their formation month, so the subset run is a genuinely
+    # independent pipeline rather than full-universe training in disguise.
+    restrict_training_to_eligible: bool = False
 
 
 def _rank_standardize(frame: pd.DataFrame) -> pd.DataFrame:
@@ -78,6 +82,11 @@ def run_walk_forward(
         eligible = eligible & topn
 
     design = build_design(panel, signals)
+    if cfg.restrict_training_to_eligible:
+        elig_stack = eligible.stack()
+        elig_stack.index.names = ["month", "symbol"]
+        keep = elig_stack.reindex(design.index).fillna(False).astype(bool)
+        design = design.loc[keep]
     months = design.index.get_level_values("month").unique().sort_values()
     if len(months) <= cfg.min_train_months + 1:
         raise ValueError("not enough months for walk-forward")
