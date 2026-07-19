@@ -46,9 +46,30 @@ These are the most-published factors in existence; any edge here is panel-struct
 - ONE run per arm. Results final. Gate report with cumulative n_trials (14 base + local).
 - Grade: **direction check** (EODHD panel, Shumway stamp). Nothing enters paper_nav.
 
-## Result (to be filled AFTER the runs — never edited afterwards)
-- Arm A:
-- Arm B (full universe):
-- Arm B (largest-500):
-- Survivorship bound:
-- Verdict:
+## Result (recorded 2026-07-19 after the single execution — final)
+Ran 2026-07-19T06:33:29Z, `runs/TRIAL-BRAIN-000/results.json`, 89/81 test months.
+
+- **Arm A (noise, full):** net Sharpe 0.374, excess t = **0.75** → below the |t| ≥ 3 leak
+  bar. **No pipeline leak detected.** The harness passes its own control.
+- **Arm B (GKX, full):** net Sharpe 0.429, excess t = 1.03, DSR = **0.148** at n_trials=15.
+- **Arm B (largest-500):** net Sharpe 0.655 but excess vs its universe **negative**
+  (t = −0.93). Edge absent in the coverage-clean subset → third kill condition fires.
+- **Survivorship/coverage bound:** full-universe excess +0.295/mo vs largest-500 −0.297/mo.
+- **Verdict: REJECT** (gate: DSR 0.148 < 0.95; PBO not computable; kill condition 3).
+
+### Primary finding — the real product of this trial
+The excess-return distributions (skew 8.8, kurtosis 78.7) exposed a **critical
+panel-hygiene defect**: 5,938 observations with >1000% monthly returns (max 3.3×10⁹ —
+SMVE 2022-02), 1,548 above 10,000%, and 21 returns ≤ −100% (impossible for real prices).
+Offenders are concentrated in OTC/foreign listings (F/Y-suffix tickers). Because
+"largest-500 by dollar volume" is itself computed from glitched Close×Volume, even the
+survivorship arm is contaminated. **No signal conclusion beyond the leak check is
+interpretable from this run.** The GKX baseline features are NOT killed as combiner
+inputs — they were never fairly tested; re-testing on a hygienic panel requires a NEW
+pre-registered trial (TRIAL-BRAIN-001), which counts as a new trial. This one stands as
+registered and REJECTED.
+
+### Follow-up (infrastructure, not a trial)
+Panel hygiene v2: restrict the universe by EXCHANGE using the EODHD symbol-list metadata
+(NYSE/NASDAQ/AMEX only — a universe definition, not result-driven data editing), null
+impossible returns (≤ −100%), investigate the >200% tail against known corporate actions.

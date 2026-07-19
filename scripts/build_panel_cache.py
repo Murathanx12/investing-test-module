@@ -20,15 +20,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aegis_brain.config import MODULE_ROOT, PANEL_START
-from aegis_brain.data.eodhd_panel import build_panel, list_symbols
+from aegis_brain.data.eodhd_panel import build_panel, list_clean_symbols, list_symbols
 
-OUT = MODULE_ROOT / "data" / "panel_2017"
+CLEAN = "--clean" in sys.argv
+OUT = MODULE_ROOT / "data" / ("panel_2017_clean" if CLEAN else "panel_2017")
 
 
 def main() -> None:
     t0 = time.time()
-    syms = list_symbols("all")
-    print(f"symbols discovered: {len(syms)}", flush=True)
+    syms = list_clean_symbols("all") if CLEAN else list_symbols("all")
+    print(f"symbols discovered: {len(syms)} (clean={CLEAN})", flush=True)
 
     panel = build_panel(syms, start=PANEL_START, min_months=13, progress=True)
 

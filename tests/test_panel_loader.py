@@ -36,6 +36,22 @@ def test_eligibility_mask_shape(fake_archive):
 
 
 @pytest.mark.skipif(not Path(EODHD_ROOT).exists(), reason="real archive not present")
+def test_clean_symbol_filter_real_archive():
+    from aegis_brain.data.eodhd_panel import list_clean_symbols, load_symbol_metadata
+
+    meta = load_symbol_metadata()
+    assert meta["active"] and meta["delisted"]
+    clean = list_clean_symbols("all")
+    allsyms = list_symbols("all")
+    # clean universe must be a strict, substantial subset of the raw one
+    assert 5_000 < len(clean) < len(allsyms)
+    assert set(clean) <= set(allsyms)
+    # known-dirty OTC glitch tickers from TRIAL-BRAIN-000 must be excluded
+    for dirty in ("SMVE", "RMANF", "FNNCF"):
+        assert dirty not in clean
+
+
+@pytest.mark.skipif(not Path(EODHD_ROOT).exists(), reason="real archive not present")
 def test_real_archive_smoke():
     syms = list_symbols("active")
     assert len(syms) > 15_000
