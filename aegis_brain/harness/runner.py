@@ -32,6 +32,12 @@ class WalkForwardConfig:
     min_train_months: int = 24
     refit_every: int = 3               # retrain cadence (months)
     top_frac: float = 0.10             # long decile
+    # Turnover control (the TRIAL-BRAIN-001 lesson: naive monthly refresh trades
+    # ~180%/mo one-way = 45 bps/mo at 25 bps). When set, an existing holding is
+    # KEPT as long as its rank stays within this wider band (e.g. 0.30 = top
+    # 30%); only vacated slots are refilled from the top of the ranking.
+    # Long-only books only.
+    hold_band_frac: float | None = None
     long_short: bool = False           # False = long-only vs EW universe
     cost_bps_one_way: float = COST_BPS_ONE_WAY
     ranker_kind: str = "gbm"
@@ -120,7 +126,19 @@ def run_walk_forward(
 
         scores = pd.Series(model.predict(cross[feature_cols]), index=cross.index)
         n_top = max(int(len(scores) * cfg.top_frac), 10)
-        long_syms = scores.nlargest(n_top).index
+
+        if cfg.hold_band_frac is not None and not cfg.long_short:
+            band_n = max(int(len(scores) * cfg.hold_band_frac), n_top)
+            band = set(scores.nlargest(band_n).index)
+            prev_held = prev_w[prev_w > 0].index
+            # keep incumbents still inside the band, best-ranked first
+            kept = scores.reindex([s for s in prev_held if s in band]).dropna()
+            kept = kept.sort_values(ascending=False).index[:n_top].tolist()
+            fresh = [s for s in scores.sort_values(ascending=False).index
+                     if s not in kept][: n_top - len(kept)]
+            long_syms = pd.Index(kept + fresh)
+        else:
+            long_syms = scores.nlargest(n_top).index
 
         w = pd.Series(0.0, index=scores.index)
         w.loc[long_syms] = 1.0 / n_top
