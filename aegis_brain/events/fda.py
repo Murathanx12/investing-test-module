@@ -14,6 +14,12 @@ Discipline notes:
     paginates one year at a time and sleeps accordingly.
 
 API: https://api.fda.gov/drug/drugsfda.json
+
+Harvest provenance (2002-01 → 2026-07, pulled 2026-07-20):
+  16,195 original-approval events. Application-type mix: ANDA 13,453 (generics —
+  no tradeable catalyst, filter out for event studies), NDA 2,351, BLA 391.
+  The event-study universe is NDA+BLA = 2,742 events (27% PRIORITY review).
+  Filter with `application_number` prefix in {'NDA','BLA'}.
 """
 
 from __future__ import annotations
@@ -122,3 +128,13 @@ def fetch_fda_approvals(year: int, pause_s: float = 1.6) -> list[FdaEvent]:
 
 def events_to_records(events: list[FdaEvent]) -> list[dict]:
     return [asdict(e) for e in events]
+
+
+# Application-number prefixes that correspond to branded, single-sponsor
+# products with a genuine stock catalyst. ANDAs (generics) are excluded.
+EVENT_STUDY_PREFIXES = ("NDA", "BLA")
+
+
+def is_event_study_candidate(application_number: str) -> bool:
+    """True for NDA/BLA (branded drugs/biologics), False for ANDA generics etc."""
+    return application_number.upper().startswith(EVENT_STUDY_PREFIXES)

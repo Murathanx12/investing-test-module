@@ -1,6 +1,10 @@
 import json
 
-from aegis_brain.events.fda import FdaEvent, parse_applications
+from aegis_brain.events.fda import (
+    FdaEvent,
+    is_event_study_candidate,
+    parse_applications,
+)
 
 SAMPLE = {
     "meta": {"results": {"total": 2}},
@@ -50,6 +54,12 @@ def test_earliest_orig_wins():
     events = parse_applications(doc)
     assert events[0].approval_date == "2022-01-01"
     assert events[0].review_priority == "STANDARD"
+
+
+def test_event_study_filter_excludes_generics():
+    assert is_event_study_candidate("NDA212345")
+    assert is_event_study_candidate("BLA761000")
+    assert not is_event_study_candidate("ANDA214870")
 
 
 def test_handles_missing_fields():
