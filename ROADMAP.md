@@ -98,6 +98,11 @@ L5  FORWARD PAPER ACCOUNTS — the only scorecard
 
 ## 4. Phases
 
+> **Progress (2026-07-20):** Phase 3 harness/gate/discipline ✅ built and exercised by two
+> pre-registered trials (BRAIN-000/001, both honest REJECTs — see TRIALS/ and STATUS.md).
+> Phase 4 CRSP loader ✅ coded, ⛔ blocked on WRDS re-enable. Phase 2 event ledger ✅ core
+> built + FDA feed harvested. Phase 0/1 live on the main repo (not this module).
+
 ### Phase 0 — Monday verifications (2026-07-20, main repo, ~15 min)
 - Did Alpaca DKNG 1,897 + SLDP 22,500 fill at the open? First divergence snapshot in `alpaca:equity`.
 - Did the congress collector pull REAL data at 07:30 ET (watch for false-zero poisoning)?
@@ -125,13 +130,16 @@ L5  FORWARD PAPER ACCOUNTS — the only scorecard
 - Grade: **direction-check only** until WRDS. Deliverable: a harness so honest that a
   positive result survives its own audit.
 
-### Phase 4 — WRDS unlock (when HKU approves)
-- Swap L0 to CRSP/Compustat point-in-time with delisting returns → re-run Phase 3 at paper
-  grade → promote survivors to forward trials → NN moves up the queue.
+### Phase 4 — WRDS unlock (HKU approved 2026-07-20)
+- ✅ Account live, CRSP/Compustat confirmed (331 libraries, 28,913 real delisting returns).
+- ✅ CRSP panel loader + hold-band harness built; TRIAL-BRAIN-002 pre-registered (n=17).
+- ⛔ Account disabled by a login-flood misconfig (fixed); support ticket filed. On re-enable:
+  build_crsp_panel → run_trial_002 at paper grade → promote survivors → NN up the queue.
 
 ### Ongoing
-- Chase HKU on WRDS (single biggest unlock). ✅ EODHD archive backed up to OneDrive 2026-07-19
-  (1.07 GB tar, 50,471 entries). QC lane backtest URLs still owed by Murat.
+- ✅ EODHD archive backed up (1.07 GB) and FDA harvest backed up (16,195 events), OneDrive.
+- WRDS: keep HKU VPN on for any pull; connect only via `wrds_conn.get_connection()`.
+- QC lane backtest URLs still owed by Murat.
 
 ## 5. What we are explicitly NOT building
 
