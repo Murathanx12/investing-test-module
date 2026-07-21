@@ -102,10 +102,36 @@ Opportunistic arm: +20 to +60 bps/mo net abnormal in its best cap segment; routi
    **cap-segment characteristic-matched**. 6. Added the **forward-ledger win condition** and a
    separate stricter deploy gate at **t>3.4**. 7. Window 2004→**2006** (SEC bulk data starts 2006).
 
-## Result (to be filled AFTER the run — never edited afterwards)
-- Arm C (gross leak check):
-- Arm A (routine placebo) — large/mid | micro:
-- Arm B (opportunistic) — large/mid | micro:
-- Post-2015 best segment:
-- Issuer→CRSP match rate / drops · 10b5-1 drop count:
-- Backtest verdict (prior) · forward-ledger calls opened:
+## Result (filled AFTER the run 2026-07-21 — never edited afterwards)
+Data: 824,251 open-market purchases (76 SEC quarters 2006-2024), 150,401 classifiable,
+103,163 opportunistic / 47,238 routine. Issuer→permno match **61.4%** (ticker-based;
+ambiguous=0 dropped). 10b5-1 drop: N/A (no flag in bulk files — known limitation).
+Audit fixes applied before the run: CRSP return-hygiene (H1), NaN-return renormalization
+(M4), signal stamped at filing date (M7), real PBO + honest config count (M2/M3).
+
+- **Arm C (noise leak check): PASS.** Gross excess t = **1.01** (large/mid), **0.27** (micro).
+  Both |t| < 3 → no pipeline leak; the machine makes no gross edge from random flags.
+- **Arm A (routine placebo):** net excess t = -2.26 (large/mid, only 48 mo — sparse) /
+  -0.57 (micro). Negative, not near Arm B → no confound (kill cond 2 not triggered).
+- **Arm B (opportunistic):**
+  - **large/mid: +17.1 bps/mo vs cap-seg EW, net t=1.40** (gross t=1.78); **FF5+UMD alpha
+    +102 bps/mo, t=1.89**; net Sharpe 0.52; **post-2015 t=1.30** (edge persists).
+  - micro: **-3.2 bps/mo vs EW, net t=-0.20** — nothing net of costs; FF5+UMD alpha +76
+    bps/mo (t=1.39). Null in microcap, exactly as the review/literature predicted.
+- **Gate (deploy):** DSR **0.258** (<0.95), PBO **0.414** (<0.5, computed for real), vs
+  cumulative n=24 (18 + 6 configs). Deploy verdict **NOT MET** — as expected.
+
+### Verdict: **FIRST NON-REJECT (weak-positive prior, cap-segment-correct).**
+By the pre-registered *kill conditions*: C1 no leak (PASS), C2 no confound, C3 NOT triggered
+(opp net t=1.40>1 in large/mid — the signal is NOT killed), C4 NOT decayed (post-2015 t=1.30).
+So this is the project's first signal to survive its own kill conditions. It does **NOT** clear
+the stricter *deploy* gate (DSR 0.26 ≪ 0.95) — nor was it expected to (a ~17 bps/mo or even
+102 bps/mo FF-alpha edge needs far more than 199 months to reach t>3.4). **This is a weak
+POSITIVE PRIOR, not a discovery:** t=1.40 and FF-alpha t=1.89 are below conventional
+significance; the 61% ticker match and the ADV-proxy cost model are limitations.
+
+**The single most important finding:** the edge lives in **large/mid caps, NOT microcaps** —
+vindicating the v2 cap-segment fix. Had I kept the original microcap assumption I'd have
+recorded a false REJECT (micro net t=-0.20). Per the win condition, this graduates to
+**forward-ledger opportunistic-insider-cluster calls** (needs live 2026 Form-4 data — the
+immediate next build). Backtest sets the prior; the forward record earns conviction.

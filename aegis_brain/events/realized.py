@@ -53,7 +53,14 @@ def market_adjusted_forward_return(ticker: str, event_date, horizon_days: int) -
         return None
     px = px[px.index.date >= ev]
     spy = spy[spy.index.date >= ev]
-    if len(px) < horizon_days + 1 or len(spy) < horizon_days + 1:
+    # Audit M5: align on SHARED trading sessions before taking positions 0 and horizon.
+    # A stock halt around a catalyst (CRL, M&A) that SPY doesn't share would otherwise
+    # make the stock's "day h" a later calendar date than SPY's — mismatched windows
+    # exactly when the event matters. Intersect indices so both legs cover one window.
+    common = px.index.intersection(spy.index)
+    px = px.loc[common]
+    spy = spy.loc[common]
+    if len(common) < horizon_days + 1:
         return None  # not yet matured (or thin data) → pending
     stock_ret = float(px.iloc[horizon_days] / px.iloc[0] - 1.0)
     bench_ret = float(spy.iloc[horizon_days] / spy.iloc[0] - 1.0)

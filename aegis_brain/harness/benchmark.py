@@ -41,6 +41,7 @@ def factor_alpha(port_excess: pd.Series, factors: pd.DataFrame,
     its Newey-West t-stat (the intercept test). `factors` is indexed like port_excess
     (monthly). Alpha is monthly; ann_alpha = alpha*12."""
     df = pd.concat([port_excess.rename("y"), factors[cols]], axis=1).dropna()
+    df = df.astype(float)  # coerce nullable Float64 -> plain float for numpy matrix ops
     if len(df) < 24:
         return {"alpha_m": None, "t_alpha": None, "n": len(df)}
     y = df["y"].values

@@ -32,8 +32,12 @@ per-session detail in docs/SESSION_*.md.
   net of 25 bps; **turnover drag (~45 bps/mo) is the killer** → hold-band added.
 - **BRAIN-002** (CRSP, hold-band) — **REJECT (2026-07-21).** First paper-grade backtest.
   Price big-three GBM-ranked don't beat the EW CRSP universe net of 25 bps (net excess
-  t=-2.80); leak check PASSED (noise gross |t|<3) so it's a real negative. Price factors
-  permanently demoted to combiner-input-only. Matches lit (Chen-Velikov, Martineau).
+  t=-2.80); leak check PASSED. Price factors permanently demoted to combiner-input-only.
+- **BRAIN-003** (opportunistic insider, CRSP) — **FIRST NON-REJECT (2026-07-21).**
+  Survives its kill conditions in **large/mid caps** (+17 bps/mo vs EW t=1.40; FF5+UMD
+  alpha +102 bps/mo t=1.89; post-2015 t=1.30), **null in microcap** (t=-0.20) — vindicating
+  the cap-segment fix. Leak check PASSED (noise gross |t|<3); PBO 0.41. Does NOT clear the
+  deploy gate (DSR 0.26) — expected. A weak-positive prior, graduates to forward-ledger calls.
 
 ## The one blocker — CLEARED (2026-07-21)
 

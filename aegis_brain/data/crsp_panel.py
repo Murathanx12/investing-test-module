@@ -29,7 +29,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from aegis_brain.data.eodhd_panel import Panel
+from aegis_brain.data.eodhd_panel import RET_CAP, RET_FLOOR, Panel
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +85,19 @@ def build_crsp_panel(df: pd.DataFrame) -> Panel:
             "-55%% NASDAQ perf, -30%% NYSE/AMEX perf, 0 otherwise)",
             int(missing_dl.sum()),
         )
-    ret = df["ret"]
+    # Hygiene (audit H1): CRSP encodes some missingness as sentinel numerics and can
+    # carry a stray impossible return; the paper-grade panel must guard like the EODHD
+    # one does. Coerce ret/dlret < -100% to NaN BEFORE compounding, then null any final
+    # total outside [RET_FLOOR, RET_CAP]. Counts are surfaced by the build script.
+    ret = df["ret"].where(df["ret"] >= RET_FLOOR)
+    dlret = dlret.where(dlret >= RET_FLOOR)
     total = (1 + ret.fillna(0.0)) * (1 + dlret.fillna(0.0)) - 1
     total = total.where(~(ret.isna() & dlret.isna()))
+    n_impossible = int(((total < RET_FLOOR) | (total > RET_CAP)).sum())
+    if n_impossible:
+        logger.warning("nulled %d impossible CRSP total returns (outside [%s, %s])",
+                       n_impossible, RET_FLOOR, RET_CAP)
+    total = total.where((total >= RET_FLOOR) & (total <= RET_CAP))
     df["total_ret"] = total
 
     df["price"] = df["prc"].abs()  # negative prc = bid/ask midpoint flag

@@ -214,10 +214,15 @@ def _parse_sec_date(series: pd.Series) -> pd.Series:
         parts = v.replace("/", "-").split("-")
         if len(parts) == 3 and parts[1].upper() in _MONTHS:  # DD-MON-YYYY
             try:
+                year = int(parts[2])
+                # SEC data carries typo'd years (e.g. '0013' for 2013) that overflow
+                # the ns-datetime range and would otherwise crash the whole quarter.
+                if not 1900 <= year <= 2100:
+                    return None
                 return pd.Timestamp(
-                    year=int(parts[2]), month=_MONTHS[parts[1].upper()], day=int(parts[0])
+                    year=year, month=_MONTHS[parts[1].upper()], day=int(parts[0])
                 )
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, OutOfBoundsDatetime):
                 return None
         return None
 
@@ -227,7 +232,7 @@ def _parse_sec_date(series: pd.Series) -> pd.Series:
         out.loc[unresolved] = pd.to_datetime(
             s[unresolved], errors="coerce"
         )
-    return pd.to_datetime(out)
+    return pd.to_datetime(out, errors="coerce")
 
 
 def _detect_10b51_column(cols: list[str]) -> Optional[str]:
