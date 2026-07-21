@@ -38,5 +38,23 @@ names** — ~40/60 against clearing net t>1.
 3. Revision edge not incremental to SUE (nested-test coefficient t < 1) → flagged redundant.
 4. Deploy gate: t > 3.4 AND DSR ≥ 0.95 AND PBO < 0.5 (expected unmet).
 
-## Result (filled AFTER the run — never edited)
-- Arm C leak · Arm B/A · large/mid | micro · FF alpha · incremental-vs-SUE · verdict:
+## Result (filled AFTER the run 2026-07-21 — never edited)
+Data: 921,925 revision-panel rows (IBES FY1 statpers), 68.9% permno match, numest≥2 kept.
+
+**v1 run VOIDED by the leak bar (a real bug, transparently):** the first run benchmarked the
+analyst-covered portfolios against the FULL eligible universe. Covered names systematically
+outperform uncovered, so the noise arm (random covered names) beat the benchmark: **noise
+GROSS t = 4.02 (large/mid), 5.87 (micro) ≥ 3 → kill condition 1 (leak) → VOID.** The two-arm
+design caught a benchmark-mismatch bias that would otherwise read as revision alpha.
+
+**Instrument fixed once (benchmark = coverage-universe EW, `flag_portfolio` coverage param),
+re-run once — final:**
+- **Arm C (noise) leak check: PASS** — gross t = 0.28 (large/mid), 1.38 (micro), both <3.
+  (The fix eliminated the leak — direct confirmation of the diagnosis.)
+- **Arm B (top revisions):** large/mid -4.0 bps/mo net (t=-0.48), micro -29.2 bps/mo (t=-3.37).
+  Both < 1. The apparent edge in v1 was ENTIRELY the covered-vs-full-universe bias.
+- Arm B − Arm A spread net t = 0.35. Gate: DSR 0.294, PBO 0.057, REJECT.
+
+### Verdict: **REJECT.** Once benchmarked against the analyst-covered universe it lives in,
+revision momentum does NOT beat holding all covered names net of costs. A clean example of the
+leak bar preventing a false positive. Not promoted; the incremental-vs-SUE test is moot (no edge).

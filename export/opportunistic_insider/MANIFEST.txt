@@ -1,0 +1,3 @@
+aegis-brain promotion bundle for 'opportunistic_insider' generated 2026-07-21.
+Review, then a human commits TRIAL_DRAFT.md + registry_row.json into aegis-finance
+and wires the scorer into a forward collector. The brain never writes across the firewall.

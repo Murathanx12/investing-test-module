@@ -9,8 +9,14 @@ quintile, etc.). This module never look-ahead: it earns ret.shift(-1) on info th
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pandas as pd
+
+# Nullable-Float64 comparisons against NA thresholds warn (invalid value in less_equal)
+# but produce the correct NA->False result; silence the cosmetic flood.
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="pandas")
 
 from aegis_brain.harness.benchmark import factor_alpha, load_ff_factors, newey_west_tstat
 from aegis_brain.harness.costs import one_way_cost_bps
@@ -36,10 +42,15 @@ def quintile_flag(signal: pd.DataFrame, eligible: pd.DataFrame, top: bool = True
     return s.le(thr, axis=0) & eligible
 
 
-def backtest_arm(held, eligible, seg, ret_fwd, dvol, min_names: int = 20) -> dict:
-    """One arm x segment: long-only EW, ADV cost on traded fraction, cap-seg EW benchmark."""
+def backtest_arm(held, eligible, seg, ret_fwd, dvol, min_names: int = 20,
+                 coverage=None) -> dict:
+    """One arm x segment: long-only EW, ADV cost on traded fraction, benchmarked to the EW
+    of the SIGNAL'S COVERAGE UNIVERSE within the segment. Benchmarking a subset-defined
+    signal (e.g. analyst-covered names) against the FULL universe conflates 'covered beats
+    uncovered' with 'high-signal beats low-signal' — a bias the noise arm's gross-t bar
+    catches (BRAIN-005 v1). Pass `coverage` (the names that COULD be selected); None = full."""
     held = held & eligible & seg
-    bench_pool = eligible & seg
+    bench_pool = (eligible & seg) if coverage is None else (eligible & seg & coverage)
     cost_bps = one_way_cost_bps(dvol)
 
     valid = held & ret_fwd.notna()                      # M4: only investable names
@@ -72,7 +83,7 @@ def backtest_arm(held, eligible, seg, ret_fwd, dvol, min_names: int = 20) -> dic
 
 
 def run_arms(panel, arms: dict, start: str, end: str, ff_dir,
-             min_names: int = 20, factor_alpha_arms=("B",)) -> dict:
+             min_names: int = 20, factor_alpha_arms=("B",), coverage=None) -> dict:
     """Run each arm across two cap segments (large/mid vs micro), compute PBO across the
     batch, DSR against the honest config count, and FF5+UMD alpha for the requested arms.
     `arms` maps arm-label -> already-hold-banded boolean [month x permno]."""
@@ -85,12 +96,14 @@ def run_arms(panel, arms: dict, start: str, end: str, ff_dir,
     med = dv_e.median(axis=1)
     segs = {"large_mid": elig & dv_e.ge(med, axis=0), "micro": elig & dv_e.lt(med, axis=0)}
     ff = load_ff_factors(ff_dir)
+    cov = coverage.reindex(index=months, columns=panel.monthly_ret.columns, fill_value=False) \
+        if coverage is not None else None
 
     results, nets = {}, []
     for aname, held in arms.items():
         held = held.reindex(index=months, columns=panel.monthly_ret.columns, fill_value=False)
         for sname, seg in segs.items():
-            r = backtest_arm(held, elig, seg, ret_fwd, dvol, min_names)
+            r = backtest_arm(held, elig, seg, ret_fwd, dvol, min_names, coverage=cov)
             nets.append(r["net"].rename(f"{aname}_{sname}"))
             summ = {k: v for k, v in r.items() if k not in ("net", "excess_net")}
             if aname in factor_alpha_arms:

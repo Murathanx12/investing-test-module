@@ -44,5 +44,18 @@ PEAD ~5%/quarter top-decile spread in 1980s-90s; largely gone for liquid names s
 3. Arm B − Arm A spread net t < 1 → no tradeable drift (the direct PEAD test).
 4. Deploy gate: t > 3.4 AND DSR ≥ 0.95 AND PBO < 0.5 (expected unmet).
 
-## Result (filled AFTER the run — never edited)
-- Arm C leak · Arm B/A spread · large/mid | micro · FF alpha · verdict:
+## Result (filled AFTER the run 2026-07-21 — never edited)
+Data: 671,955 SUE events (Compustat rdq + IBES), 74.6% permno match, sue_ts on 71.8%.
+Benchmark = SUE-coverage-universe EW within segment (the announcing names).
+
+- **Arm C (noise) leak check: PASS** — gross excess t = -0.03 (large/mid), 0.17 (micro), both <3.
+- **Arm B (top SUE):** large/mid +3.5 bps/mo net (t=0.23), micro -12.7 bps/mo (t=-0.83).
+  Micro GROSS t=3.02 (real gross PEAD survives in microcap) but DEAD net of costs.
+  FF5+UMD alpha large/mid +80 bps/mo (t=1.97) — suggestive but not the pre-registered metric.
+- **Arm B − Arm A spread net t = 0.54** (the direct PEAD test) < 1 → no tradeable drift.
+- Gate: DSR 0.245, PBO 0.114, REJECT.
+
+### Verdict: **REJECT** (kill cond 2: B net t<1 both segments; kill cond 3: spread t<1).
+Classic PEAD confirmed dead net of costs — strong GROSS surprise-drift in microcaps (gross
+t=3.02) entirely eaten by turnover/spread, exactly as Martineau ("Rest in Peace PEAD") and
+Chen-Velikov predict. Leak-checked clean. Not promoted.

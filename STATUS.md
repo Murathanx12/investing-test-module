@@ -34,10 +34,16 @@ per-session detail in docs/SESSION_*.md.
   Price big-three GBM-ranked don't beat the EW CRSP universe net of 25 bps (net excess
   t=-2.80); leak check PASSED. Price factors permanently demoted to combiner-input-only.
 - **BRAIN-003** (opportunistic insider, CRSP) — **FIRST NON-REJECT (2026-07-21).**
-  Survives its kill conditions in **large/mid caps** (+17 bps/mo vs EW t=1.40; FF5+UMD
-  alpha +102 bps/mo t=1.89; post-2015 t=1.30), **null in microcap** (t=-0.20) — vindicating
-  the cap-segment fix. Leak check PASSED (noise gross |t|<3); PBO 0.41. Does NOT clear the
-  deploy gate (DSR 0.26) — expected. A weak-positive prior, graduates to forward-ledger calls.
+  Survives kill conditions in **large/mid caps** (+17 bps/mo vs EW t=1.40; FF5+UMD alpha
+  +102 bps/mo t=1.89; post-2015 t=1.30), **null in microcap** — vindicating the cap fix.
+  Leak PASSED; PBO 0.41; deploy gate NOT met (DSR 0.26). Weak-positive prior. **PROMOTABLE**
+  (`export/opportunistic_insider/`, scorer `signals/insider_scorer.py`).
+- **BRAIN-004** (PEAD/SUE) — **REJECT.** Strong gross surprise-drift in microcap (gross t=3.0)
+  dead net of costs (B net t<1 both segs; B-A spread t=0.54). Leak-checked clean.
+- **BRAIN-005** (revisions) — **REJECT.** Leak bar caught a benchmark-mismatch bias (noise gross
+  t 4.0/5.9 → void); fixed (coverage-universe benchmark), re-run → the "edge" was the bias, not
+  signal (B net t<1). A clean false-positive save.
+- **BRAIN-007** (fusion) — **NOT RUN.** Only 1 signal survived; fusion needs ≥2. Re-opens later.
 
 ## The one blocker — CLEARED (2026-07-21)
 

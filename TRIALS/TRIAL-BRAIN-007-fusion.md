@@ -30,5 +30,15 @@ top-quintile in the large/mid segment, earns positive net excess vs a cap-seg EW
 3. Composite does not beat the best single member's net t → fusion adds nothing (flagged).
 4. Deploy gate: t > 3.4 AND DSR ≥ 0.95 AND PBO < 0.5 (expected unmet on this history).
 
-## Result (filled AFTER the run — never edited)
-- Members · composite net t · vs best single · leak · verdict:
+## Result (2026-07-21 — never edited)
+**Members qualifying (survived their OWN kill conditions): 1 — `opportunistic_insider` only.**
+BRAIN-004 (PEAD) REJECT and BRAIN-005 (revisions) REJECT, so per the frozen membership rule
+they are excluded (including them would be selecting weak/negative-net signals into the fusion —
+exactly the hidden selection this pre-registration forbids).
+
+### Verdict: **NOT RUN — insufficient surviving members.**
+A fusion needs ≥2 survivors to test diversification-of-alpha; with a single survivor the
+equal-weight composite is identical to BRAIN-003 and would only reproduce it. Recorded as
+not-run (honest) rather than forcing rejected signals in to manufacture a "fusion." The trial
+re-opens automatically when a second signal survives its kill conditions (e.g. a future FDA or
+LLM-narrative signal). The pre-registration and its trial-count (n=21) stand.

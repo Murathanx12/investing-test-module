@@ -1,0 +1,9 @@
+{
+  "name": "TRIAL-OPPORTUNISTIC_INSIDER-forward",
+  "hypothesis": "Long large/mid-cap stocks with a non-routine (Cohen-Malloy-Pomorski) open-market insider PURCHASE filed recently; low-turnover ~12mo hold.",
+  "expected_effect": "BRAIN-003 (2006-2024): large/mid +17 bps/mo vs EW (t=1.40), FF5+UMD alpha +102 bps/mo (t=1.89), post-2015 t=1.30; NULL in microcap. Leak-checked (noise gross|t|<3). Weak POSITIVE PRIOR \u2014 does not clear deploy gate (DSR 0.26).",
+  "kill_condition": "net t<1 both cap segments = kill; noise gross|t|>=3 = leak void",
+  "source_module": "aegis-brain",
+  "source_trial": "TRIALS/TRIAL-BRAIN-003-opportunistic-insider.md",
+  "drafted_at": "2026-07-21"
+}

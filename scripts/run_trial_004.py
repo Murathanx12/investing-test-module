@@ -53,7 +53,8 @@ def main() -> None:
             F_N.loc[m, rng.choice(pool, size=min(k, len(pool)), replace=False)] = True
 
     arms = {"B": hold_band(F_B, HOLD), "A": hold_band(F_A, HOLD), "noise": hold_band(F_N, HOLD)}
-    res = run_arms(panel, arms, START, END, MODULE_ROOT / "data", factor_alpha_arms=("B", "A"))
+    res = run_arms(panel, arms, START, END, MODULE_ROOT / "data",
+                   factor_alpha_arms=("B", "A"), coverage=announcer)
 
     best = res["best_B_segment"]
     spread = (res["nets"][f"B_{best}"] - res["nets"][f"A_{best}"]).dropna()
