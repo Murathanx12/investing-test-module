@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis-brain"
+version = "1.0.0"
+description = "Aegis Investor Brain — calibrated hypothesis engine (event-driven equity signals, forward calibration ledger)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "pyarrow",
+    "requests",
+]
+
+[project.optional-dependencies]
+# Heavier / optional lanes: WRDS pulls, LightGBM ranker, live pricing, tests.
+full = ["wrds", "lightgbm", "yfinance", "openpyxl", "pytest"]
+
+[tool.setuptools]
+packages = ["aegis_brain"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
