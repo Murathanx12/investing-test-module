@@ -1,7 +1,9 @@
-"""Download all SEC Insider Transactions quarterly zips 2006Q1..2024Q4.
+"""Download all SEC Insider Transactions quarterly zips, 2006Q1 to the present.
 
 Paced under SEC's 10 req/s fair-access cap; skips already-downloaded quarters so it
-is resumable. Data lands in data/sec_insider/ (git-ignored). ~76 quarters.
+is resumable. Data lands in data/sec_insider/ (git-ignored). This is step 1 of the
+quarterly artifact refresh (download -> build_insider_panel -> export_routine_history);
+quarters SEC has not published yet fail with a harmless 404.
 
 Usage:  .venv\\Scripts\\python -m scripts.download_insider
 """
@@ -10,6 +12,7 @@ from __future__ import annotations
 
 import sys
 import time
+from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -18,7 +21,7 @@ from aegis_brain.config import MODULE_ROOT
 from aegis_brain.events.insider import download_quarter
 
 DEST = MODULE_ROOT / "data" / "sec_insider"
-START_YEAR, END_YEAR = 2006, 2024
+START_YEAR, END_YEAR = 2006, date.today().year
 
 
 def main() -> None:

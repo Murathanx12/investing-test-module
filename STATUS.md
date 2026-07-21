@@ -1,10 +1,23 @@
 # Aegis Investor Brain — Status Snapshot
 
-**As of:** 2026-07-20 · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Tests:** 35 green · **Cumulative trial count:** 17 (14 main-repo base + 3 local)
+**As of:** 2026-07-21 (post-v1.0) · **Repo:** https://github.com/Murathanx12/investing-test-module
+**Tests:** 61 green · **Cumulative trial count:** 21 (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
+
+## 2026-07-21 (PM): PROMOTION EXECUTED — BRAIN-003 is live in aegis-finance
+
+The INTEGRATION.md protocol ran end-to-end (human-authorized "adopt it"):
+- Insider panel EXTENDED 2006→**2026Q1** (5 new SEC quarters + re-classify;
+  852,512 purchases, 107,351 opportunistic; panel_end 2026-03-31).
+- New `scripts/export_routine_history.py` → compact live-classification artifact
+  (`cmp_routine_history.json.gz`, 25,020 insiders + 3,648 recent opportunistic
+  buys, 0.22 MB) — closes the live false-zero gap the bundled scorer had.
+- aegis-finance side: TRIAL-CMP-INSIDER-IC pre-registered (registry + doc),
+  `insider_cmp:` forward collector wired beside the T9 clock. Forward IC clock
+  runs from the next deploy. **Quarterly maintenance:** re-run download →
+  build_insider_panel → export_routine_history, re-commit the artifact there.
 
 ## Pipeline status (L0 → L5)
 
