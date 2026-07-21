@@ -15,13 +15,14 @@ per-session detail in docs/SESSION_*.md.
 | L0 data | Compustat annual + quarterly, CCM link, IBES | ✅ harvested → `data/wrds_raw/` (fundamentals, rdq, revisions) |
 | L1a events | openFDA approval feed | ✅ harvested 16,195 events 2002-2026 (2,742 NDA/BLA) |
 | L1a events | sponsor→ticker PIT mapping | ⬜ next — CCM link + IBES cusip now available offline |
-| L1b/c narrative + hypothesis | LLM perception layer | ⬜ not started (Phase 2+) |
+| L1b/c narrative + hypothesis | **LLM perception (DeepSeek)** | ✅ built — neutered situation→calibrated P, forward-only, never allocates |
 | L2 signals | GKX price big-three | ✅ built (dead net of costs — see trials) |
-| L2 signals | insider / PEAD / supplier | ⬜ next, each a new pre-registered trial |
+| L2 signals | **insider collector (SEC bulk)** | ✅ built + 10 tests (CMP routine/opp classifier); BRAIN-003 run pending |
+| L2 signals | PEAD / revisions / supplier | ⬜ next, each a new pre-registered trial |
 | L3 combiner | shallow GBM + ≤2-layer MLP ranker | ✅ built |
 | L4 gate | DSR vs cumulative n, PBO, survivorship bound | ✅ built |
 | L4 harness | walk-forward + costs + **hold-band turnover control** | ✅ built |
-| L5 forward | **event ledger** (Brier calibration record) | ✅ core built + tested |
+| L5 forward | **event ledger — FORWARD CLOCK RUNNING** | ✅ 7 real pre-registered PDUFA calls (Jul-Sep 2026); Brier-scored via yfinance at maturity |
 | L5 forward | promotion to main-repo forward clocks | ⬜ manual, when a candidate survives |
 
 ## Trials run (all pre-registered, results final)
