@@ -1,81 +1,111 @@
-# TRIAL-BRAIN-003-opportunistic-insider
+# TRIAL-BRAIN-003-opportunistic-insider  (v2 — revised before any data)
 
-**Registered:** 2026-07-21 (UTC) — BEFORE any SEC Form-4 data is fetched, parsed, or
-matched to returns. No insider return has been seen by the experimenter or any code.
-**Registry row:** `TRIALS/registry.jsonl` (cumulative n → 18)
-**Grade:** paper-grade backtest (CRSP returns). Still a direction-check, not a forward result.
+**Registered:** 2026-07-21 (UTC). **Revised:** 2026-07-21, still BEFORE any SEC insider
+datum has been fetched, parsed, or joined to a return (the collector is under construction;
+no data observed). Revision is in response to *external methodological review* (five-AI
+audit), NOT to any data — so pre-registration integrity holds. Changes from v1 are logged
+in "Revision log" below.
+**Registry row:** `TRIALS/registry.jsonl` (cumulative n = 18)
+**Grade:** paper-grade backtest (CRSP returns) — a *prior-setting* run, not a deploy gate (see "Win condition").
+
+## Win condition (reframed — read first)
+The backtest gate (below) may be **structurally unclearable** for a single-digit-bps/month
+net edge on ~18 years of data: a net Sharpe of 0.5 needs ~33yrs to reach t=3.4. So passing
+the gate is **not** the definition of success and its likely failure is **not** a project
+dead-end. The backtest does two honest jobs only: (a) kill an obviously-dead idea, (b) set a
+defensible prior + effect-size estimate. **Conviction is earned forward**, by the calibration
+ledger (`events/ledger.py`) scoring pre-registered insider-cluster calls. This trial FEEDS
+that ledger; it does not gate deployment.
 
 ## Hypothesis
-On survivorship-free CRSP 2004→2024, a monthly long-only portfolio of microcap-tilted
-stocks that had an **opportunistic** insider **open-market purchase** in the trailing month
-(traded at the FILING date, held with a turnover band) produces positive net-of-cost excess
-vs the eligible-universe EW. Mechanism (Cohen-Malloy-Pomorski 2012): routine insider trades
-(diversification/liquidity/comp-scheduled) are uninformative; the residual *opportunistic*
-purchases predict future news and earnings, and the effect is concentrated in small caps and
-decays slowly (1–6 months), so it can plausibly survive turnover costs where price factors
-(BRAIN-002) could not.
+On survivorship-free CRSP 2006→2024, a long-only portfolio of stocks that had an
+**opportunistic, non-10b5-1** insider **open-market purchase** in the trailing window
+(entered at the FILING date, low-turnover long hold), earns positive net-of-cost abnormal
+return vs a size/characteristic-matched benchmark. Mechanism (Cohen-Malloy-Pomorski 2012):
+routine trades are uninformative; the residual opportunistic *purchases* signal private
+conviction and predict future fundamentals.
 
-## Literature prior
-CMP (JF 2012): opportunistic long-short ≈ **82 bps/mo value-weighted** (~180 bps EW),
-routine ≈ 0; sample 1986–2007. Lakonishok-Lee: insider-buy effect ~7–8%/12mo, almost
-entirely small-cap. Post-SOX (Aug 2002) Form-4 filed within 2 business days, so the info is
-public fast and widely scraped — the residual edge now lives in low-attention microcaps.
-**Honest prior: ~55/45 FOR** net survival (the best-net candidate in the methodology, but
-scraping has compressed it; long-only + microcap-only + 25 bps is a real test).
+## Literature prior & the cap-segment question (the key v2 fix)
+CMP (JF 2012): opportunistic ≈ **82 bps/mo VALUE-WEIGHTED** (~180 bps EW), routine ≈ 0.
+**Crucial nuance surfaced in review:** value-weighted ⇒ large-cap-tilted, and the
+outsider-mimicking literature (Rozeff-Zaman; the Australian director-trades study) finds
+tracking insider trades net of costs works in **large/mid caps** and can **lose** in
+microcaps — insiders hide their trades in liquid flow. The low-turnover "not-sold"/long-hold
+variants survive net (CAPM α ~47 bps/mo, 4-factor ~53 bps at the 1-year horizon).
+**So we do NOT assume microcap.** We test cap segments as explicit arms and let the data say
+where (if anywhere) the net edge lives. Honest prior: ~50/50 that *some* segment clears a
+weak net-positive; large/mid more likely than micro.
 
 ## Expected effect size
-Arm B (opportunistic): +20 to +70 bps/mo net excess; net Sharpe 0.3–0.8 if real.
-Arm A (routine): ≈ 0 by construction (the placebo).
+Opportunistic arm: +20 to +60 bps/mo net abnormal in its best cap segment; routine ≈ 0.
 
-## Signal & classification (frozen definitions)
-- **Source:** SEC EDGAR Form 4 filings, 2004→2024 (start 2004 so a 3-year trading history
-  exists to classify insiders from ~2007; 2004–2006 accrue history only).
-- **Transactions kept:** non-derivative **open-market purchases only — transaction code `P`**
-  (Table 1). Codes A/M/F/G/S (grants, option exercises, tax-withholding, sells) excluded.
-- **Routine vs opportunistic (CMP, point-in-time):** an insider is **routine** for a given
-  trade if they placed a trade in the **same calendar month in ≥3 consecutive prior years**;
-  otherwise **opportunistic**. Insiders without a classifiable 3-year history are dropped
-  (not defaulted to opportunistic) — the conservative choice, pre-committed here.
-- **Event timing:** the signal fires on the **filing date** (`observed_at`), never the
-  transaction date. A stock is "flagged" for month M if ≥1 qualifying purchase was *filed*
-  in the trailing ~21 trading days.
-- **Issuer→CRSP mapping (PIT):** issuer CIK → ticker via the SEC CIK↔ticker map, matched to a
-  CRSP `permno` through `msenames` ticker history **as of the filing date** (handles ticker
-  reuse/changes). Microcap matches are hand-audited against the filing; ambiguous matches are
-  dropped and the drop count reported. (A supplementary `comp.company` cik↔gvkey pull may be
-  used to cross-check via the CCM link — one clean WRDS read if needed.)
-- **Herding note (reported, not gating):** also record #distinct opportunistic buyers per
-  stock-month for a later conditioning study; the primary signal is the binary flag.
+## Signal & classification (frozen)
+- **Source:** SEC **Insider Transactions Data Sets** (quarterly flat files, 2006→2024) —
+  the tractable bulk source (millions of Form-4 XMLs are infeasible at 10 req/s).
+- **Kept transactions:** non-derivative **open-market purchases only** — `TRANS_CODE='P'`
+  and `TRANS_ACQUIRED_DISP_CD='A'`. Grants/exercises/tax/sells excluded.
+- **10b5-1 exclusion (v2 add) — DATA LIMITATION, reported not hidden:** the SEC *bulk flat
+  files* carry NO 10b5-1 column in any year (verified against SEC's schema readme); the
+  checkbox lives only in the raw per-filing XML, and only from 2023-04-01. So the bulk-file
+  study CANNOT apply a 10b5-1 filter historically. Mitigation: the CMP routine/opportunistic
+  classifier already removes the bulk of scheduled/plan-like trades (routine = same-month
+  repeat buyer); a future raw-XML pass can add the explicit 10b5-1 drop for the 2023+ tail.
+  This gap is a pre-committed known limitation, not a silent one.
+- **Routine vs opportunistic (CMP, point-in-time):** an insider (by reporting-owner CIK) is
+  **routine** for a purchase if they bought in the **same calendar month in ≥3 consecutive
+  prior years**; **opportunistic** otherwise. Insiders without a 3-year history are
+  `is_classifiable=False` and DROPPED (not defaulted to opportunistic).
+- **Clustering (reported):** #distinct opportunistic buyers per issuer-month — a conviction
+  intensity used for the forward-ledger calls; primary backtest signal is the binary flag.
+- **Timing:** signal fires on the **FILING date** (`observed_at`), never the transaction date.
+- **Issuer→CRSP (PIT):** issuer CIK → ticker → CRSP `permno` via `msenames` ticker history as
+  of the filing date; cross-check via `comp.company` cik↔gvkey + CCM link where possible.
+  Ambiguous matches dropped; match-rate + drop-count reported.
 
-## Arms (two-arm leak design)
-- **Arm A — routine-insider buys (the placebo / expected-loss arm).** CMP says routine ≈ 0.
-  If Arm A shows an edge comparable to Arm B, the alpha is NOT coming from the classification
-  → confound/leak, and the result is void.
-- **Arm B — opportunistic-insider buys** (the hypothesis).
-- **Arm C — noise control** (random flag matched to Arm B's monthly count) for the gross-t
-  leak bar, same as BRAIN-000/001/002.
+## Arms
+- **Arm A — routine buys (placebo / expected-loss).** CMP: routine ≈ 0. If Arm A ≈ Arm B, the
+  classification isn't the alpha source → confound, void.
+- **Arm B — opportunistic buys** (hypothesis).
+- **Arm C — noise control** (random flag matched to Arm B's monthly count) — gross-t leak bar.
+- **Cap segments (v2):** run Arm A & B in **two segments — large/mid (top 70% NYSE-cap)** and
+  **micro (bottom 30%)** — pre-registered, reported side by side. No microcap assumption.
 
 ## Run spec (frozen)
-- Panel: `data/crsp_panel_2002` (paper-grade CRSP), restricted to 2004→2024.
-- Eligibility: price ≥ $1, daily-equiv dollar volume ≥ $200k (config defaults); microcap-tilted.
-- Construction: monthly rebalance, long-only, equal-weight the flagged names, **hold-band 30%**
-  (keep a name while it stays flagged within the band), `cost_bps_one_way=25`,
-  `min_names_per_month=20` (insider flags are sparser than price deciles).
-- Benchmark: eligible-universe EW. Metric: net excess mean + t, gross excess t, net Sharpe,
-  DSR vs cumulative n=18, PBO where computable. ONE run. Results final.
+- Panel: `data/crsp_panel_2002`, restricted 2006→2024. Long-only, equal-weight the flagged names.
+- **Primary spec = LOW turnover / long hold:** 12-month hold with a hold-band; monthly entry.
+  (The net-surviving insider variants are the low-turnover ones.) A 3-month-hold secondary is
+  reported for decay shape only.
+- **Cost model (v2): ADV/spread-conditional, not flat 25 bps.** Per-name one-way cost =
+  max(25 bps, k · effective-spread proxy), with a microcap penalty scaling on inverse
+  dollar-volume (a $50M name can carry ~150 bps). Implemented in `harness/costs.py`; the flat
+  25 bps run is reported alongside as the optimistic bound.
+- Benchmark: size/characteristic-matched EW within the same cap segment (not the whole universe).
+- Metrics: net abnormal mean + t, gross t (leak bar), net Sharpe, **DSR vs cumulative n=18**,
+  PBO where computable. ONE run per arm×segment. Results final.
 
 ## Kill conditions (pre-committed)
-1. **Arm C (noise) GROSS excess |t| ≥ 3** → pipeline leak, all results void.
-2. **Arm A (routine) net excess t ≥ 2** (a real edge where theory says none) AND within
-   0.5 t of Arm B → classification is not the alpha source → confound, void/flag.
-3. **Arm B (opportunistic) net excess t < 1** (full window) → REJECT; published negative.
-4. **Arm B post-2015 net excess t < 0.5** → flagged "decayed — do not promote" even if the
-   full-window t clears 1 (scraping-compression check).
+1. **Arm C (noise) GROSS |t| ≥ 3** → pipeline leak, all results void.
+2. **Arm A (routine) net t ≥ 2 AND within 0.5t of Arm B (same segment)** → classification not
+   the alpha source → confound, void/flag.
+3. **Arm B (opportunistic) net t < 1 in BOTH cap segments** (full window) → backtest REJECT
+   (published negative). NOTE: a backtest REJECT still permits forward-ledger calls — the
+   win condition is forward, not the gate.
+4. **Arm B best-segment post-2015 net t < 0.5** → flagged "decayed — forward-only, no
+   backtest promotion."
+- Deploy/promotion gate (separate, stricter): t > **3.4** (Chen-Zimmermann multiple-testing
+  threshold) AND DSR ≥ 0.95 AND PBO < 0.5 — expected to be unmet on backtest; that's fine.
+
+## Revision log (v1 → v2, pre-data, from five-AI review)
+1. Cap segments as explicit arms; **dropped the microcap assumption** (insider net edge tilts
+   large/mid). 2. Added **10b5-1 exclusion**. 3. Primary spec changed to **low-turnover 12-mo
+   hold**. 4. **ADV/spread-conditional cost model** replaces flat 25 bps. 5. Benchmark is now
+   **cap-segment characteristic-matched**. 6. Added the **forward-ledger win condition** and a
+   separate stricter deploy gate at **t>3.4**. 7. Window 2004→**2006** (SEC bulk data starts 2006).
 
 ## Result (to be filled AFTER the run — never edited afterwards)
 - Arm C (gross leak check):
-- Arm A (routine placebo):
-- Arm B (opportunistic) full:
-- Post-2015 sub-window:
-- Issuer→CRSP match rate / drops:
-- Verdict:
+- Arm A (routine placebo) — large/mid | micro:
+- Arm B (opportunistic) — large/mid | micro:
+- Post-2015 best segment:
+- Issuer→CRSP match rate / drops · 10b5-1 drop count:
+- Backtest verdict (prior) · forward-ledger calls opened:
