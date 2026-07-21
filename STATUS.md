@@ -29,8 +29,10 @@ per-session detail in docs/SESSION_*.md.
 - **BRAIN-000** (EODHD) — REJECT. Surfaced OTC adjusted-close corruption (→ clean universe).
 - **BRAIN-001** (EODHD clean) — REJECT on merits. GKX price factors don't beat universe
   net of 25 bps; **turnover drag (~45 bps/mo) is the killer** → hold-band added.
-- **BRAIN-002** (CRSP, hold-band) — **pre-registered (n=17), staged, WRDS-blocked.**
-  Spec frozen while the account was disabled (provably no data peeking).
+- **BRAIN-002** (CRSP, hold-band) — **REJECT (2026-07-21).** First paper-grade backtest.
+  Price big-three GBM-ranked don't beat the EW CRSP universe net of 25 bps (net excess
+  t=-2.80); leak check PASSED (noise gross |t|<3) so it's a real negative. Price factors
+  permanently demoted to combiner-input-only. Matches lit (Chen-Velikov, Martineau).
 
 ## The one blocker — CLEARED (2026-07-21)
 
