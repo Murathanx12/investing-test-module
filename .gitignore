@@ -8,12 +8,17 @@ venv/
 .ruff_cache/
 .coverage
 
-# Data & outputs — never commit market data or run artifacts
-data/
-runs/
+# Data & outputs — never commit market data or run artifacts.
+# Anchored with a leading slash so ONLY the repo-root data/ (and runs/) folders are
+# ignored — an unanchored "data/" also matched the aegis_brain/data/ SOURCE package
+# and silently kept the CRSP/WRDS loaders out of version control. *.parquet/*.db
+# below are the real belt-and-suspenders guard against any stray data file anywhere.
+/data/
+/runs/
 *.csv.gz
 *.parquet
 *.db
+*.xlsx
 
 # Env
 .env

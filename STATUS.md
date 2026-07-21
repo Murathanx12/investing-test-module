@@ -11,9 +11,10 @@ per-session detail in docs/SESSION_*.md.
 | Layer | What | Status |
 |---|---|---|
 | L0 data | EODHD panel (direction-check) | ✅ built + cached (`data/panel_2017`, `_clean`) |
-| L0 data | **CRSP panel (paper-grade)** | ✅ code ready · ⛔ **WRDS account disabled — blocked** |
+| L0 data | **CRSP panel (paper-grade)** | ✅ **BUILT** — 276 mo (2002→2024), 11,098 permnos, `data/crsp_panel_2002/` |
+| L0 data | Compustat annual + quarterly, CCM link, IBES | ✅ harvested → `data/wrds_raw/` (fundamentals, rdq, revisions) |
 | L1a events | openFDA approval feed | ✅ harvested 16,195 events 2002-2026 (2,742 NDA/BLA) |
-| L1a events | sponsor→ticker PIT mapping | ⬜ deferred (needs CRSP name history = WRDS) |
+| L1a events | sponsor→ticker PIT mapping | ⬜ next — CCM link + IBES cusip now available offline |
 | L1b/c narrative + hypothesis | LLM perception layer | ⬜ not started (Phase 2+) |
 | L2 signals | GKX price big-three | ✅ built (dead net of costs — see trials) |
 | L2 signals | insider / PEAD / supplier | ⬜ next, each a new pre-registered trial |
@@ -31,26 +32,24 @@ per-session detail in docs/SESSION_*.md.
 - **BRAIN-002** (CRSP, hold-band) — **pre-registered (n=17), staged, WRDS-blocked.**
   Spec frozen while the account was disabled (provably no data peeking).
 
-## The one blocker
+## The one blocker — CLEARED (2026-07-21)
 
-WRDS Duo account disabled 2026-07-20 after a library misconfig flooded failed logins
-(fixed in `wrds_conn.py`). Support ticket filed. **On re-enable, the whole critical path
-is one sequence** (see below). Requires HKU VPN on.
+WRDS account re-enabled by support; the whole harvest is done. Two Duo taps pulled
+CRSP + Compustat (annual/quarterly) + CCM link + IBES (~7.4M rows) in one session, and
+the CRSP paper-grade panel is built. **We now read local parquet — no more WRDS pulls.**
+TRIAL-BRAIN-002 is unblocked and runs fully offline.
 
-## Restart sequence when WRDS is back
+## Next: run the pre-registered trial (offline, no WRDS)
 
 ```
-# VPN on, then:
-.venv\Scripts\python -m scripts.build_crsp_panel        # ~2.6M rows -> data/crsp_panel_2002
-#   back up data/crsp_panel_2002 to OneDrive\AegisBackups
-.venv\Scripts\python -m scripts.run_trial_002           # ONE run -> record in trial doc
+.venv\Scripts\python -m scripts.run_trial_002    # ONE run on data/crsp_panel_2002 -> record in trial doc
 ```
 
 ## Backups (OneDrive\AegisBackups)
 
 - `eodhd_archive_2026-07-19.tar` (1.07 GB, 50,471 entries)
 - `fda_approvals_2026-07-20.parquet` (16,195 events)
-- CRSP panel — pending the fetch above
+- `wrds_2026-07-21/` (184 MB) — raw tables + built CRSP panel + `WRDS_DATA_PREVIEW.xlsx`
 
 ## Buildable now without WRDS (candidate next chunks)
 
