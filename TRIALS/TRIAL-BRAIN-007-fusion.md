@@ -42,3 +42,30 @@ equal-weight composite is identical to BRAIN-003 and would only reproduce it. Re
 not-run (honest) rather than forcing rejected signals in to manufacture a "fusion." The trial
 re-opens automatically when a second signal survives its kill conditions (e.g. a future FDA or
 LLM-narrative signal). The pre-registration and its trial-count (n=21) stand.
+
+## Result (2026-07-22 — re-opened by BRAIN-008's survival; ONE run, results final)
+
+Membership per the frozen rule: {opportunistic_insider (BRAIN-003), gross_prof
+(BRAIN-008)}. Ambiguities resolved a priori and committed before the run
+(`scripts/run_trial_007.py`): insider member = the 12-month-hold flag exactly as in
+BRAIN-003; composite book = 3-month rolling top-quintile membership; large/mid =
+003's above-median-dollar-vol definition; composite = mean of available member
+z-scores on the fundamentals-coverage universe. Window 2006-01..2024-12 (227 mo).
+
+| arm | names/mo | net excess bps/mo | NW t net | NW t gross |
+|---|---|---|---|---|
+| **composite** | 312 | **+15.3** | **1.66** | 2.02 |
+| single insider | 87 | +19.5 | 1.61 | 1.96 |
+| single gp | 307 | +14.7 | 1.46 | 1.77 |
+| noise (leak bar) | 694 | −0.8 | −0.22 | 1.36 ✓ (<3) |
+
+### Verdict: **SURVIVES — fusion beats the best single (1.66 vs 1.61), by a hair.**
+Kill 1 (leak) passed; kill 2 (net t<1) passed; kill 3 passed marginally. Honest
+reading: the diversification-of-alpha benefit is real but SMALL in t-stat terms;
+the substantive gain is capacity/diversification (312 names at the same t as an
+87-name book). Kill 4 deploy gate NOT met (t 1.66 << 3.4) — as expected. Note:
+`single_gp` earns t 1.46 here vs a NEGATIVE factory-scan largemid result because
+the frozen definitions differ (003's above-median segment ≈ top ~1560 names and
+quintile/3m-hold mechanics vs the factory's top-1000/decile) — both stand as
+recorded under their own registrations. Next step remains FORWARD-ONLY: the
+composite is the natural candidate book for the small/mid-quality forward lane.
