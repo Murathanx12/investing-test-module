@@ -6,6 +6,28 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
+
+- **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;
+  docs/STRATEGY_FACTORY.md). Batch 1 (20 price/vol signals): ZERO graduates —
+  Murat's dip-buy theses adjudicated and rejected. Batch 2 (10 fundamentals):
+  zero largemid graduates, but small-cap gross_prof survived the pre-registered
+  honest-cost re-test (50bps t 1.96; 75bps t 1.57).
+- **TRIAL-BRAIN-008-grossprof-small: CONFIRM PASS** (one run, held-out 72mo):
+  +24.1 bps/mo net (explore said +23.2 — replicated), IC t 4.29 OOS. Caveats:
+  DSR 0.098 (n_trials=61), FF6 alpha negative (factor-tilt risk), NW t 0.77.
+  **Second survivor → BRAIN-007 fusion pre-registration RE-OPENS.** Next:
+  forward small-cap-quality paper lane (attended seed) + 1963-2001 robustness.
+- **WRDS harvest #2+#3 (two Duo taps, zero failures, 629MB backed up):**
+  seg_customer 667k links (Cohen-Frazzini → TRIAL-THEME-SUPPLY unblocked);
+  13F mgr/breadth/top-10 best-ideas (3.6M rows) 1980→present; short interest
+  5.2M; IBES recs 6.4M + price targets 2.5M; CRSP+funda+fundq+dsf-aggregate
+  extensions back to 1963/1971; catalogs for comp_pit (12), optionm (578),
+  ravenpack_trial, wrdsapps. Congress archives downloaded free (senate 8,350
+  txns + kadoa 437 filers).
+- Queued instruments: INSTR-GEMINI-SCORE, INSTR-CONGRESS-HIST,
+  INSTR-OVERFIT-CEILING, INSTR-RL-ALLOC (see STRATEGY_FACTORY.md).
+
 ## 2026-07-21 (PM): PROMOTION EXECUTED — BRAIN-003 is live in aegis-finance
 
 The INTEGRATION.md protocol ran end-to-end (human-authorized "adopt it"):
