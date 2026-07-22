@@ -255,3 +255,28 @@ pre-commitment — the factory's first confirm-tier trial.
   FF6 alpha (Newey-West) reported as a diagnostic.
 - **Second-survivor clause:** a PASS makes this the candidate second survivor
   beside BRAIN-003 insider → BRAIN-007 fusion pre-registration re-opens.
+
+### RESULT (one run, 2026-07-22): **PASS** — with both hands shown
+
+`data/factory/confirm_gpsmall.json`. Held-out 2019-01..2024-12, 72 months:
+
+- **Net excess +24.1 bps/mo** — the explore estimate was +23.2; the point
+  estimate replicated almost exactly out of sample. t_net 0.89 (rule's
+  statistic; ≥0.8) — Newey-West t is 0.77, disclosed: the PASS is by the
+  letter of the frozen rule and is threshold-sensitive.
+- **IC t 4.29 out of sample** — the rank information is unambiguous.
+- **DSR 0.098** (n_trials=61): after honest deflation the Sharpe evidence is
+  WEAK. Deploy gate emphatically NOT met. Weak-positive prior, same class as
+  BRAIN-003.
+- **FF6 alpha NEGATIVE** (−3.3%/yr, t −1.06; SMB beta 1.17): the book beats
+  the small EW universe but NOT a factor-mimicking benchmark — the edge may
+  be harvestable factor tilt rather than stock selection. A forward lane
+  tests the investable claim (beats small-cap EW net), not an alpha claim.
+
+**Standing:** BRAIN-008 = second survivor (weak). Next steps per protocol:
+(1) forward paper-lane pre-registration in aegis-finance (attended seed —
+Murat flips the flag; small-cap-quality book vs small-EW control);
+(2) **BRAIN-007 fusion pre-registration RE-OPENS** (insider + gp-small,
+weights frozen before any fusion backtest); (3) robustness on the 1963-2001
+extension once harvested (one run, pre-registered). No skill claims — the
+forward clocks are the only scorecard.
