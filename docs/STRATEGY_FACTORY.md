@@ -104,6 +104,46 @@ net issuance) — the Novy-Marx net-of-cost survivor class. Batch 3: event/alt
 theme/supplier baskets = TRIAL-THEME-SUPPLY). Fusion (BRAIN-007) re-opens when
 >= 2 confirmed survivors exist.
 
-## Results
+## Results — batch 1 (run 2026-07-22, explore window only)
 
-(recorded after the scan runs; explore-tier, hypothesis-generation only)
+Full table: `data/factory/batch1_summary.csv` (40 scans, 180 test months).
+
+**Graduates under the frozen rule (largemid, t_net >= 1.5 AND t_ic >= 2.0,
+fresh only): ZERO.** Best fresh largemid candidates: vol_12m_low
+(t_net 0.21, t_ic 1.89), price_level (t_net −0.15, t_ic 2.12) — nothing
+close to the bar. Per the pre-commitment, a zero-graduate batch is a valid
+result; batch 1 is CLOSED with no confirm trials.
+
+What the scan actually taught (the reason to run it):
+
+1. **Murat's dip-buy theses are now adjudicated, and they lose.**
+   `dip_3m` (buy 3-month losers): t_net −1.48 largemid, −2.65 small.
+   `dd_from_12m_high` (buy the 50%-dropper): t_net −0.67 largemid, −1.15
+   small with significantly NEGATIVE IC (t −3.31) — deep-drawdown names
+   keep underperforming, they do not mean-revert at this horizon. The
+   information in that variable sits on the George-Hwang 52wk-high side
+   (small-seg IC t +3.31), but even that side dies net (0.37 one-way
+   monthly turnover eats it). Catching falling knives is not a system; if
+   dip-buying ever works it needs a quality/solvency conditioner — that is
+   batch 2's question, not a retry of this one.
+2. **Rank information ≠ portfolio profit.** Many signals carry real
+   cross-sectional information (small-seg IC t: price_level 6.6, ltr −5.7,
+   max_ret_low 5.7, vol_12m_low 5.7, skew_low 5.0, consistency 4.3) while
+   their long-only decile books still lose to the EW universe net of costs.
+   The predictability is concentrated in the SHORT side (predictably-bad
+   stocks) and in ranks a long book can't monetize — consistent with the
+   anomalies literature and with price factors' demotion to
+   combiner-input-only.
+3. **The only family with positive net excess is defensive** (low-vol /
+   high-price: +4 to +7 bps/mo, t ≈ 0.2-0.4 — indistinguishable from
+   noise, but the sole survivor-shaped direction in price/volume space).
+4. Seasonality, vol_calm, long-term reversal, and Amihud in a monthly
+   decile format are strongly negative here — turnover-heavy formats of
+   marginal effects. Dead as standalone lanes.
+
+Conclusion: batch 1 replicates BRAIN-001/002's verdict signal-by-signal —
+**long-only price/volume selection does not beat the EW universe net of
+costs.** The factory moves to batch 2 (fundamentals/quality from Compustat:
+gross profitability, accruals, asset growth, net issuance, F-score-lite —
+the literature's net-of-cost survivor class) and batch 3 (events/alt-data),
+where every remaining credible edge in this project's data lives.
