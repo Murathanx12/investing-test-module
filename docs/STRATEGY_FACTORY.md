@@ -104,6 +104,40 @@ net issuance) — the Novy-Marx net-of-cost survivor class. Batch 3: event/alt
 theme/supplier baskets = TRIAL-THEME-SUPPLY). Fusion (BRAIN-007) re-opens when
 >= 2 confirmed survivors exist.
 
+## Batch 2 (fundamentals/quality, 10 signals — frozen 2026-07-22 BEFORE running)
+
+Annual Compustat via the PIT FundStore (`factory/fundamentals.py`: CCM link,
+6-month reporting lag, 18-month staleness limit). The net-of-cost survivor
+class — annual data turns over once a year, so the turnover drag that killed
+batch 1 is structurally absent. Frozen list (directions declared in
+`factory/batch2_fundamentals.py`): gross_prof(+), oper_prof(+),
+asset_growth(−), accruals_cf(−), net_issuance(−), btm(+), roe(+),
+cash_prof(+), capx_at(−), fscore_lite(+).
+
+Same scan config, same segments, same graduation rule (largemid t_net ≥ 1.5
+AND t_ic ≥ 2.0, top-5 cap). **Cumulative explore candidates: 40 + 20 = 60**
+(confirm-stage DSR deflates by this number).
+
+## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
+
+Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
+become recorded experiments. Queued, each pre-registered before running:
+- **INSTR-GEMINI-SCORE** (batch 3): Gemini's literal point-score composite
+  (insider +10, dip +5, narrative-theme +5, mid/small only) as ONE explore
+  candidate. Its dip component already failed alone; the composite gets its
+  own honest shot.
+- **INSTR-CONGRESS-HIST** (batch 3): historical congress-trade signal from the
+  public disclosure archives (~2013+), PIT at disclosure date — adjudicates
+  DeepSeek's "5-10%/yr" claim on data rather than my skepticism. (Forward arm
+  already accruing: TRIAL-CONGRESS-IC.)
+- **INSTR-OVERFIT-CEILING** (after batch 3): DeepSeek's "see the ceiling" —
+  full-sample in-sample fit of the whole library, reported ONLY as
+  (in-sample dream CAGR) vs (explore→confirm collapse), a fragility
+  measurement, never a performance claim.
+- **INSTR-RL-ALLOC** (after ≥2 confirmed survivors): small RL allocator over
+  survivor sleeves, explore-tier; pre-registered expectation = fits explore,
+  fails confirm; recorded either way.
+
 ## Results — batch 1 (run 2026-07-22, explore window only)
 
 Full table: `data/factory/batch1_summary.csv` (40 scans, 180 test months).
