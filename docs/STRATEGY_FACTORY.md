@@ -212,15 +212,9 @@ silently emptied the frame; zero-month scan = broken pipe, fixed, not a retry).
    (IC t 2.70), net-negative book.** The crude count proxy ≠ CPS's
    weight-tilt construction; a tilt-based variant is a legitimate NEW
    future candidate.
-3. **tgt_upside: REJECT with prejudice — and the sign is the finding.**
-   Long high-implied-upside: −87 bps/mo largemid (t −3.5), −211 bps/mo
-   small (t −9.5, maxDD −95%). IC strongly NEGATIVE (t −3.7/−5.1). High
-   "upside to target" marks hyped/distressed names analysts haven't
-   re-marked; names NEAR their targets keep outperforming. Practical
-   mirror for Murat: "sell when it approaches the analyst target" is
-   selling winners into strength — the data says the opposite discipline
-   (a long-LOW-upside candidate = a NEW registration for a future batch,
-   per the sign-flip rule).
+3. ~~tgt_upside: REJECT with prejudice~~ **VOID — DATA ARTIFACT (see batch
+   3c post-mortem below). Both directions of this variable are
+   uninterpretable as constructed; no reading about targets survives.**
 
 ## Batch 3c (refinements from 3b's wrong-side findings — frozen BEFORE running)
 
@@ -232,6 +226,36 @@ Per the sign-flip rule these are NEW candidates, registered before any run:
   institutional breadth (fraction of holders with the name as a best idea) —
   closer to Cohen-Polk-Silli's conviction-tilt than the raw count.
 **Cumulative explore candidates: 84 + 4 = 88.**
+
+## Results — batch 3c (run 2026-07-22) — and the VOID that matters
+
+`batch3c_summary.csv`. best_ideas_frac: negative both segments → CLOSED.
+
+**tgt_upside_low posted the factory's best-ever explore line (+90.8 bps/mo
+net, t 7.12, 8% turnover, 20.7% CAGR) — and it is VOID.** The pre-confirm
+diagnostic caught it: the long book's top names show tgt/price ≈ 0.02-0.10
+— consensus targets at 2-10% of the traded price, impossible for genuine
+coverage. Cause: **IBES ptgdet `value` arrives adjusted for ALL subsequent
+splits (through the download date), CRSP `prc` is nominal.** A stock that
+splits in the FUTURE shows a tiny adjusted historical target vs its nominal
+price → lands in the "near/above target" book → the signal covertly selects
+future splitters, i.e. future winners. Textbook look-ahead via vendor
+adjustment mismatch. The mirror artifact equally explains batch 3b's
+−211 bps "reject" — **both tgt_upside runs are VOID, and the 3b reading
+("sell-near-target is backwards") is RETRACTED as unadjudicated.**
+
+Lessons pinned:
+- The noise-arm leak bar cannot catch signal-DATA artifacts — only the
+  book-composition diagnostic did. A "top-of-book sanity print" is now a
+  MANDATORY pre-confirm step for any graduate (added to the process).
+- Any IBES level variable (targets, actuals) must be adjustment-matched
+  before use: pull `ibes.adj` (or CRSP cumfacpr) at the next WRDS session
+  and reconstruct nominal-on-nominal. A properly-adjusted target-distance
+  candidate is a legitimate FUTURE registration — after the fix, from
+  scratch, both directions void until then.
+- t = 7 in an explore scan is not a discovery signal — it is a bug alarm.
+  (Recorded as the day's third silent-fragility catch: tz-shifted
+  date_trunc, string horizon, split-adjustment mismatch.)
 
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
