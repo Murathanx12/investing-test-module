@@ -120,7 +120,9 @@ def load_target_upside(panel: Panel) -> pd.DataFrame:
     (Brav-Lehavy 2003). Long high implied upside. Murat's 'sell near the
     target' instinct is the mirror read of the same variable."""
     tg = pd.read_parquet(RAW / "ibes_ptgdet.parquet")
-    tg = tg[(tg["horizon"] == 12) & tg["value"].notna() & (tg["value"] > 0)]
+    # horizon arrives as a STRING from WRDS ('12') — compare as str or get an
+    # empty frame and a silent zero-month scan.
+    tg = tg[(tg["horizon"].astype(str) == "12") & tg["value"].notna() & (tg["value"] > 0)]
     m = _map_on_cusip(tg, "anndats")
     m["month"] = m["anndats"] + pd.offsets.MonthEnd(0)
     monthly = (m.groupby(["month", "sym"])["value"].mean().unstack()

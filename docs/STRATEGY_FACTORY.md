@@ -194,6 +194,34 @@ NEW candidate in a future batch, not a retry of this one.)
   (Brav-Lehavy). The mirror read of Murat's "sell near the target" rule.
 **Cumulative explore candidates: 78 + 6 = 84.**
 
+## Results — batch 3b (run 2026-07-22, explore window only)
+
+`batch3b_summary.csv` + `batch3b_tgt_rerun.csv` (tgt_upside re-ran after a
+horizon-dtype bug — WRDS returns horizon as STRING '12'; the int comparison
+silently emptied the frame; zero-month scan = broken pipe, fixed, not a retry).
+
+**Graduates: ZERO.** Adjudications:
+
+1. **cust_mom (Cohen-Frazzini customer momentum): does not survive as a
+   monthly signal.** 70% one-way monthly turnover; net ≈ 0 largemid /
+   −31 bps small; IC t only 1.6-1.8. Post-publication decay + the format's
+   churn kill it. NOTE: Murat's suppliers THESIS is not dead — the
+   TRIAL-THEME-SUPPLY basket arm (slow thematic supplier baskets, not
+   monthly link-momentum) is a different, still-open question.
+2. **best_ideas (top-3 manager positions): real information in small caps
+   (IC t 2.70), net-negative book.** The crude count proxy ≠ CPS's
+   weight-tilt construction; a tilt-based variant is a legitimate NEW
+   future candidate.
+3. **tgt_upside: REJECT with prejudice — and the sign is the finding.**
+   Long high-implied-upside: −87 bps/mo largemid (t −3.5), −211 bps/mo
+   small (t −9.5, maxDD −95%). IC strongly NEGATIVE (t −3.7/−5.1). High
+   "upside to target" marks hyped/distressed names analysts haven't
+   re-marked; names NEAR their targets keep outperforming. Practical
+   mirror for Murat: "sell when it approaches the analyst target" is
+   selling winners into strength — the data says the opposite discipline
+   (a long-LOW-upside candidate = a NEW registration for a future batch,
+   per the sign-flip rule).
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
