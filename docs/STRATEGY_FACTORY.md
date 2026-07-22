@@ -172,6 +172,14 @@ si_chg_low, small segment, cost sensitivity 25/50/75 bps, explore window,
 identical mechanics — candidate #78. Survives → confirm run on 2019-2024
 under the standard rule (t_net ≥ 1.5 AND t_ic ≥ 2.0 at 50 bps).
 
+**RESULT (run 2026-07-22): FAILS honest costs — CLOSED, no confirm.**
+25 bps: +29.8 (t 2.16) · 50 bps: +6.9 (t 0.50) · 75 bps: −15.9 (t −1.15).
+The 46% monthly one-way turnover is fatal — the exact opposite of gp-small's
+9%. The IC (t 6.09) is real; the tradeable premium is not, at realistic
+small-cap costs. SI-change joins the combiner-input-only shelf. (A lower-
+frequency variant — e.g. quarterly SI change with a hold-band — would be a
+NEW candidate in a future batch, not a retry of this one.)
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
