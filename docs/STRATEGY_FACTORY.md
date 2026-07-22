@@ -219,3 +219,39 @@ exists in this data, lives in (a) small-cap quality — pending honest-cost
 re-test, and (b) event/alt-data (batch 3). Large/mid long-only selection on
 public characteristics is dead on arrival — consistent with the market
 being hardest exactly where capacity is largest.
+
+## CAND-GROSSPROF-SMALL-HC — honest-cost sensitivity (run 2026-07-22)
+
+Explore window, small segment, identical book mechanics, cost sweep
+(candidate #61; sensitivity levels are diagnostics of ONE candidate):
+
+| one-way cost | net excess bps/mo | t_net | IC t | turnover 1-way |
+|---|---|---|---|---|
+| 25 bps | +27.8 | 2.35 | 6.03 | 0.092 |
+| **50 bps (pre-registered level)** | **+23.2** | **1.96** | 6.03 | 0.092 |
+| 75 bps | +18.7 | 1.57 | 6.03 | 0.092 |
+
+**SURVIVES at 50 bps (and even 75). Graduates to confirm** per the batch-2
+pre-commitment — the factory's first confirm-tier trial.
+
+## CONFIRM pre-registration — TRIAL-BRAIN-008-grossprof-small (frozen BEFORE the run)
+
+- **Hypothesis:** small-cap (formation dollar-vol ranks 1001-3000) gross
+  profitability (Novy-Marx GP/AT, PIT FundStore) top decile, 30% hold-band,
+  survives 50 bps one-way on the HELD-OUT confirm window 2019-01..2024-12 —
+  data no factory scan has ever touched.
+- **One run.** Frozen mechanics: top_frac 0.10, hold_band 0.30, cost 50 bps,
+  min_names 100. No parameter changes after seeing results, ever.
+- **Power note (honest):** at the explore effect size, expected t over 72
+  months is only ~1.2 — the window cannot deliver 2+ even if the effect is
+  fully real. Thresholds are set accordingly and committed here.
+- **Decision rule:** KILL if mean net excess <= 0 OR mean IC <= 0.
+  PASS (prior strengthened) if net excess > 0 AND t_net >= 0.8 AND
+  t_ic >= 1.5. STRONG PASS if additionally t_net >= 1.5. A PASS's next step
+  is a FORWARD paper clock (seed-a-lane, attended) — never direct arming,
+  never a skill claim.
+- **Deflation:** DSR reported with n_trials = 61 (all explore candidates);
+  sr_variance estimated from the cross-section of batch 1+2 scan Sharpes.
+  FF6 alpha (Newey-West) reported as a diagnostic.
+- **Second-survivor clause:** a PASS makes this the candidate second survivor
+  beside BRAIN-003 insider → BRAIN-007 fusion pre-registration re-opens.
