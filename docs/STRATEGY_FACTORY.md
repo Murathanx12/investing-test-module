@@ -118,6 +118,26 @@ Same scan config, same segments, same graduation rule (largemid t_net ≥ 1.5
 AND t_ic ≥ 2.0, top-5 cap). **Cumulative explore candidates: 40 + 20 = 60**
 (confirm-stage DSR deflates by this number).
 
+## Batch 3a (alt-data, 8 signals — frozen 2026-07-22 BEFORE running)
+
+From the 2026-07-22 harvest (`factory/altstores.py`, PIT lags stated there).
+Full-window (2004-2018): max_dret_low_D(−), ivol_low_D(−), amihud_D(+),
+si_chg_low(−), breadth_chg(+), rec_mom(+). Short-window 2014-01..2018-12
+(post-STOCK-Act congress coverage, stated a priori): congress_buys(+) =
+INSTR-CONGRESS-HIST, gemini_score(+) = INSTR-GEMINI-SCORE (dip≥40% +5,
+insider +10, congress +10; the narrative +5 is OMITTED — no PIT source — 
+documented, not approximated). Same graduation rule; short-window signals
+additionally flagged low-power (60 test months).
+**Cumulative explore candidates: 61 + 16 = 77.**
+
+Design note from the day's literature sweep: long-only + hold-band + low
+turnover is exactly the Novy-Marx-Velikov net-of-cost survival recipe, and
+Muravyev (JF 2025) shows short-leg anomaly returns die at borrow costs —
+the factory's long-only constraint is now literature-backed, not just a
+practical choice. The "disappearing index effect" (Greenwood) removes index
+add/delete from the candidate queue; buyback/spinoff events remain queued
+(need corporate-event data, future batch).
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
