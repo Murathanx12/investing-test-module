@@ -181,3 +181,41 @@ costs.** The factory moves to batch 2 (fundamentals/quality from Compustat:
 gross profitability, accruals, asset growth, net issuance, F-score-lite —
 the literature's net-of-cost survivor class) and batch 3 (events/alt-data),
 where every remaining credible edge in this project's data lives.
+
+## Results — batch 2 (run 2026-07-22, explore window only)
+
+Full table: `data/factory/batch2_summary.csv` (20 scans, 180 test months;
+FundStore coverage ~4,000 names/month).
+
+**Graduates under the frozen rule (largemid, t_net >= 1.5 AND t_ic >= 2.0):
+ZERO.** Best largemid: net_issuance_low (t_net 1.10, t_ic 2.18 — IC clears,
+net doesn't), oper_prof (0.45 / 2.38). Batch 2 is CLOSED with no confirm
+trials. But unlike batch 1, this batch found a real candidate one segment
+over:
+
+1. **The profitability family is the only thing in 60 scans with positive
+   net excess everywhere it was tested.** Standout: `gross_prof` in SMALL —
+   **+27.8 bps/mo net, t_net 2.35, IC t 6.03, one-way turnover 0.09** — the
+   strongest result the factory has produced. Supporting cast, same segment:
+   fscore_lite (+17.2, t 1.46, IC t 6.63), cash_prof (+12.9, t 1.26, IC t
+   7.90), oper_prof (+10.1). Exactly the Novy-Marx / Ball et al. prediction.
+   It does NOT graduate — the frozen rule requires largemid, and 25 bps
+   understates small-cap costs. Handled by the book: pre-registered as a
+   batch 3 candidate **CAND-GROSSPROF-SMALL-HC** = gross profitability,
+   small segment, at 50 bps one-way + half-spread sensitivity table. If it
+   survives honest costs there, it goes to confirm.
+2. **Post-publication decay is visible in our own data**: accruals_low and
+   asset_growth_low are strongly NEGATIVE in this window (small t_net −2.9 /
+   −3.1) — the celebrated 1996/2008 anomalies inverted after publication
+   (McLean-Pontiff). Value (btm) is flat. Our scan independently reproduces
+   the known factor-decay landscape, which is evidence the harness measures
+   what it claims to.
+3. Quality ICs are large and pervasive (cash_prof IC t 7.9 in small, 2.3 in
+   largemid) even where decile books don't pay — profitability belongs in
+   the combiner feature set regardless of standalone graduation.
+
+Running conclusion after 60 scans: cross-sectional edge net of costs, if it
+exists in this data, lives in (a) small-cap quality — pending honest-cost
+re-test, and (b) event/alt-data (batch 3). Large/mid long-only selection on
+public characteristics is dead on arrival — consistent with the market
+being hardest exactly where capacity is largest.
