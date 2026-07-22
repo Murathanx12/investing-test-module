@@ -42,7 +42,10 @@ def load_daily_agg(panel: Panel) -> dict[str, pd.DataFrame]:
     df = pd.read_parquet(RAW / "dsf_monthly_agg.parquet")
     df = df[df["n_days"] >= 15]                     # thin months are noise
     df["sym"] = df["permno"].astype(int).astype(str)
-    df["month"] = pd.to_datetime(df["month"]) + pd.offsets.MonthEnd(0)
+    # WRDS date_trunc arrives tz-aware with DST-shifted clock times (01:00
+    # -0400) — strip tz THEN snap to month-end or nothing aligns to the panel.
+    df["month"] = (df["month"].dt.tz_localize(None)
+                   .dt.to_period("M").dt.to_timestamp("M"))
     return {v: _pivot_to_panel(df, v, panel) for v in ("vol_d", "max_dret", "amihud_d")}
 
 

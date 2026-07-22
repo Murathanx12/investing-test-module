@@ -138,6 +138,40 @@ practical choice. The "disappearing index effect" (Greenwood) removes index
 add/delete from the candidate queue; buyback/spinoff events remain queued
 (need corporate-event data, future batch).
 
+## Results — batch 3a (run 2026-07-22, explore window only)
+
+`data/factory/batch3a_summary.csv` + `batch3a_daily_rerun.csv` (the three
+daily-agg scans re-ran after a tz-normalization bug produced zero months —
+a broken pipe fixed, not a retry; the first pass never scanned).
+
+**Graduates under the frozen largemid rule: ZERO.** Adjudications:
+
+1. **si_chg_low (falling short interest), SMALL: +29.8 bps/mo net, t 2.16,
+   IC t 6.09** — the batch's standout, same shape as gp-small (small-only).
+   High turnover (0.46 one-way) makes costs decisive → pre-registered
+   **CAND-SICHG-SMALL-HC** below.
+2. **INSTR-CONGRESS-HIST ADJUDICATED: no post-disclosure edge.** t 0.26
+   small / −0.34 largemid, IC ≈ 0 (60 months, low power, point estimate
+   ~zero). Consistent with the post-STOCK-Act literature; DeepSeek's
+   "5-10%/yr" not reproduced. Forward TRIAL-CONGRESS-IC keeps accruing.
+3. **INSTR-GEMINI-SCORE ADJUDICATED: the composite LOSES.** Net negative in
+   both segments; small-seg IC significantly NEGATIVE (t −2.83) — the
+   dip-buy component poisons it, exactly as batch 1 predicted. The
+   "will absolutely obliterate the S&P 500" claim is now a recorded
+   refutation, not an opinion.
+4. Daily-resolution upgrades: enormous ICs (max_dret small t 7.7, ivol small
+   t 6.9) that long-only deciles cannot monetize — batch-1's lesson at
+   higher resolution. Amihud premium is DEAD post-2002 (small t −3.6 net,
+   IC t −9.5): illiquidity is a cost, not a premium, in this window.
+5. rec_mom: small IC t 3.3 but 0.59 turnover kills it net (−3.26 largemid).
+   Recommendations join estimates (BRAIN-005) as combiner-input-only.
+
+## CAND-SICHG-SMALL-HC (pre-registered before running)
+
+si_chg_low, small segment, cost sensitivity 25/50/75 bps, explore window,
+identical mechanics — candidate #78. Survives → confirm run on 2019-2024
+under the standard rule (t_net ≥ 1.5 AND t_ic ≥ 2.0 at 50 bps).
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
