@@ -273,6 +273,22 @@ pre-commitment — the factory's first confirm-tier trial.
   be harvestable factor tilt rather than stock selection. A forward lane
   tests the investable claim (beats small-cap EW net), not an alpha claim.
 
+### Robustness — TRIAL-BRAIN-008-EXT (1963-2001 extension; run 2026-07-22)
+
+Frozen mechanics, one run, extension panel (live months 1982-11..2001-12 after
+the thin-coverage guard): **SUPPORTIVE** — +18.8 bps/mo net at 50 bps
+(NW t 1.39), IC t 3.06, despite 3x the turnover of the modern window. The
+signal is now positive in three independent windows spanning 42 years:
+1982-2001 (+18.8), 2004-2018 (+23.2), 2019-2024 (+24.1) — same spec
+throughout. Still not deploy-gate evidence; it is the strongest forward-lane
+prior this project has produced.
+
+### Fusion — BRAIN-007 re-opened and run (see TRIALS/TRIAL-BRAIN-007-fusion.md)
+
+Composite (insider + gp, frozen equal-weight z) **SURVIVES: +15.3 bps/mo net,
+NW t 1.66, beats best single (1.61) with 3.6x the names** (312 vs 87). Noise
+arm clean. The composite is the natural candidate book for the forward lane.
+
 **Standing:** BRAIN-008 = second survivor (weak). Next steps per protocol:
 (1) forward paper-lane pre-registration in aegis-finance (attended seed —
 Murat flips the flag; small-cap-quality book vs small-EW control);
