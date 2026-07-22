@@ -180,6 +180,20 @@ small-cap costs. SI-change joins the combiner-input-only shelf. (A lower-
 frequency variant — e.g. quarterly SI change with a hold-band — would be a
 NEW candidate in a future batch, not a retry of this one.)
 
+## Batch 3b (economic links, 3 signals — frozen 2026-07-22 BEFORE running)
+
+`factory/altstores2.py`. Full explore window, standard mechanics/segments:
+- **cust_mom(+)** — Cohen-Frazzini customer momentum on the 343k COMPANY
+  segment-customer links (normalized-exact name matching; match rate logged;
+  unmatched links drop, which UNDERSTATES the effect). This is the
+  cross-sectional arm of Murat's suppliers thesis (TRIAL-THEME-SUPPLY's
+  basket arm remains a separate future trial).
+- **best_ideas(+)** — # managers holding the name top-3 (Cohen-Polk-Silli),
+  45d filing lag.
+- **tgt_upside(+)** — trailing-90d consensus 12m target / price − 1
+  (Brav-Lehavy). The mirror read of Murat's "sell near the target" rule.
+**Cumulative explore candidates: 78 + 6 = 84.**
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
