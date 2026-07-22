@@ -222,6 +222,17 @@ silently emptied the frame; zero-month scan = broken pipe, fixed, not a retry).
    (a long-LOW-upside candidate = a NEW registration for a future batch,
    per the sign-flip rule).
 
+## Batch 3c (refinements from 3b's wrong-side findings — frozen BEFORE running)
+
+Per the sign-flip rule these are NEW candidates, registered before any run:
+- **tgt_upside_low(−)** — long LOW implied upside (names at/near their
+  analyst targets). 3b showed the high side loses catastrophically; this
+  registers the productive mirror as its own candidate.
+- **best_ideas_frac(+)** — top-3-holder count NORMALIZED by total
+  institutional breadth (fraction of holders with the name as a best idea) —
+  closer to Cohen-Polk-Silli's conviction-tilt than the raw count.
+**Cumulative explore candidates: 84 + 4 = 88.**
+
 ## Queued instruments (from the AI-panel pushbacks — test, don't trust opinion)
 
 Murat's directive 2026-07-22: the pushbacks that were a-priori arguments must
