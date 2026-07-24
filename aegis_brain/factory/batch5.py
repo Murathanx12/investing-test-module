@@ -271,8 +271,13 @@ def build_batch5(panel: Panel, store: FundStore, qstore: QuarterlyStore
     def defensive(p: Panel) -> pd.DataFrame:
         da = pd.read_parquet(RAW / "dsf_monthly_agg.parquet")
         da["sym"] = da["permno"].astype("Int64").astype(str)
+        # dsf agg months are tz-aware month-START stamps; panel index is naive
+        # month-END — normalize or the reindex silently yields all-NaN
+        # (batch5 v1 defensive scanned 0 months; VOID-DESIGN note in doc)
+        da["m"] = (pd.to_datetime(da["month"], utc=True).dt.tz_localize(None)
+                   .dt.to_period("M").dt.to_timestamp("M"))
         def wide(col):
-            return (da.pivot_table(index="month", columns="sym", values=col,
+            return (da.pivot_table(index="m", columns="sym", values=col,
                                    aggfunc="last")
                     .reindex(p.monthly_ret.index)
                     .reindex(columns=p.monthly_ret.columns))

@@ -174,6 +174,42 @@ Blocked-on-columns (queued for WRDS batch 4, NOT scanned): RE/ME (Ball et al.
 `invt`/`rect`), payout/duration family (needs `dvc`/`prstkc`). q5 expected-
 investment-growth deferred (needs cross-sectional fitting — not a sort).
 
+
+## Results — batch 5 (run 2026-07-24, explore window only)
+
+`batch5_summary.csv` + `batch5_defensive_rerun.csv` (defensive re-ran after a
+tz-aware-month-START vs naive-month-END alignment bug silently blanked the
+frame — 0-month scan = broken pipe, fixed, not a retry).
+
+**Graduates: ZERO** (best: own_dur_t10 largemid t_net 0.65). The replication-
+sweep priors went 15/15 directionally on the scannable set. Adjudications:
+
+1. **DEAD-prior family confirmed dead:** roa_mom (t −1.97/−2.89), sue_streak
+   (net ~0 despite REAL small-seg gross IC t 4.66 — the PEAD receipt again),
+   rev_conf (t −1.43/−2.25). earn_accel and ea_shift (medium-high priors)
+   also negative net — post-publication attenuation + 24-34% turnover.
+2. **Three SIGN REVERSALS (hypothesis-generation for batch 6, per the
+   sign-flip=new-candidate rule):** (a) dtc_low CATASTROPHIC (small t −8.44,
+   IC t −6.18) — crowded shorts OUTPERFORMED 2004-2018; the mirror (long
+   high-DTC) is a legitimate new candidate with a real-IC prior;
+   (b) inst_persist_low strongly negative (t −3.49/−3.76, largemid IC t
+   +3.35) — persistent institutional buying kept predicting, did NOT reverse;
+   mirror is new-candidate material; (c) qual_mom negative (t −1.84/−2.92) —
+   momentum-within-quality did worse than the universe in this window.
+3. **insider_cluster / insider_si: VOID-DESIGN** — sparse event cross-section
+   (0-4 live months under the decile scan min_names=100). The decile scan is
+   the wrong instrument for event signals; the correct design is the
+   flag-portfolio harness (BRAIN-003/006 style) — a FUTURE registration,
+   not an adjudication of the signals.
+4. **defensive: screen-class confirmed, not alpha** (rerun): net t 0.77/0.25
+   but maxDD −35% vs −52..−82% for every other scan and small IC t 7.1 —
+   exactly the research prior (risk overlay / lottery-exclusion screen; a
+   candidate input for lane risk design, never a picker).
+5. own_dur_t10, earn_stab, gp_mom, dnoa_low: flat-to-negative, closed.
+
+Zero graduates at 25 bps is the Chen-Velikov base rate showing up on
+schedule. **Cumulative explore candidates: 120** (voids counted).
+
 ## Results — batch 3a (run 2026-07-22, explore window only)
 
 `data/factory/batch3a_summary.csv` + `batch3a_daily_rerun.csv` (the three

@@ -10,6 +10,8 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-24 — TRIAL-THEME-SUPPLY basket arm: REJECT** (pre-registered, explore-only, one run): B-A spread t=0.10 (+3.2 bps) = NO cross-sectional info at annual cadence; micro B net t=-4.27; noise clean. Combined with 3b's cust_mom REJECT, the suppliers thesis is FULLY adjudicated - no holding period pays honest costs. Cumulative explore candidates 90.
 
+**2026-07-24 — Factory batch 5: ZERO graduates (30 scans, priors 15/15 directional).** Sign reversals for batch 6: high-DTC (+, IC t 6.2), inst-persist (+, IC t 3.4). insider_cluster/insider_si VOID-DESIGN (need flag harness). defensive = screen-class (maxDD -35% vs -52..-82%). INSTR-HOLD-HORIZON: FLAT 14-17 bps/mo across 1-24mo bands - signal-band exits make long holds free. Cumulative candidates 120.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;
