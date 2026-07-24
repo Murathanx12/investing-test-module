@@ -14,6 +14,8 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-24 EOD — Batch 6 + BRAIN-009: ZERO graduates.** dtc arms post factory-best largemid net t (3.4/3.0) but FAIL the IC leg - rule held. inst-persist mirror refuted (both tails lose). cust_conc sign reversal book-inspected clean (IC t -7.4, Dhaliwal side). Insider clusters add nothing over single opportunistic buys (BRAIN-009 closed). Cumulative 130.
 
+**2026-07-25 — WRDS batch 4 HARVESTED** (2 Duo taps, 311s+182s): ibes_adj 203k (tgt-price family un-voidable), funda ext cols 365k (re/invt/rect/dvc/prstkc/xrd ~78% coverage - RE/ME + divergence + payout unblocked), dsf_pharma daily 2.03M rows/750 permnos 2002-2024 VERIFIED superset of local universe (daily-CAR successor unblocked), BoardEx STARTERS 2.5M rows (catalogs: boardex 168 tables - entitlement confirmed), comp_pit pitnamesus 29k + pitqtrdataus 200k sample. Batch-5 batch4-guess tables comp_pit.r_company/co_ifndytd DO NOT EXIST - corrected names recorded.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;
