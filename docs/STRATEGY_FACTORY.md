@@ -228,6 +228,21 @@ Zero graduates at 25 bps is the Chen-Velikov base rate showing up on
 schedule. **Cumulative explore candidates: 120** (voids counted).
 
 
+
+## Batch 7 (column-unblocked fundamentals + conc mirror — frozen 2026-07-25 BEFORE running)
+
+Enabled by the WRDS batch-4 harvest (re/invt/rect/dvc/prstkc landed 2026-07-25).
+5 signals x 2 segments = 10 candidates. **Cumulative: 130 + 10 = 140.**
+Horizon declared per signal (standing rule). PIT: datadate + 6 months, ffill<=18mo.
+
+| signal | dir | horizon / decay mechanism | prior |
+|---|---|---|---|
+| re_me | + | annual; retained-earnings/market = the component through which B/M works (Ball-Gerakos-Linnainmaa-Nikolaev JFE 2020); earnings-yield accumulation | STRONG (top-journal, international replication, subsumes btm which scanned flat here) |
+| inv_div | − | annual; inventory growing faster than sales flags demand shortfall/channel stuffing (Abarbanell-Bushee): (dINVT − dSALE)/AT | MEDIUM (Chen-Zimmermann-robust family, low corr with total accruals which INVERTED here — receipt will be informative either way) |
+| rect_div | − | annual; receivables outrunning sales flags aggressive revenue recognition: (dRECT − dSALE)/AT | MEDIUM (same family) |
+| payout_yield | + | annual; net payout (dvc + prstkc − issuance proxy)/ME (Boudoukh et al. 2007); disciplined-capital-return firms outperform | MEDIUM (component net_issuance already tested NEGATIVE-side here — declared anyway, the composite is the published claim) |
+| conc_low | + | annual; MIRROR of batch-6 cust_conc (IC t −7.4 book-inspected): diversified-customer suppliers outperform (Dhaliwal relationship-risk side) | MEDIUM (our own reversal receipt; sign-flip=new-candidate rule) |
+
 ## Results — batch 6 + TRIAL-BRAIN-009 (run 2026-07-24, explore window only)
 
 `batch6_summary.csv`; `runs/TRIAL-BRAIN-009/results.json`.
