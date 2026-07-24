@@ -78,5 +78,30 @@ the small segment / PRIORITY-review arm.
    of t-stats (sparse-event small-sample guard).
 4. Deploy gate: t > 3.4 AND DSR ≥ 0.95 AND PBO < 0.5 (expected unmet).
 
-## Result (filled AFTER the run — never edited)
-_pending_
+## Result (filled AFTER the run 2026-07-24 — never edited)
+Data: 671 matched in-panel events (277 PRIORITY) 2002-2024 — coverage floor
+600 MET. min_names=5. Run: `runs/TRIAL-BRAIN-006/results.json`.
+
+- **Noise (timing placebo) leak check: PASS** — gross excess t = 0.06
+  (large/mid), micro unmeasurable; both < 3.
+- **Arm B (all NDA/BLA):** large/mid **−30.1 bps/mo net excess, t = −0.89**
+  (gross t −0.68 — not even a gross effect); micro: only 2 live months —
+  in-panel approval names are overwhelmingly large/mid, the micro segment is
+  effectively untestable at monthly resolution.
+- **Arm B-PRI (PRIORITY):** large/mid +10.3 bps/mo net, t = 0.13 (41 live
+  months). FF5+UMD alpha +139.6 bps/mo t = 1.56 — suggestive, NOT the
+  pre-registered metric, and on 41 months.
+- Gate: DSR 0.014 (n_trials=36, module-registry counter per BRAIN-004
+  convention), verdict REJECT.
+
+### Verdict: **REJECT** (kill cond 2: B net t < 1 both segments AND B-PRI
+net t < 1). No post-approval drift net of costs at monthly resolution in the
+tradeable (shrcd 10/11) universe — if anything B is mildly negative, consistent
+with approval-day full-pricing + sell-the-news. Leak-checked clean.
+
+Honest scope notes: (1) the small-cap arm — where the hypothesis put the
+effect — could not be measured (2 live months): this is a COVERAGE limit, not
+evidence of absence; a daily-resolution CAR study on `crsp.dsf` (next WRDS
+pull) would be a NEW registration, not a rerun. (2) The forward PDUFA Brier
+ledger is a different instrument and continues untouched. (3) ADR-parent
+mega-pharma events (Novartis/AZN/…) were excluded by the frozen universe rule.

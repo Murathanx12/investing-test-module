@@ -67,6 +67,11 @@ def backtest_arm(held, eligible, seg, ret_fwd, dvol, min_names: int = 20,
 
     live = n >= min_names
     idx = net.index[live]
+    if len(idx) == 0:  # arm never reaches min_names in this segment (sparse events)
+        return {"net": net[idx].astype(float), "excess_net": (net - bench)[idx].astype(float),
+                "n_months": 0, "mean_names": 0, "excess_net_bps": None,
+                "t_excess_net": None, "t_excess_gross": None,
+                "t_excess_net_post2015": None, "sharpe_net_ann": None}
     ex_net = (net - bench)[idx]
     ex_gross = (gross - bench)[idx]
     post = ex_net[ex_net.index >= "2016-01-01"]

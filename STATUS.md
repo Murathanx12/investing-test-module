@@ -6,6 +6,8 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-07-24 — TRIAL-BRAIN-006 FDA approval drift: REJECT** (pre-registered, one run): 671 in-panel NDA/BLA events 2002-2024; B large/mid -30.1 bps/mo net t=-0.89, B-PRI t=0.13, noise clean; micro segment untestable (2 live months) - daily-CAR revisit = NEW registration post crsp.dsf pull. Crosswalk data trap recorded: openFDA sponsor_name = CURRENT holder; roll-up events excluded as unattributable.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;
