@@ -72,6 +72,16 @@ def main() -> None:
                 manifest[f"tables_{lib}"] = {"error": str(e)}
                 print(f"[catalog:{lib}] unavailable: {e}", flush=True)
 
+        # 0b) funda column extension: retained earnings (Ball et al. RE/ME),
+        #     inventory/receivables (divergence signals), payout items
+        #     (dvc/prstkc -> net payout yield, Goncalves duration), xrd
+        _fetch(db, "comp_funda_ext_cols",
+               """select gvkey, datadate, re, invt, rect, dvc, prstkc, xrd, txp
+                  from comp.funda
+                  where indfmt='INDL' and datafmt='STD' and popsrc='D'
+                    and consol='C' and datadate >= '1995-01-01'""",
+               manifest, date_cols=["datadate"])
+
         # 1) IBES adjustment factors (small, the un-voider)
         _fetch(db, "ibes_adj",
                "select ticker, cusip, spdates, adj from ibes.adj",

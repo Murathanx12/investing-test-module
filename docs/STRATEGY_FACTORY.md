@@ -138,6 +138,42 @@ practical choice. The "disappearing index effect" (Greenwood) removes index
 add/delete from the candidate queue; buyback/spinoff events remain queued
 (need corporate-event data, future batch).
 
+
+## Batch 5 (winner-picking interactions/streaks/13F — frozen 2026-07-24 BEFORE running)
+
+15 signals from the 2026-07-24 research sweep (two web agents: replication
+evidence vs McLean-Pontiff / Chen-Zimmermann / JKP / Chen-Velikov; novel
+2019-2026 low-turnover ideas). Standing hurdle recorded: Chen-Velikov —
+average anomaly nets ~4 bps/mo post-publication after costs. DEAD-prior
+candidates are scanned anyway (cheap; the receipt is the product).
+Stores: annual FundStore, NEW QuarterlyStore (rdq-anchored PIT, ffill<=6mo),
+insider/SI/13F frames at filing-month availability (13F +2mo lag).
+`factory/batch5.py`; directions declared in code. Cumulative explore
+candidates: **90 + 30 = 120** (15 signals x 2 segments).
+
+| signal | dir | prior (from replication sweep) |
+|---|---|---|
+| qual_mom | + | STRONG-ish: momentum among top-half GP/A (Novy-Marx interaction; both legs replicate; interaction itself unvalidated). CONTAMINATION NOTE: 12-1 momentum component ran full-sample in BRAIN-001/002 — graduation needs extra scrutiny |
+| earn_stab | + | WEAK standalone (subsumed by low-vol; composite ingredient) |
+| gp_mom | + | WEAK (annual fundamental momentum — only cost-viable variant) |
+| roa_mom | + | DEAD (GHZ: quarterly fundamental predictors dead post-2003) |
+| sue_streak | + | DEAD (PEAD-family; parent dead in liquid names post-2005) |
+| insider_cluster | + | STRONG-ish (cluster buys ~2x single-buy returns; small-cap, 1-6mo horizon) |
+| insider_si | + | WEAK (thin unreplicated literature; false-signaling counterevidence) |
+| rev_conf | + | DEAD (revisions decayed post-Reg-FD; cost-fatal turnover). Same momentum contamination note as qual_mom |
+| dtc_low | − | WEAK for long-only (alpha lives in the short leg; usable as screen) |
+| defensive | + | STRONG as exclusion screen, WEAK as long-alpha; informative readout = Sharpe/DD not excess bps (noted, deciding metric unchanged) |
+| earn_accel | + | MEDIUM-HIGH (He-Narayanamoorthy JAE 2020; post-pub attenuation noted) |
+| ea_shift | + | MEDIUM-HIGH (Johnson-So JFQA 2018; rdq-only construction is noisier than WSH data — declared) |
+| inst_persist_low | − | MEDIUM (Dasgupta-Prat-Verardo JF 2011; long persistently-SOLD; small/high-IO concentrated) |
+| own_dur_t10 | + | MEDIUM (Cremers-Pareek JFE 2016 — TOP-10 PROXY, coarser than true duration; declared) |
+| dnoa_low | − | MEDIUM (Hirshleifer NOA-bloat lineage; distinct from total accruals; Chen-Zimmermann-robust family) |
+
+Blocked-on-columns (queued for WRDS batch 4, NOT scanned): RE/ME (Ball et al.
+2020 B/M decomposition — needs `re`), inventory/receivables divergence (needs
+`invt`/`rect`), payout/duration family (needs `dvc`/`prstkc`). q5 expected-
+investment-growth deferred (needs cross-sectional fitting — not a sort).
+
 ## Results — batch 3a (run 2026-07-22, explore window only)
 
 `data/factory/batch3a_summary.csv` + `batch3a_daily_rerun.csv` (the three
