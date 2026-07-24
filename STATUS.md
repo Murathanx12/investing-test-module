@@ -8,6 +8,8 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-24 — TRIAL-BRAIN-006 FDA approval drift: REJECT** (pre-registered, one run): 671 in-panel NDA/BLA events 2002-2024; B large/mid -30.1 bps/mo net t=-0.89, B-PRI t=0.13, noise clean; micro segment untestable (2 live months) - daily-CAR revisit = NEW registration post crsp.dsf pull. Crosswalk data trap recorded: openFDA sponsor_name = CURRENT holder; roll-up events excluded as unattributable.
 
+**2026-07-24 — TRIAL-THEME-SUPPLY basket arm: REJECT** (pre-registered, explore-only, one run): B-A spread t=0.10 (+3.2 bps) = NO cross-sectional info at annual cadence; micro B net t=-4.27; noise clean. Combined with 3b's cust_mom REJECT, the suppliers thesis is FULLY adjudicated - no holding period pays honest costs. Cumulative explore candidates 90.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;

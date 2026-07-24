@@ -62,5 +62,25 @@ DSR vs cumulative candidate count (90). ONE run. Results final.
    pre-registered confirm run on 2019-2024 (separate registration, DSR
    deflated by the then-current cumulative count).
 
-## Result (filled AFTER the run — never edited)
-_pending_
+## Result (filled AFTER the run 2026-07-24 — never edited)
+15 June formations 2004-2018, ~26/22 names per segment book, 174 live months
+per config. `runs/TRIAL-THEME-SUPPLY/results.json`.
+
+- **Noise leak check: PASS** (gross t 0.35 / 0.83, both < 3).
+- **Arm B:** large/mid −16.3 bps/mo net (t = −0.87); micro **−80.8 bps/mo
+  (t = −4.27)** — significantly negative net.
+- **B − A spread: t = 0.10 (+3.2 bps/mo)** — the direct test: NO
+  cross-sectional information at annual cadence. Top and bottom customer-
+  momentum deciles are indistinguishable before costs and both lose after.
+- FF6 alpha B large/mid +54.9 bps/mo t = 1.02 (not the deciding metric).
+- Gate: DSR 0.043, PBO 0.36, REJECT.
+
+### Verdict: **REJECT** (kill conds 2 AND 3). The supplier-basket arm closes.
+
+Combined with batch 3b's cust_mom REJECT, the suppliers thesis is now fully
+adjudicated: at monthly frequency the customer-link information is real but
+too weak to survive its own turnover (IC t 1.6-1.8, 70% churn); at annual
+frequency the information has already diffused (spread ≈ 0). There is no
+holding period at which this signal pays retail-accessible costs on 2004-2018
+CRSP. Any revival requires a genuinely different mechanism class (e.g.
+event-conditioned links on daily data), registered from scratch.
