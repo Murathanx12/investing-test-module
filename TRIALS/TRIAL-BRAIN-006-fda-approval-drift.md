@@ -99,7 +99,18 @@ net t < 1). No post-approval drift net of costs at monthly resolution in the
 tradeable (shrcd 10/11) universe — if anything B is mildly negative, consistent
 with approval-day full-pricing + sell-the-news. Leak-checked clean.
 
-Honest scope notes: (1) the small-cap arm — where the hypothesis put the
+### ANNOTATION 2026-07-24 (post-run crosswalk correction — verdict unaffected)
+Chunked agent verification of the overrides sheet (probe + 3 sequential
+batches, all receipts in agent transcripts) corrected the crosswalk AFTER the
+run: APIL ≠ Allergan/AGN — those NDAs are P&G→Warner Chilcott lineage (PG
+pre-2009-10-30, WCRX after; WCRX is shrcd 12, outside the panel universe);
+Tolmar pre-2004 events are Atrix Labs (ATRX); Journey events attach to
+FBIO/DERM; minor date fixes (Bayer NYSE end 2007-09-26, SRA end 2007-04-24,
+ANIP 2013-06-19, ETON 2018-11-13, VRX→BHC 2018-07-16). Net book delta:
+3 permno-corrected + 5 removed + 7 added = 15/671 events (2.2%). Per the
+one-run rule the trial is NOT rerun; a 2.2% book change cannot move
+t = −0.89 across the pre-registered t ≥ 1 bar in either arm. Crosswalk v2 is
+the artifact of record for any FUTURE registration (e.g. the daily-CAR study). — where the hypothesis put the
 effect — could not be measured (2 live months): this is a COVERAGE limit, not
 evidence of absence; a daily-resolution CAR study on `crsp.dsf` (next WRDS
 pull) would be a NEW registration, not a rerun. (2) The forward PDUFA Brier
