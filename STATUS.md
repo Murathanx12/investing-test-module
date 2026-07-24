@@ -12,6 +12,8 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-24 — Factory batch 5: ZERO graduates (30 scans, priors 15/15 directional).** Sign reversals for batch 6: high-DTC (+, IC t 6.2), inst-persist (+, IC t 3.4). insider_cluster/insider_si VOID-DESIGN (need flag harness). defensive = screen-class (maxDD -35% vs -52..-82%). INSTR-HOLD-HORIZON: FLAT 14-17 bps/mo across 1-24mo bands - signal-band exits make long holds free. Cumulative candidates 120.
 
+**2026-07-24 EOD — Batch 6 + BRAIN-009: ZERO graduates.** dtc arms post factory-best largemid net t (3.4/3.0) but FAIL the IC leg - rule held. inst-persist mirror refuted (both tails lose). cust_conc sign reversal book-inspected clean (IC t -7.4, Dhaliwal side). Insider clusters add nothing over single opportunistic buys (BRAIN-009 closed). Cumulative 130.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;

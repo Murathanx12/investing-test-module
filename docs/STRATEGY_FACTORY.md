@@ -227,6 +227,49 @@ sweep priors went 15/15 directionally on the scannable set. Adjudications:
 Zero graduates at 25 bps is the Chen-Velikov base rate showing up on
 schedule. **Cumulative explore candidates: 120** (voids counted).
 
+
+## Results — batch 6 + TRIAL-BRAIN-009 (run 2026-07-24, explore window only)
+
+`batch6_summary.csv`; `runs/TRIAL-BRAIN-009/results.json`.
+
+**Graduates: ZERO — and the two-legged rule earned its keep.**
+
+1. **dtc_qual largemid t_net 3.39 (+43.1 bps/mo) and dtc_high largemid t_net
+   3.03 — the strongest largemid net t-stats the factory has produced — BOTH
+   FAIL the IC leg** (t_IC 0.72 / 1.43 vs bar 2.0). Decile book beats the
+   universe; rank-ordering across the cross-section does not. That is the
+   "portfolio-level fluke without cross-sectional information" pattern the
+   AND-rule exists to catch. No graduation, no exception. (Inverse pattern in
+   small: dtc_high IC t 6.18 REAL, net t 0.68 dead — rank info exists where
+   the book doesn't work, and vice versa. Recorded, not rescued.)
+2. **inst_persist mirror REFUTED:** the high direction ALSO loses in largemid
+   (t −3.03 vs the low arm's −3.49 in batch 5) — both tails drag against the
+   middle. The "mirror would have graduated" reading of batch 5's IC is dead
+   on its own one-shot test. Family CLOSED both directions.
+3. **cust_conc: strong SIGN REVERSAL, book-inspected (t=7 alarm protocol):**
+   IC t −7.41/−4.46 — concentrated-customer suppliers UNDERPERFORM (Dhaliwal
+   side, contra the declared Patatoukas +). Inspection: 1,858 covered names,
+   median conc 21%, top decile = genuinely dependent smaller suppliers, no
+   clip/adjustment artifact. Mirror (conc_low +) is legitimate batch-7
+   material.
+4. cg_overhang: net dead (t −0.02/−0.72); small gross IC t 3.47 real →
+   combiner shelf (GH proxy noise noted).
+5. **TRIAL-BRAIN-009 (insider clusters, flag harness): CLOSED — NO
+   PROMOTION.** B (>=2 buyers/90d) vs the >=1-buyer coverage benchmark:
+   large/mid +6.1 bps t 0.22, micro −51.5 bps t −3.43; noise gross clean
+   (0.03/1.29). Gate DSR 0.276, PBO 0.73, REJECT. Letter-of-the-rule note:
+   the B3 sub-arm printed t 1.0025 on 20 live months of ~6 names — the kill
+   condition is not LITERALLY triggered, but a 20-month sparse sub-arm
+   cannot carry a verdict (BRAIN-006 coverage-floor convention applied).
+   Informative residue: the cluster book's FF6 alpha t 3.02 (large/mid) is
+   real vs FACTORS but not vs the single-buyer universe — the information is
+   "insiders bought", not "how many insiders bought". BRAIN-003's design
+   (opportunistic filter, any buyer) stands as the right one.
+
+**Cumulative explore candidates: 130.** Day total: batches 5+6 + THEME-SUPPLY
++ BRAIN-006 + BRAIN-009 + hold-horizon = 48 candidates/arms adjudicated, 0
+new survivors, 4 sign-reversals recorded, 2 instrument receipts.
+
 ## Results — batch 3a (run 2026-07-22, explore window only)
 
 `data/factory/batch3a_summary.csv` + `batch3a_daily_rerun.csv` (the three
