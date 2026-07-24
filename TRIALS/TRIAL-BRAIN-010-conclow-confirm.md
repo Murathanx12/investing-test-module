@@ -37,5 +37,22 @@ REJECT) on any adjustment/staleness artifact signature — the tgt_upside rule.
 - **REJECT:** anything else → NEGATIVE_RESULTS; the conc family closes
   (both directions then adjudicated).
 
-## Result (filled AFTER the run — never edited)
-_pending_
+## Result (filled AFTER the run 2026-07-25 — never edited)
+Book inspection: PASSED return-blind (42-name books, largest customer <4% of
+sales, size-representative, no artifact signature). One run,
+`data/factory/confirm_conclow.json`:
+
+- Net excess **−5.5 bps/mo (t = −0.20)**, gross t 0.01 — the return effect is
+  GONE on held-out 2019-2024. Observed Sharpe −0.02, PSR 0.42,
+  **DSR 0.0003** at N_TRIALS=140. FF6 alpha −31 bps/mo ann. (t −1.43).
+- IC t 2.6 remains positive — rank information persists, tradeable premium
+  does not (the recurring shape: real IC, no net book).
+
+### Verdict: **KILL** (frozen rule: net excess < 0).
+The conc family is CLOSED both directions: + rejected in explore (batch 6,
+IC t −7.4), − graduated explore then died at confirm. The full sequential-
+mirror chain is adjudicated with receipts — and the explore/confirm wall did
+exactly what it exists to do: a candidate that passed BOTH graduation legs
+in-window (t_net 2.28, t_IC 4.46) still failed out-of-window. Explore
+numbers are hypothesis generation, never evidence. conc_low joins the
+combiner shelf (IC-real class), nothing is promoted.
