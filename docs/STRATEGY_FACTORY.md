@@ -175,6 +175,23 @@ Blocked-on-columns (queued for WRDS batch 4, NOT scanned): RE/ME (Ball et al.
 investment-growth deferred (needs cross-sectional fitting — not a sort).
 
 
+
+## Batch 6 (reversal mirrors + panel-adopted novelties — frozen 2026-07-24 BEFORE running)
+
+NEW REGISTRATION FIELD (adopted from panel round 3, GPT): every signal
+declares its expected holding horizon AND the decay mechanism a priori.
+5 decile signals x 2 segments = 10 candidates. **Cumulative: 120 + 10 = 130.**
+(The insider cluster arms run separately as TRIAL-BRAIN-009 under the flag
+harness — the correct instrument after batch 5's VOID-DESIGN.)
+
+| signal | dir | horizon / decay mechanism | prior |
+|---|---|---|---|
+| dtc_high | + | 1-6mo; shorting-premium overpricing corrects upward + covering flow (Drechsler-Drechsler; OUR explore reversal IC t 6.2) | medium — sign-flip mirror per the frozen new-candidate rule |
+| inst_persist_high | + | quarters; multi-quarter 13F accumulation reflects durable information (our mirror IC t 3.35 largemid) | medium — mirror of rejected JF-2011 direction |
+| dtc_qual | + | quarters; high short-crowding INSIDE top-half gross-profitability names = shorts trapped in sound businesses (Gemini squeeze hypothesis) | speculative interaction — one shot |
+| cg_overhang | + | months; Grinblatt-Han 2005 disposition underreaction: large unrealized gains -> continued drift. PROXY DECLARED: (P - trailing 60m dollar-volume-weighted avg price)/P, monthly data (no shrout on disk for true GH turnover weights) | medium (published + replicated in-sample; proxy noise) |
+| cust_conc | + | annual; concentrated-customer suppliers carry compensated relationship risk (Patatoukas 2012): max customer salecs / supplier sale, PIT 6mo lag | weak-medium (literature splits on sign; + declared per Patatoukas) |
+
 ## Results — batch 5 (run 2026-07-24, explore window only)
 
 `batch5_summary.csv` + `batch5_defensive_rerun.csv` (defensive re-ran after a
