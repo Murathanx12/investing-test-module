@@ -124,5 +124,32 @@ day, byte-identical spec, zero tuning channel). ONE run each on held-out
   Sharpe ≥ 0.3 AND calendar-2020 > 0 AND overlay maxDD ≤ 0.75 × SPY maxDD.
 - Results final; reruns forbidden; variants are new registrations.
 
-## Confirm result (filled AFTER the run — never edited)
-_pending_
+## Confirm result (one run 2026-07-25 — never edited)
+`data/factory/macro_confirm.json`, held-out 2019-01..2024-12 (1,510 d).
+SPY benchmark: CAGR 17.1%, maxDD −33.7%, Sharpe 0.90.
+
+### INSTR-REGIME-JM λ=50 — **REJECT** (frozen bars: both return AND DD missed)
+CAGR 14.0% (bar ≥16.1% ✗), maxDD −27.6% (bar ≤−22.5% ✗), 1.0 switches/yr ✓,
+t vs SPY −0.98. The disclosed failure modes BOTH materialized: calendar-2022
+**−21.6%** (risk-off into TLT during the dual stock-bond crash — the safe
+asset wasn't) and calendar-2020 +4.8% vs SPY +18% (dodged the crash, missed
+the rebound). Sharpe 0.83 vs 0.90 — respectable, but the registered claim
+was crash-avoidance WITHOUT return sacrifice, and out-of-window it
+sacrificed both bars. **The instrument CLOSES.** Second live-fire wall
+validation (first on an allocation instrument): explore showed all-bars-pass
+on the strength of one crisis (2008); the next two crises broke the spec.
+Any successor (e.g. multi-asset risk-off basket instead of TLT-only, VIX
+feature) is a NEW registration with this receipt as its prior.
+
+### INSTR-TSMOM-XA — **PASS** (first macro instrument to survive the wall)
+Standalone: Sharpe 0.47 ✓ (bar 0.3), calendar-2020 **+9.2%** ✓ (crisis
+alpha REPLICATED in a second, unseen crisis; calendar-2022 −0.9% — flat
+through the dual crash), maxDD −8.5%. Overlay: maxDD −18.8% ✓ (bar ≤−25.3%),
+Sharpe 0.96 vs SPY 0.90, worst month −5.6% vs −12.5%.
+**Both hands:** overlay CAGR 10.2% vs SPY 17.1% (t −1.86) — the return drag
+is real and priced. This is a DEFENSIVE DIVERSIFIER receipt (Goal B:
+sequence-risk/drawdown protection), NOT a beat-SPY claim. Consistent across
+both windows now: 2008 +4.9%, 2020 +9.2%, 2022 ≈flat, positive standalone
+Sharpe in both. Next step per house law: forward paper-lane candidacy
+(attended seed-a-lane — Murat's flag, never auto), lane framed as
+"defensive overlay vs 60/40 control", 24-month clock before any claim.
