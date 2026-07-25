@@ -18,6 +18,9 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 MODULE_ROOT = Path(__file__).resolve().parents[1]
 AEGIS = Path(r"C:\Users\mrthn\aegis-finance")
 

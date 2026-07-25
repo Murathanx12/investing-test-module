@@ -261,6 +261,25 @@ net payout yield (batch 7, t 0.80/IC 1.85 largemid), inventory+receivables
 divergences (batch 7, IC-real/net-dead), conditional customer concentration
 (conc family closed BOTH directions incl. confirm KILL), accruals (3rd ask).
 
+## Batch 9 (self-directed research round — frozen 2026-07-26 BEFORE running)
+
+From my own literature + open-source sweep (`aegis-finance
+docs/research/RESEARCH_SWEEP_2026-07-26.md`), all priors agent-verified with
+citations; prior-check gate transcripts run 2026-07-26 (the gate KILLED two
+of my own five candidates: low-beta long-only = closed low-vol family in new
+clothing; NOA level = closed inverted accruals/investment family).
+**Pre-registration literature kill (process receipt, not a counted
+candidate): ea_prem** (Frazzini-Lamont announcement premium) — Heitz-
+Narayanamoorthy-Zekhnini show the US premium DISAPPEARED post-2004 (8-K
+regulation), which is exactly our window; killed before burning a slot.
+3 signals × 2 segments = 6 candidates. **Cumulative: 146 + 6 = 152.**
+
+| signal | dir | horizon / decay mechanism | prior |
+|---|---|---|---|
+| industry_mom | + | 1-6mo; 2-digit-SIC industry trailing 6m EW return (Moskowitz-Grinblatt 1999); turnover MED | LOW — flat since ~2000 (Linnainmaa), subsumed by shared-analyst momentum (Ali-Hirshleifer); kept as the subsumption BASELINE for conn_mom |
+| conn_mom | + | 1-3mo FAST; coverage-weighted prior-month return of analyst-connected stocks (Ali-Hirshleifer JFE 2020, alpha 1.68%/mo t 9.67 in-sample, subsumes industry/customer momentum); pairs from ibes_ptgdet trailing 12m (TP-coverage proxy disclosed); turnover HIGH — declared likely cost-compressed | STRONG lit / cost-risk declared |
+| comp_issue_5y | − (long LOW issuance) | annual+; Daniel-Titman 2006 composite issuance = log ME growth − 60m cum log return; ~40% absorbed by investment factor (disclosed); low-turnover survivor class; live ~2007+ (60m ME warmup) | MEDIUM |
+
 ## Results — batch 8 (run 2026-07-25, explore window only)
 
 Full table: `data/factory/batch8_summary.csv` (6 scans). **Graduates: ZERO.
