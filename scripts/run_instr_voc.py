@@ -48,8 +48,8 @@ def ew_market() -> pd.Series:
             dl = d["dlret"].astype(float)
             r = (1 + r.fillna(0)) * (1 + dl.fillna(0)) - 1
             r = r.where(d["ret"].notna() | d["dlret"].notna())
-        d = d.assign(r=r)
-        m = d.dropna(subset=["r"]).groupby(d["date"].dt.to_period("M"))["r"].mean()
+        d = d.assign(r=r).dropna(subset=["r"])
+        m = d.groupby(d["date"].dt.to_period("M"))["r"].mean()
         m.index = m.index.to_timestamp("M")
         return m
     a = _ew("crsp_msf_ext.parquet")          # 1963-2001
@@ -99,7 +99,7 @@ def main() -> None:
             # dual ridge: f = s_te' S_tr' (S_tr S_tr' + zI)^-1 y
             K = S_tr @ S_tr.T
             alpha = np.linalg.solve(K + Z_PRIMARY * np.eye(TRAIN), ytr)
-            fcst[p].iloc[i] = float(S_te @ (S_tr.T @ alpha))
+            fcst[p].iloc[i] = (S_te @ (S_tr.T @ alpha)).item()
 
     var12 = r.rolling(12).var()
     out = {"spec": {"train": TRAIN, "lags": LAGS, "z": Z_PRIMARY,

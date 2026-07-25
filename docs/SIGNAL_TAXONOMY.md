@@ -24,11 +24,12 @@ closed families cannot re-enter under new clothing (re-litigation ban).
 | Opportunistic insider (single-buyer) | filings | 1–6mo | LOW-MED | **PICKER (weak-positive)** | **BRAIN-003 promoted**, forward clock 2027-07; clusters add nothing (BRAIN-009); role-weights = open stub |
 | Fusion (insider + gp z) | composite | mixed | LOW | **PICKER candidate** | BRAIN-007 survives, beats best single, 3.6× names; SMQ lane live |
 | Momentum (12-1, 6-1, consistency, sharpe) | price | 3–12mo | MED | none (net-dead largemid) | batch 1 closed; qual_mom interaction also failed (b5) |
+| Momentum spillover (industry_mom, conn_mom; cust_mom b3) | price/links | 1–6mo | HIGH | none — conn_mom = starkest paper-vs-cost gap measured (lit 1.68%/mo t 9.67 → our net t −0.78, turnover 0.67); industry flat-since-2000 confirmed | b3/b9 closed |
 | Reversal/dip (st_rev, dip_3m, dd_from_high, ltr) | price | 1–36mo | HIGH | none — Murat's dip theses rejected | batch 1 closed |
 | Low-vol/defensive (vol_low, max_low, skew_low, defensive composite) | price | 6–12mo | LOW | **FILTER (lane risk design)** — maxDD −35% vs −52..−82%, IC t 7.1, zero net excess | batch 1+5; screen-class receipt |
 | Value (btm, re_me) | accounting | annual+ | LOW | none in this era | btm flat; re_me STRONG prior FAILED (b7) — value's decade |
 | Accruals/investment (accruals, asset_growth, dnoa, capx) | accounting | annual | LOW | none — INVERTED post-publication | batch 2/5 closed; 3× re-litigation refused |
-| Issuance/payout (net_issuance, payout_yield) | accounting | annual | LOW | combiner feature only (small IC) | b2/b7 closed; GWZ 2024 agrees OOS-weak |
+| Issuance/payout (net_issuance, comp_issue_5y, payout_yield) | accounting | annual | LOW | combiner shelf — REINFORCED (1y: 1.10/2.18; 5y: 1.15/2.86 — two constructions, same IC-clears/net-doesn't shape) | b2/b7/b9 closed as pickers; strongest combiner case on the shelf |
 | Earnings surprise (sue_streak, earn_accel, ea_shift, pead_agree) | events/analyst | 1–3mo FAST | HIGH | combiner shelf; pead_agree INVERTED (IC t −2.6 — 5th sign reversal, PEAD decay confirmed in-window) | b5+b8 closed at monthly cadence; daily event harness is the only admissible retry class |
 | Short interest LEVEL / DTC | positioning | 1–6mo | MED | **FILTER candidate** — dtc book t 3.4 WITHOUT rank IC (b6, AND-rule held); small seg inverse | family closed as picker BOTH directions; squeeze/regime filter = taxonomy reclass |
 | Short interest TREND (si_trend) | positioning | 1–6mo | HIGH | combiner shelf — IC t 2.12 largemid, net t −0.92 (turnover 0.33 ate it, as declared) | batch 8 closed; SI family fully mapped (level=filter, trend=shelf) |

@@ -280,6 +280,27 @@ regulation), which is exactly our window; killed before burning a slot.
 | conn_mom | + | 1-3mo FAST; coverage-weighted prior-month return of analyst-connected stocks (Ali-Hirshleifer JFE 2020, alpha 1.68%/mo t 9.67 in-sample, subsumes industry/customer momentum); pairs from ibes_ptgdet trailing 12m (TP-coverage proxy disclosed); turnover HIGH — declared likely cost-compressed | STRONG lit / cost-risk declared |
 | comp_issue_5y | − (long LOW issuance) | annual+; Daniel-Titman 2006 composite issuance = log ME growth − 60m cum log return; ~40% absorbed by investment factor (disclosed); low-turnover survivor class; live ~2007+ (60m ME warmup) | MEDIUM |
 
+## Results — batch 9 (run 2026-07-26, explore window only)
+
+Full table: `data/factory/batch9_summary.csv` (6 scans). **Graduates: ZERO.
+Cumulative 152.** Priors 3/3 borne out:
+
+1. **conn_mom — the starkest paper-vs-costs gap the factory has measured.**
+   Ali-Hirshleifer report 1.68%/mo (t 9.67) long-short gross; our long-only
+   top decile at 25 bps: net t −0.78 largemid / −0.71 small, killed by its
+   own 67-68% monthly one-way turnover — and even GROSS t is under 1. IC
+   real-but-small in small (t 2.65). The momentum-spillover family joins
+   the fast-decay graveyard; the paper magnitude lives in the short leg,
+   the monthly refresh, and cost-free accounting.
+2. **industry_mom — the subsumption baseline behaved as documented:**
+   largemid net t 0.13 (flat-since-2000 confirmed on our window); small
+   net t 1.39 / IC t 2.06 — a residue, below the bar.
+3. **comp_issue_5y — IC-clears/net-doesn't, the b2 family shape:** largemid
+   net t 1.15 / IC t 2.86 at 6.2% turnover (vs 1y issuance 1.10/2.18) —
+   the 5y composite is marginally stronger, same shelf class. The issuance
+   shelf entry is REINFORCED (two constructions, same verdict); the
+   combiner case for issuance grows.
+
 ## Results — batch 8 (run 2026-07-25, explore window only)
 
 Full table: `data/factory/batch8_summary.csv` (6 scans). **Graduates: ZERO.

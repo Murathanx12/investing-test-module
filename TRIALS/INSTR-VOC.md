@@ -33,5 +33,27 @@ the receipt is valuable.
   corr(highest-P strategy, twin) < 0.9. Anything else = the claim fails on
   our data; the complexity class stays out of the factory.
 
-## Result (filled AFTER the run — never edited)
-_pending_
+## Result (one run 2026-07-26 — never edited)
+`data/factory/instr_voc.json`. Two pre-results harness crashes (groupby key,
+numpy-2 scalar) fixed before any read — no result was ever produced or seen
+before the successful run.
+
+### Verdict: **NOT SUPPORTED** — the complexity class stays out of the factory
+| window | B&H | TSMOM12 | VolMg | Nagel twin | P=12 | P=100 | P=1000 | P=6000 |
+|---|---|---|---|---|---|---|---|---|
+| 1974-2003 (pre) | **0.89** | 0.31 | 0.80 | 0.36 | 0.13 | −0.02 | 0.13 | −0.11 |
+| 2004-2018 (explore) | **0.50** | 0.31 | 0.44 | 0.35 | 0.21 | −0.13 | 0.17 | 0.27 |
+
+(Sharpe ratios.) Every complexity strategy loses to B&H in BOTH readable
+windows; Sharpe is NOT monotone in P (P=100 is negative in both); the
+confirm window stays sealed per the frozen gate.
+
+**Nuance (both hands):** corr(P=6000, Nagel twin) = 0.126 — with T=120 and
+lag-only features, our spec does not even reproduce the vol-timed-momentum
+artifact Nagel identifies in the T=12/Goyal-Welch configuration; it
+produces plain noise. So this receipt says: the RFF-complexity RECIPE
+CLASS adds nothing on our market series under a no-handicapping position
+pipeline — it does not adjudicate KMZ's exact published configuration
+(T=12, 15 GW predictors, VW market), whose claimed gains three critique
+groups already attribute to artifact. Either way the frozen reading stands:
+no complexity instruments enter this factory.
