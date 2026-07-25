@@ -243,6 +243,24 @@ Horizon declared per signal (standing rule). PIT: datadate + 6 months, ffill<=18
 | payout_yield | + | annual; net payout (dvc + prstkc − issuance proxy)/ME (Boudoukh et al. 2007); disciplined-capital-return firms outperform | MEDIUM (component net_issuance already tested NEGATIVE-side here — declared anyway, the composite is the published claim) |
 | conc_low | + | annual; MIRROR of batch-6 cust_conc (IC t −7.4 book-inspected): diversified-customer suppliers outperform (Dhaliwal relationship-risk side) | MEDIUM (our own reversal receipt; sign-flip=new-candidate rule) |
 
+## Batch 8 (panel-round-4 adoptions — frozen 2026-07-25 BEFORE running)
+
+From the round-4 AI-panel adjudication (`aegis-finance
+docs/research/AI_PANEL_2026-07-25.md`), citations verified live. 3 signals ×
+2 segments = 6 candidates. **Cumulative: 140 + 6 = 146.** Horizon-first
+declarations per the standing rule.
+
+| signal | dir | horizon / decay mechanism | prior |
+|---|---|---|---|
+| si_trend | − (long SI DECREASES) | 1-6mo; underreaction to public short-interest changes — the TREND, distinct from the closed dtc/SI LEVEL family (Zhu-Duan-Tu AEF 2019, verified; second-tier journal). Turnover HIGH — declared cost risk. SI data live 2006-07 → partial explore coverage (~2007-2018), disclosed | MEDIUM |
+| rd_gp | + | annual; R&D/ME (CLS 2001, survives HXZ replication) gated to top-half gross profitability — productive-intangibles conditioning. NOVEL interaction: no published paper conditions RD/ME on GP (verified 2026-07-25) | MEDIUM |
+| pead_agree | + | 1-3mo FAST decay; PEAD where analyst SUE and time-series SUE agree positive, magnitude = min (Livnat-Mendenhall JAR 2006, verified; drift decayed in large caps 2010s) | STRONG lit / declared a-priori likely net-dead at our costs (turnover VERY HIGH) — scanned for the combiner shelf |
+
+Refused from the same reviews (re-litigation ban, receipts in the panel doc):
+net payout yield (batch 7, t 0.80/IC 1.85 largemid), inventory+receivables
+divergences (batch 7, IC-real/net-dead), conditional customer concentration
+(conc family closed BOTH directions incl. confirm KILL), accruals (3rd ask).
+
 ## Results — batch 6 + TRIAL-BRAIN-009 (run 2026-07-24, explore window only)
 
 `batch6_summary.csv`; `runs/TRIAL-BRAIN-009/results.json`.
