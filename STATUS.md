@@ -18,6 +18,8 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-25 — Batch 7 + TRIAL-BRAIN-010: conc_low graduated explore (t 2.28/IC 4.46, first since gp-small) then DIED at confirm (net -5.5 bps t -0.20, DSR 0.0003, FF6 alpha negative; IC t 2.6 persists - rank info real, premium gone). conc family CLOSED both directions. re_me (Ball 2020, STRONG prior) fails the bar in 2004-2018 - value's decade. Cumulative 140. The explore/confirm wall did its job on the first graduate it was handed.
 
+**2026-07-25 PM — Panel round 4 + Batch 8 + taxonomy: ZERO graduates (6 scans, priors 3/3 borne out).** si_trend = IC-real/net-dead largemid (IC t 2.12, turnover 0.33 → net t −0.92; SI family fully mapped: level=filter, trend=shelf). rd_gp = book-without-rank in small (t 1.18, IC −0.07 — AND-rule catch; the novel GP conditioning does not rescue R&D/ME). **pead_agree INVERTED (IC t −2.6 both segments) = 5th sign reversal — strongest in-window receipt of post-2000s PEAD decay; no mirror (VERY-HIGH-turnover class).** Cumulative **146**. Panel round 4 adjudicated (aegis-finance `docs/research/AI_PANEL_2026-07-25.md`): taxonomy 4-tag rule ADOPTED (`docs/SIGNAL_TAXONOMY.md` = the ranked family map); tgt-rebuild inherits the PSZ-2025 dispersion-conditioned design; INSTR-REGIME-HMM amended to statistical jump model; INSTR-SBCORR registered to the macro family; payout/divergences/conc-conditioning/hold-horizon re-litigations REFUSED with receipts. INSTR-OVERFIT-CEILING run same day (see trial doc).
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;

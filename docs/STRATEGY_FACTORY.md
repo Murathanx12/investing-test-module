@@ -261,6 +261,33 @@ net payout yield (batch 7, t 0.80/IC 1.85 largemid), inventory+receivables
 divergences (batch 7, IC-real/net-dead), conditional customer concentration
 (conc family closed BOTH directions incl. confirm KILL), accruals (3rd ask).
 
+## Results — batch 8 (run 2026-07-25, explore window only)
+
+Full table: `data/factory/batch8_summary.csv` (6 scans). **Graduates: ZERO.
+Cumulative 146.** Every a-priori declaration was borne out:
+
+1. **si_trend = IC-real / net-dead, killed by its own declared turnover.**
+   largemid IC t 2.12 (the trend information is real, Zhu-Duan-Tu direction)
+   but one-way turnover 0.33/mo → net t −0.92. Small: +12.3 bps, t 0.91,
+   same story. → combiner shelf. The SI family is now fully mapped: level =
+   filter-class (b5/b6), trend = shelf-class. No mirror to register (the
+   effect is cost-death, not sign reversal).
+2. **rd_gp = book-without-rank in small** (+26.3 bps/mo, t 1.18, IC t −0.07
+   — the dtc-pattern again, caught by the AND-rule; largemid 0.61/0.81).
+   The novel GP conditioning does not rescue R&D/ME at monthly-rebalance
+   book grade. CLOSED as picker.
+3. **pead_agree INVERTED — 5th sign reversal on record.** IC t −2.62/−2.49,
+   net negative both segments. Agreement-gated PEAD at monthly cadence is
+   wrong-SIGNED in 2004-2018, the strongest in-window confirmation of the
+   documented post-2000s PEAD decay our data has produced. No mirror
+   registered: the mirror is a contrarian post-earnings buy at VERY HIGH
+   turnover — the class our 146-candidate ledger says cannot pay costs;
+   recorded as a stub only if a daily-resolution event harness ever exists.
+
+Unifying receipt, unchanged after 146: only LOW-turnover accounting/filings
+signals survive honest costs; fast-decay information belongs to daily event
+studies or the combiner shelf, never to monthly books.
+
 ## Results — batch 6 + TRIAL-BRAIN-009 (run 2026-07-24, explore window only)
 
 `batch6_summary.csv`; `runs/TRIAL-BRAIN-009/results.json`.
