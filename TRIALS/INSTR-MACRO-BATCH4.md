@@ -60,5 +60,69 @@ clustered events within 30d dropped (count reported). Events 2002-06..
 2018-11 (CAR window stays inside explore). CAR(0,+30 trading days): SPY
 raw; USO and ITA excess-of-SPY (from their inceptions). Mean, hit rate, N.
 
-## Result (filled AFTER the run — never edited)
+## Result (filled AFTER the run 2026-07-25 — never edited)
+`data/factory/macro_batch4.json`, explore window 2004-01..2018-12 (3,775 d).
+
+### 1. INSTR-REGIME-JM — ALL THREE BARS PASS → confirm candidate
+| | CAGR | vol | Sharpe | maxDD | switches/yr | %risk-off | t vs SPY (mo) |
+|---|---|---|---|---|---|---|---|
+| JM λ=50 (primary) | **11.2%** | 14.5% | **0.80** | **−26.6%** | **0.4** | 13.8% | 0.94 |
+| JM λ=10 | 10.9% | 14.5% | 0.78 | −24.4% | 0.9 | 11.6% | 0.89 |
+| JM λ=100 | 11.1% | 14.6% | 0.79 | −26.6% | 0.3 | 12.5% | 0.94 |
+| SPY B&H | 7.7% | 18.3% | 0.50 | −55.2% | — | — | — |
+| 60/40 | 8.0% | 10.1% | 0.81 | −29.9% | — | — | — |
+
+Bars: CAGR ≥ SPY−1pp ✓ (+3.5pp), maxDD ≤ ⅔×SPY ✓ (26.6 ≤ 36.8), ≤12
+switches/yr ✓ (0.4). λ-insensitive (all three settings pass — not a
+parameter fluke). **Both hands:** t vs SPY only 0.94 (not significant); the
+CAGR edge is concentrated in dodging ONE event (2008); worst month −13.1%
+(a crash caught while risk-on); 60/40 matches the Sharpe with less vol.
+The tradeable claim is crash-avoidance-without-return-sacrifice, and 2008
+is a single observation — which is exactly what the held-out confirm
+window (COVID 2020 + the 2022 stock-AND-bond crash, TLT's failure mode)
+will interrogate.
+
+### 2. INSTR-TSMOM-XA — bars pass BY THE LETTER; return drag disclosed
+Standalone net: CAGR 2.7%, Sharpe 0.46 (bar ≥0.3 ✓), maxDD −12.1%,
+calendar-2008 **+4.9%** ✓ (crisis alpha real in-window), corr w/ SPY 0.17.
+Overlay 50/50: maxDD −28.9% ≤ 0.75×SPY ✓ — but CAGR 5.6% vs SPY 7.7%,
+**t vs SPY −1.51**: the overlay is drawdown insurance PAID FOR in return.
+Also disclosed: per-asset 10%-vol sizing ÷ 4 assets leaves portfolio vol at
+6% — under-deployed vs portfolio-level vol targeting; a v2 sizing variant
+would be a NEW registration, not a retune.
+
+### 3. INSTR-SBCORR (descriptive) — the panel's gate claim REFUTED in-window
+Corr>0 on 14.4% of explore days. SPY fwd-21d: +0.49% (corr+) vs +0.76%
+(corr−) — mild. **Dip-conditional (the "master switch" claim): dips with
+corr POSITIVE bounced +2.89% (n=50) vs +0.63% with corr negative (n=705) —
+the OPPOSITE of "disable dip-buying when correlation flips positive."**
+GLD after positive flips: −0.34% (n=17) — no gold-hedge signal. Caveats:
+n=50 is thin and 2004-2018 contains no 2022-style inflation regime — the
+claim's home turf is in the held-out window; the descriptive receipt stands
+for this window only.
+
+### 4. INSTR-GPR-EVENT (descriptive) — GPR spikes are not a sell signal
+53 events (93 clustered drops disclosed), 2002-06..2018-11. SPY CAR(0,+30):
+**+0.61%, 64% positive** — mild post-spike drift UP (threat-premium fade),
+not a crash precursor. USO excess −2.47% (oil FADES after spikes — against
+the rally intuition), ITA excess +0.91% (defense mildly positive, n=50).
+Routes to the narrative/brain layer as calibrated context, never to a lane.
+
+## CONFIRM pre-registration (frozen 2026-07-25 BEFORE touching 2019+)
+
+Earned by the explore bars above; BRAIN-010 precedent (register → run same
+day, byte-identical spec, zero tuning channel). ONE run each on held-out
+2019-01..2024-12; runner `scripts/run_macro_confirm.py`.
+
+- **INSTR-REGIME-JM-CONFIRM:** λ=50 ONLY (primary frozen; sensitivities
+  are not re-read). Monthly expanding refits continue through 2024 (causal,
+  full history from 2002). **PASS iff** net CAGR ≥ SPY(2019-24) − 1pp AND
+  maxDD ≤ ⅔ × SPY maxDD AND ≤12 switches/yr. PASS → forward paper-lane
+  candidate (attended seed-a-lane, Murat's flag — never auto). REJECT
+  closes the instrument (receipt: TLT-failure-mode 2022 is inside).
+- **INSTR-TSMOM-XA-CONFIRM:** identical spec. **PASS iff** standalone net
+  Sharpe ≥ 0.3 AND calendar-2020 > 0 AND overlay maxDD ≤ 0.75 × SPY maxDD.
+- Results final; reruns forbidden; variants are new registrations.
+
+## Confirm result (filled AFTER the run — never edited)
 _pending_
