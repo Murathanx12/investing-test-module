@@ -41,5 +41,30 @@ class = N/A (event study, not a book); role = event-picker candidate.
   too (NEGATIVE_RESULTS entry). |t| ≥ 7 anywhere = bug alarm, book
   inspection before any verdict.
 
-## Result (filled AFTER the run — never edited)
-_pending_
+## Result (one run 2026-07-25 — never edited)
+`data/factory/trial011_fda_daily_car.json` (+ per-event parquet). Explore:
+748 events after 30d dedupe (−153 disclosed), 500 usable (247 dropped
+no-data/window — conglomerate sponsors outside the pharma-SIC dsf slice;
+1 dropped est-obs).
+
+### Verdict: **REJECT** (frozen bar: mean > 0 AND t ≥ 2.0; got t = 1.45)
+The confirm gate never opened — 2019-2024 events remain unread.
+
+- CAR(+1,+20) = **+2.1%, t 1.45** — economically large if real, but
+  biotech cross-sectional noise swamps it. The whole drift is in the first
+  five days: CAR(+1,+5) = +2.1% (t 1.52); days 6-20 add NOTHING.
+- AR(0) = +0.43% (t 2.04) — a real same-day reaction exists (descriptive,
+  not tradeable at close-to-close grade).
+- **Attention arm (exploratory): OPPOSITE of the proposed gate.**
+  High-attention events +3.59% vs low-attention +0.60% — the "low-attention
+  drift" hypothesis fails its first data contact here (round-4's warning
+  that the Chemmanur extrapolation was shaky proved right).
+- Size: small half +4.0% (t 1.39) vs large half +0.2% — micro-concentrated,
+  exactly where BRAIN-006 suspected it and exactly where our cost model has
+  no faith. Priority +0.6% vs standard +2.9% — against anticipation
+  intuition; consistent with priority approvals being better pre-priced.
+
+**The FDA approval-drift family is CLOSED at both monthly AND daily
+resolution.** What remains admissible: the FORWARD-only PDUFA ledger
+(different event class, different clock — Brier-scored calls, first event
+2026-07-26) and any CRL/AdCom event design as a NEW registration.
