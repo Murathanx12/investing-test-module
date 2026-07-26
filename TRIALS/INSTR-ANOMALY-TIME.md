@@ -65,6 +65,48 @@ Explore window 2004-01..2018-12, same code path for baseline and variant:
 - One-shot: single execution; crashes before any result is readable are
   repairable and disclosed (INSTR-VOC precedent).
 
-## Result
+## Result (one run, 2026-07-26): **PASS + UPGRADE — with the decomposition shown**
 
-(to be filled by the one run)
+`data/factory/instr_anomaly_time.json`. Coverage: 90.2% of 136,546
+firm-years re-timed; median rdq lag 53 days; **median 4.0 months of
+availability reclaimed**. Same-run baseline reproduced the recorded batch-2
+numbers exactly (2.35/1.96, +27.8/+23.2) — code-path integrity confirmed.
+
+| run (small, 50bps) | net excess bps/mo | t_net | IC t | turnover |
+|---|---|---|---|---|
+| explore gp_base | +23.2 | 1.96 | 6.03 | 0.092 |
+| explore gp_ead | **+25.9** | **2.19** | 6.18 | 0.092 |
+| confirm gp_base | +24.1 | 0.89 | 4.29 | 0.095 |
+| confirm gp_ead | **+33.5** | **1.24** | 4.35 | 0.095 |
+
+Gate opened (2.19 ≥ 1.96 ≥ 1.5). Confirm PASS (net>0, t 1.24 ≥ 0.8,
+IC t 4.35 ≥ 1.5) and UPGRADE (1.24 ≥ 0.89) — **by the letter of the
+frozen rule.**
+
+**Both hands (post-run diagnostics on the fixed runs, disclosed):**
+
+- Paired book-level net diff: explore +3.3 bps/mo (t 1.07), confirm
+  +2.7 bps/mo (t 0.39). The book genuinely improves, weakly, in BOTH
+  windows, at literally identical turnover (the re-timing is costless).
+- Decomposition of the confirm +9.4 excess-net headline: **+2.7 from the
+  book, +6.8 from a lower benchmark** — the EAD universe admits ~37 more
+  recently-reported names/month whose average return is lower. The
+  headline overstates the tradeable effect ~3×.
+- Largemid stays net-dead (−0.19 explore) — no revival claim.
+
+**Adoption rationale (honest):** anomaly-time availability is ADOPTED for
+the module fundamentals stack because (a) it is strictly more PIT-correct —
+the 6-month lag was conservatism, not information; rdq is the true public
+date; (b) the book-level effect is weakly positive in both windows and
+free; (c) the frozen rule says so. It is NOT adopted on the +9.4 headline,
+which is mostly benchmark composition. Bowles et al.'s "month-1
+concentration" is directionally present but small in our small-cap
+50bps-cost world — consistent with our house law that honest costs shrink
+everything.
+
+**Consequences:** future fundamentals registrations may declare EAD
+availability at freeze time (per-row rdq with +6mo fallback, this spec).
+BRAIN-008's confirmed record and its forward clocks are UNCHANGED — this
+instrument upgrades the toolkit, not the survivor's history. The
+conditional inv_div-EAD retry (round-7 review Hyp C) is now admissible as
+a future pre-registration.

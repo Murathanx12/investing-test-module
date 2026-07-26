@@ -20,7 +20,7 @@ closed families cannot re-enter under new clothing (re-litigation ban).
 
 | Family | Source | Horizon | Turnover | Role verdict | Status / receipts |
 |---|---|---|---|---|---|
-| Profitability/quality (gp, cash_prof, fscore, oper_prof) | accounting | annual+ | LOW | **PICKER (small seg) + combiner feature** | **BRAIN-008 survivor** (3 windows, 42yr); ICs pervasive everywhere; largemid net-dead |
+| Profitability/quality (gp, cash_prof, fscore, oper_prof) | accounting | annual+ | LOW | **PICKER (small seg) + combiner feature** | **BRAIN-008 survivor** (3 windows, 42yr); ICs pervasive everywhere; largemid net-dead. **INSTR-ANOMALY-TIME (2026-07-26): EAD/rdq availability ADOPTED** — confirm t 0.89→1.24 (book-level +2.7 bps/mo disclosed weak) |
 | Opportunistic insider (single-buyer) | filings | 1–6mo | LOW-MED | **PICKER (weak-positive)** | **BRAIN-003 promoted**, forward clock 2027-07; clusters add nothing (BRAIN-009); role-weights = open stub |
 | Fusion (insider + gp z) | composite | mixed | LOW | **PICKER candidate** | BRAIN-007 survives, beats best single, 3.6× names; SMQ lane live |
 | Momentum (12-1, 6-1, consistency, sharpe) | price | 3–12mo | MED | none (net-dead largemid) | batch 1 closed; qual_mom interaction also failed (b5) |
