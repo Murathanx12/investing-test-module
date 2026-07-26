@@ -53,6 +53,33 @@ separate re-measure queued.
 
 One shot; crashes before results readable are repairable (disclosed).
 
-## Result
+## Result (one run, 2026-07-26): **GATES PASS; BRAIN-008 AFFIRMED and strengthened**
 
-(to be filled by the one run)
+`data/factory/instr_cost_model.json`. Coverage 4,234 names/month.
+
+- **Sanity gate PASS:** largemid median half-spread 4.2 bps (2004-2010) →
+  3.4 (2011-2018); small > largemid throughout. Levels match the TAQ-era
+  literature; CRSP units confirmed correct.
+- **Regression guard PASS:** flat-50 path reproduces the banked 1.96/+23.2
+  exactly — the harness extension left the flat path byte-identical.
+
+| run (small) | KO half (primary) | KO full (stress) |
+|---|---|---|
+| gp_base explore | +28.7, t 2.43 | +25.0, t 2.12 |
+| gp_base confirm | **+29.9, t 1.11** | +26.2, t 0.97 |
+| gp_ead explore | +31.3, t 2.65 | +27.5, t 2.33 |
+| gp_ead confirm | **+39.2, t 1.45** | +35.4, t 1.31 |
+
+**AFFIRMED per the frozen rule** (confirm net > 0 AND t ≥ 0.8 in every
+cell, both arms). Under invariance-realistic costs the survivor's confirm
+t rises 0.89 → 1.11, and the EAD-timed variant reaches 1.45 — the flat
+50 bps convention was OVER-penalizing this low-turnover small-cap book.
+
+**Honest implication cutting the other way:** largemid realistic spreads
+(~3-4 bps) are far BELOW the flat 25 bps wall, so cost-killed largemid
+rejects with real rank information (e.g. si_trend: IC t 2.12, net t −0.92
+at flat 25, turnover 0.33 → ~14 bps/mo of cost relief under KO) were
+penalized too hard. A single pre-registered re-measure of the cost-killed
+shelf (INSTR-COST-REMEASURE-REJECTS) is now ADMISSIBLE — a new measurement
+condition, not re-litigation — but it must be one registration, deflated,
+AND-rule intact. Queued for panel/Murat decision, not run.
