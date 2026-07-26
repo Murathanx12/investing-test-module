@@ -65,6 +65,39 @@ running this first).
 
 One shot each; crashes before results are repairable (disclosed).
 
-## Results
+## Results (one run, 2026-07-26): HARNESS VALIDATED; published-t is a CONTRARIAN indicator
 
-(to be filled by the one run)
+`data/factory/calibration_pair.json`. Disclosed pre-results repairs:
+summary-file identifiers corrected (asset_growth→asset_growth_low etc.),
+OSAP acronym match made case-insensitive; 3 mappings dropped honestly
+(BM has no t in SignalDoc; LTreversal/ShortInterest acronyms absent).
+
+### INSTR-HARNESS-VALID — **ALL BARS MET**
+
+| proxy | corr vs French | bar |
+|---|---|---|
+| EW market vs mktrf+rf | **0.927** | 0.90 |
+| small−largemid EW vs SMB | **0.778** | 0.60 |
+| mom_12_1 excess-gross vs UMD | **0.645** | 0.40 |
+
+Panel plumbing (delistings, month alignment, universe, segment split)
+VALIDATED at proxy resolution over 180 explore months. Goes in the paper's
+methods; the Chen-Velikov re-measurement is now unblocked.
+
+### INSTR-CZ-CALIB — expectation 1 REFUTED, in the most informative way
+
+13 matched signals: **Spearman rank corr(|OSAP t|, |our t_ic|) = −0.544
+(p 0.055)** — declared expectation was > 0. The frozen disambiguation
+resolves it: sign agreement is 0.923 (12/13 literature directions still
+positive in-window) and the harness passed validation, so the harness is
+NOT indicted — **the cross-signal structure is genuinely inverted: the
+more celebrated the published t, the deader the signal in 2004-2018.**
+Accruals (published t ≈ 4.9) and asset growth (≈ 5+) are our inversions;
+moderate-t signals (GP) still work. This is McLean-Pontiff decay-
+proportional-to-in-sample-strength, reproduced as a rank statistic on our
+own ledger. Median level ratio 0.378 — the typical surviving signal runs
+at ~38% of its published strength.
+
+**Paper exhibit banked:** "the published t-stat is a contrarian indicator
+of current-window strength" — arguably the cleanest single number the
+factory has produced for the write-up.

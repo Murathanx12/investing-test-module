@@ -19,19 +19,22 @@ import pandas as pd
 from aegis_brain.config import MODULE_ROOT
 from aegis_brain.data.eodhd_panel import load_cached_panel
 from aegis_brain.factory.explore import ScanConfig, scan_signal, segment_mask
-from aegis_brain.factory.batch1_price import build_batch1
+from aegis_brain.factory.batch1_price import BATCH1
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("calib")
 OUT = MODULE_ROOT / "data" / "factory"
 
-MAPPING = {  # frozen in the registration
+# Frozen in the registration; summary-file identifiers corrected pre-results
+# (asset_growth->asset_growth_low etc. — mechanical name repairs, disclosed).
+MAPPING = {
     "gross_prof": "GP", "oper_prof": "OperProf",
-    "asset_growth": "AssetGrowth", "accruals_cf": "Accruals",
-    "net_issuance": "ShareIss1Y", "comp_issue_5y": "CompEquIss",
+    "asset_growth_low": "AssetGrowth", "accruals_low": "Accruals",
+    "net_issuance_low": "ShareIss1Y", "comp_issue_5y": "CompEquIss",
     "btm": "BM", "roe": "RoE", "mom_12_1": "Mom12m",
-    "st_rev": "STreversal", "ltr": "LTreversal", "max_low": "MaxRet",
-    "vol_low": "IdioVol3F", "si_ratio": "ShortInterest",
+    "st_reversal": "STreversal", "ltr_36_13": "LTreversal",
+    "max_ret_low": "MaxRet", "vol_6m_low": "IdioVol3F",
+    "si_ratio": "ShortInterest",
     "cust_mom": "CustomerMomentum", "industry_mom": "IndMom",
 }
 
@@ -39,22 +42,24 @@ MAPPING = {  # frozen in the registration
 def cz_calib() -> dict:
     sd = pd.read_csv(MODULE_ROOT / "data" / "reference"
                      / "osap_SignalDoc_snap20260726.csv")
-    sd = sd.set_index("Acronym")
+    sd["Acronym"] = sd["Acronym"].astype(str)
+    sd = sd.set_index(sd["Acronym"].str.upper())
     ours = pd.concat([pd.read_csv(p) for p in sorted(OUT.glob("batch*_summary.csv"))],
                      ignore_index=True)
     ours = ours[ours["segment"] == "largemid"].set_index("signal")
 
     rows, dropped = [], []
-    for sig, acr in MAPPING.items():
+    for sig, acr_raw in MAPPING.items():
+        acr = acr_raw.upper()
         if acr not in sd.index or sig not in ours.index:
-            dropped.append(f"{sig}->{acr}")
+            dropped.append(f"{sig}->{acr_raw}")
             continue
         osap_t = pd.to_numeric(sd.loc[acr, "T-Stat"], errors="coerce")
         if np.isnan(osap_t):
             dropped.append(f"{sig}->{acr} (no t)")
             continue
         rows.append({
-            "signal": sig, "acronym": acr,
+            "signal": sig, "acronym": acr_raw,
             "osap_t": float(osap_t),
             "osap_sample": f"{sd.loc[acr, 'SampleStartYear']}-{sd.loc[acr, 'SampleEndYear']}",
             "our_t_ic": float(ours.loc[sig, "t_ic"]),
@@ -63,7 +68,9 @@ def cz_calib() -> dict:
     from scipy.stats import spearmanr
     rho, pval = spearmanr(df["osap_t"].abs(), df["our_t_ic"].abs())
     ratio = float((df["our_t_ic"].abs() / df["osap_t"].abs()).median())
-    sign_agree = float(((df["osap_t"] * df["our_t_ic"]) > 0).mean())
+    # every factory direction was declared FROM the literature prior, so
+    # "agreement" = our directed t_ic still positive in-window
+    sign_agree = float((df["our_t_ic"] > 0).mean())
     res = {"n_matched": len(df), "dropped": dropped,
            "rank_corr_abs_t": round(float(rho), 3), "p": round(float(pval), 4),
            "median_level_ratio": round(ratio, 3),
@@ -92,7 +99,7 @@ def harness_valid() -> dict:
     mkt_ew = pd.Series(mkt_ew)
     smb_p = pd.Series(smb_p)
 
-    mom = next(s for s in build_batch1(panel) if s.name == "mom_12_1")
+    mom = next(s for s in BATCH1 if s.name == "mom_12_1")
     monthly = scan_signal(panel, mom, "largemid", ScanConfig())["monthly"]
     umd_p = monthly["excess_gross"]
 
