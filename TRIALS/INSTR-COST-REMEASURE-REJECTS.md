@@ -42,6 +42,26 @@ result: it means the flat wall never falsely buried a graduate.
 
 One shot; crashes before results readable are repairable (disclosed).
 
-## Result
+## Result (one run, 2026-07-26): **COHORT EMPTY — the flat wall never falsely buried a graduate. Shelf permanently closed.**
 
-(to be filled by the one run)
+The frozen rule returned ZERO signals. Both near-miss tables banked
+(`batch*_summary.csv` derived, disclosed):
+
+- Rank-real rejects (t_ic ≥ 2, net < 1.5): best GROSS t is
+  net_issuance_low at **1.48** — below the 1.5 gross bar, so it cannot
+  graduate even at ZERO cost. Next: comp_issue_5y 1.42, then a cliff
+  (0.77 and down). The issuance shelf remains "closest to the bar";
+  the bar stands.
+- Gross-passed-net-failed (t_gross ≥ 1.5, net < 1.5): **literally empty**
+  — no largemid signal in 155 candidates ever had a gross-passing book
+  that costs killed.
+
+**The finding, stated for the paper:** in large/mid caps, trading costs
+were never the sole executioner. Every largemid rejection was
+INFORMATIONAL — the book was too weak gross, or the rank information
+wasn't there. Combined with INSTR-COST-MODEL (realistic largemid spreads
+~3-4 bps) and INSTR-CZ-CALIB (fame-proportional decay), the picture is
+coherent: what is dead in large caps is dead because it was arbitraged
+away, not because our cost assumptions were harsh. No KO re-scan was
+needed — the procedure terminates at step 1 with a final, permanent
+closure. No further cost-model appeals exist for the shelf.
