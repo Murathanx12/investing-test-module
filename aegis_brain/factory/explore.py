@@ -48,8 +48,14 @@ def scan_signal(
     sig: FactorySignal,
     segment: str,
     cfg: ScanConfig | None = None,
+    cost_frame: pd.DataFrame | None = None,
 ) -> dict:
-    """One explore scan. Returns {'summary': dict, 'monthly': DataFrame}."""
+    """One explore scan. Returns {'summary': dict, 'monthly': DataFrame}.
+
+    cost_frame: optional [month x sym] ONE-WAY cost in bps (INSTR-COST-MODEL);
+    names missing from the frame fall back to cfg.cost_bps_one_way. When
+    None, behavior is byte-identical to the flat-cost harness.
+    """
     cfg = cfg or ScanConfig()
     score = sig.compute(panel) * float(sig.direction)  # higher = better, always
     eligible = panel.eligible() & segment_mask(panel, segment)
@@ -92,8 +98,14 @@ def scan_signal(
 
         aligned_prev = prev_w.reindex(w.index.union(prev_w.index), fill_value=0.0)
         aligned_new = w.reindex(aligned_prev.index, fill_value=0.0)
-        traded = float((aligned_new - aligned_prev).abs().sum())
-        net = gross - traded * cfg.cost_bps_one_way / 1e4
+        traded_by_name = (aligned_new - aligned_prev).abs()
+        traded = float(traded_by_name.sum())
+        if cost_frame is not None:
+            c = (cost_frame.loc[formation_m].reindex(traded_by_name.index)
+                 .fillna(cfg.cost_bps_one_way))
+            net = gross - float((traded_by_name * c).sum()) / 1e4
+        else:
+            net = gross - traded * cfg.cost_bps_one_way / 1e4
 
         fwd = realized.reindex(s.index)
         ok = fwd.notna()
