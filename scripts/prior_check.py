@@ -60,8 +60,19 @@ def search(terms: list[str]) -> int:
     return n_hits
 
 
+def _expand(raw: list[str]) -> list[str]:
+    """Split multi-word phrases into words and add crude stems (skewness->skew).
+
+    Guards the 2026-07-26 near-miss: a whole quoted phrase searched as one
+    literal string returned 0 hits on families that WERE in the graveyard.
+    """
+    words = {w for t in raw for w in t.split() if len(w) >= 3}
+    stems = {w[:5] for w in words if len(w) >= 8}
+    return sorted(words | stems)
+
+
 def main() -> None:
-    terms = sys.argv[1:]
+    terms = _expand(sys.argv[1:])
     if not terms:
         print(__doc__)
         sys.exit(2)

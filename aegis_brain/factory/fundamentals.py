@@ -103,8 +103,9 @@ def load_characteristics(funda_path=None, link_path=None) -> pd.DataFrame:
                         ) + pd.offsets.MonthEnd(0)
     logger.info("characteristics: %d firm-years matched to %d permnos",
                 len(m), m["sym"].nunique())
-    return m.drop(columns=["gvkey", "linkprim", "linkdt", "linkenddt", "prim",
-                           "permno"])
+    # gvkey retained so instruments (e.g. INSTR-ANOMALY-TIME) can merge fundq
+    # metadata like rdq; FundStore pivots ignore extra columns.
+    return m.drop(columns=["linkprim", "linkdt", "linkenddt", "prim", "permno"])
 
 
 CHARACTERISTICS = ["gross_prof", "oper_prof", "asset_growth", "accruals_cf",
