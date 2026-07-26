@@ -103,5 +103,44 @@ insider-flow feature.
   return + sector 200d-MA warmup), not ~2000-01. Spec table entries 3, 4,
   10 read as amended here; nothing else changes.
 
-## Output (filled AFTER the build — engine outputs land in
-`data/factory/regime_analog_*.json` + `ledger/belief_states.jsonl`)
+## Output (filled AFTER the build 2026-07-26)
+
+**Built and live.** Engine `aegis_brain/macro/macro_analog.py` (7 unit
+tests green), runner `scripts/run_regime_analog.py`. 6,053 complete
+descriptor vectors 2002-07-03 → 2026-07-24 (disk SPY starts 2002-01, so
+first complete vector is 2002-07, not the amendment's ~2000-12 estimate —
+the disk-SPY constraint, not gold/sectors, binds; disclosed).
+**283 belief states in `ledger/belief_states.jsonl`** (282 month-end
+backfill rows stamped `backfill=true` + the current state).
+
+**Current state (query 2026-07-24, confidence 0.811):** nearest episodes =
+Oct-2018 vol spike, mid/late-2021, the 2016-18 grind. Analog frequencies
+(estimates-not-forecasts): fwd-6m positive 84% (median +4.6%), fwd-12m
+positive 82% (median +10.9%), fwd-12m maxDD ≤−15% in 34.7% of analogs
+(≤−20%: 16.3%). Fwd-6m sector winners across analogs: XLE 14, XLK 12,
+XLU 8. Most-extreme features today: gold_ret63 z −1.5 (post-rally
+give-back), oil_ret63 −0.8, r10_chg63 +0.7.
+
+**Face-validity receipts (backfilled trajectory, descriptive):**
+- 2020-03-31: top episodes = GFC (2007-08→2009-04) + 2002-03 bear;
+  crash15 0.42; confidence 0.60 — the library found the right shelves.
+- 2021-12-31: top episodes = 2017→2020-01 melt-up + **Oct-2007** (the
+  prior cycle top, one month before this one); crash15 0.36.
+- 2022-09-30: top episodes = 2008-05→08 + the 2021-22 decline itself.
+- Confidence correctly SAGS in stress (0.43-0.60) vs calm (0.76-0.81) —
+  analog disagreement is informative.
+
+**Disclosed limitations:** (1) pre-~2010 backfill rows draw on a shallow
+candidate library (5-8 years) — episodes degenerate toward "the whole
+library"; weight early-trajectory beliefs accordingly. (2) Episode
+chaining is transitive (analogs ≤126td apart merge), so dense analog runs
+can span years; acceptable descriptive behavior, better clustering is a
+phase-2 item. (3) 2008-09-30 showed fwd6m_positive 0.72 — analog
+frequencies are BASE RATES conditioned on state similarity, not
+forecasts; the artifact class exists to make this distinction auditable.
+
+**Amendments applied at round 11 (adjudicated before build):** episode
+clustering (GPT retrieve→cluster→explain) + agreement-based confidence
+(GPT uncertainty proposal). Deferred to phase 2 as registered: Bayesian
+updating, failed-thesis scoring (PDUFA-ledger pattern), evidence graphs,
+insider-flow feature.
