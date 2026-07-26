@@ -38,7 +38,7 @@ closed families cannot re-enter under new clothing (re-litigation ban).
 | Divergences (inv_div, rect_div) | accounting | annual | LOW | combiner shelf (small IC t 2.6–4.0, net-dead) | b7 closed |
 | Gain overhang (cg_overhang) | price/holdings proxy | 3–12mo | MED | combiner shelf | b6 closed |
 | Analyst revisions (rev_conf; dispersion pending) | analyst | 1–3mo | HIGH | rev_conf failed b5 | TP-dispersion design (PSZ 2025) → tgt rebuild registration |
-| Target price (tgt_upside family) | analyst | 3–12mo | MED | VOID (split-adjust look-ahead) | rebuild unblocked by ibes_adj; dispersion-conditioned spec adopted |
+| Target price (tgt_upside, tgt_ld) | analyst | 3–12mo | MED-HIGH | **CLOSED as picker — PERVERSE** (raw upside t −3.6/−7.2; PSZ low-dispersion conditioning halves the bleed but never turns positive, IC t −3.8) | TRIAL-TGT-REBUILD (#154-155, 2026-07-26): un-voided on nominal split-guarded data, adjudicated REJECT; low-upside mirror admissible-not-queued (HIGH turnover predicts net death) |
 | FDA approvals | events | days–weeks | HIGH | monthly resolution REJECT | daily-CAR successor queued (dsf on disk); attention arm = exploratory |
 | R&D intangibles (rd_gp) | accounting | annual | LOW | none — book-without-rank in small (t 1.18, IC −0.07; AND-rule catch) | batch 8 closed as picker |
 | Board networks (BoardEx) | filings/governance | quarters+ | LOW | **FILTER/layer prior** (Mgmt Sci: LSW alpha may be beta) | design queued; interlock event study = phase 2 |

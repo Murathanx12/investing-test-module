@@ -51,6 +51,34 @@ Tags: source=analyst · horizon=3–12mo · turnover **declared MED-HIGH**
   dispersion IC banked to the combiner shelf if real.
 - One-shot; crashes before results readable are repairable (disclosed).
 
-## Result
+## Result (one run, 2026-07-26): **REJECT — family closed as picker, both arms**
 
-(to be filled by the one run)
+`data/factory/trial_tgt_rebuild.json`. 180 explore months; coverage healthy
+(both arms scanned in both segments). Confirm gate never opened.
+
+| arm / segment | net excess bps/mo | t_net | IC t | turnover 1-way |
+|---|---|---|---|---|
+| tgt_upside largemid | −90.0 | **−3.62** | −3.47 | 0.216 |
+| tgt_upside small | −198.7 | **−7.21** | −3.23 | 0.308 |
+| tgt_ld largemid | −43.5 | −2.58 | −3.77 | 0.453 |
+| tgt_ld small | −7.9 | −0.34 | 0.18 | 0.599 |
+
+- **Prior CONFIRMED, amplified:** raw implied upside is not weak — it is
+  strongly PERVERSE. High-target-upside names (glamour, distressed
+  optimism) underperform catastrophically, worst in small caps. This is
+  the Da-Schaumburg optimism-bias result reproduced on clean nominal data.
+- **PSZ conditioning moves the needle in the predicted DIRECTION but not
+  to the predicted SIGN:** dispersion-conditioning halves the bleed
+  (−90 → −43.5 largemid) yet IC stays negative (−3.77). On our
+  universe/costs the published conditional effect does not exist.
+- The negative IC is real information: LOW-implied-upside (modest
+  expectations) names outperform. A mirror arm (long low-upside) would be
+  a NEW candidate in a future batch — but at 22–45% one-way turnover the
+  house law (only LOW survives costs) predicts net death; admissible, not
+  queued.
+- Split guard worked as designed (no adjustment arithmetic anywhere);
+  the un-voiding is complete — the family now has an adjudicated result.
+
+**Standing:** target-price family CLOSED as picker in both directions of
+the tested arms. Analyst-source families are now 0-for-3 (rev_conf,
+tgt_upside, tgt_ld) as pickers.
