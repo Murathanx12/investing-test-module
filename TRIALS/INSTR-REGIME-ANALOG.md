@@ -89,5 +89,19 @@ Bayesian prior→posterior updating, failed-thesis scoring of past beliefs
 against realized outcomes (PDUFA-ledger pattern), evidence graphs,
 insider-flow feature.
 
+## Data departures (disclosed at fetch 2026-07-26, before any results)
+
+- **HY OAS (BAMLH0A0HYM2): FRED now serves only a rolling ~3-year window**
+  (787 obs from 2023-07-25; explicit `cosd` ignored — ICE licensing
+  truncation). Credit features (#3, #4) therefore use the **Baa−10y
+  spread (DBAA − DGS10, 1986+)** — the classic full-history credit-stress
+  proxy. The truncated HY-OAS stays in the snapshot for recent-window
+  cross-checks only.
+- **Gold: LBMA fix series removed from FRED entirely (404)** → GC=F COMEX
+  front-month futures via yfinance, 2000-08-30+. No splice needed.
+- Consequence: first complete descriptor vector ≈ **2000-12** (gold 63d
+  return + sector 200d-MA warmup), not ~2000-01. Spec table entries 3, 4,
+  10 read as amended here; nothing else changes.
+
 ## Output (filled AFTER the build — engine outputs land in
 `data/factory/regime_analog_*.json` + `ledger/belief_states.jsonl`)

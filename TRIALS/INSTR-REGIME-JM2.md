@@ -93,4 +93,52 @@ reported separately).
 still miss the CAGR bar (2020 rebound-miss was the OTHER JM1 failure and
 the gate does nothing about it).
 
-## Result (filled AFTER the run — never edited above this line)
+## Result (filled AFTER the run 2026-07-26 — never edited above this line)
+
+`data/factory/jm2.json`, one execution, both windows. 252 causal refits.
+
+### VERDICT: **REJECT — instrument CLOSES; single-trigger regime-rotation family CLOSED**
+
+Confirm 2019-2024 (the only gate): CAGR **13.4%** (bar ≥16.1% ✗), maxDD
+**−29.8%** (bar ≤−22.5% ✗), switches 1.0/yr ✓. Two of three frozen bars
+missed.
+
+### The finding that matters: the repair made its own target crash WORSE
+
+| confirm 2019-24 | CAGR | Sharpe | maxDD | cal-2020 | cal-2022 | t vs SPY |
+|---|---|---|---|---|---|---|
+| JM2 (gated) | 13.4% | 0.81 | −29.8% | +4.8% | **−23.9%** | −1.13 |
+| JM1 ablation (TLT-only) | 14.0% | 0.83 | −27.6% | — | −21.6% | −0.98 |
+| SPY B&H | 17.1% | 0.90 | −33.7% | +18% | — | — |
+
+t(JM2 vs JM1) = **−1.18**: the inflation gate is a net negative out of
+window. Mechanism: **2022's bond crash was real-rate-driven — T10YIE
+peaked in April 2022 and FELL through the worst of the TLT collapse** —
+so a breakeven-momentum gate switched risk-off capital back INTO TLT
+precisely when the repair was supposed to route it out (only 9.5% of
+confirm risk-off days were gated to GLD/cash; gate flipped 3× while
+risk-off). The post-hoc repair failed to fix the exact crash it was
+reverse-engineered from. 2020's rebound-miss (+4.8% vs SPY +18%) was
+untouched, as predicted in the prior.
+
+### Explore (declared ~zero weight — and the declaration was earned)
+
+Explore 2004-2018 FLATTERED the repair: CAGR 12.2% vs SPY 7.7%, maxDD
+−20.4% (JM1: −26.6%), calendar-2008 **+32.4%**, t vs JM1 +0.83 — GLD
+rallied through the 2008-2011 inflation-scare windows and made the gate
+look like a pure upgrade. Had explore carried weight, JM2 graduates.
+Confirm inverted it. This is the cleanest live receipt yet for the
+post-hoc-provenance rule: an explore pass on a repaired design measured
+exactly nothing.
+
+### Diagnostics (frozen, never re-picked): lb=63 confirm CAGR 15.0%/maxDD
+−27.6% (still misses both bars), lb=252 12.9%/−31.7% (worse). No lookback
+rescues the design — the failure is the gate's information, not its speed.
+
+### Closure terms
+
+Single-trigger regime rotation (JM state machine + one macro gate) is
+CLOSED with two receipts (JM1: safe asset crashed; JM2: gate mistimed the
+same crash). Any successor needs a genuinely different information class
+(e.g. the ANALOG belief engine's multi-feature state estimate) and starts
+as a NEW walled registration inheriting both receipts. NEG_RESULTS §18.
