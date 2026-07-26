@@ -36,6 +36,28 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-26 night2 — Round 10 + INSTR-COST-REMEASURE-REJECTS: COHORT EMPTY, shelf permanently closed.** Frozen mechanical rule (largemid, non-contaminated: t_ic≥2 AND t_gross≥1.5 AND t_net<1.5 = graduation-but-for-costs) committed BEFORE application → returned ZERO signals. Receipts: best gross among rank-real rejects = net_issuance_low **1.48** (0.02 below bar — cannot graduate even at zero cost); gross-passed-net-failed set literally empty across 155 candidates. **Paper finding: in large/mid caps, costs were never the sole executioner — every rejection was informational (arbitraged away), coherent w/ CZ-CALIB fame-decay + KO ~3-4bps realistic spreads.** No KO re-scan needed; no further cost-model appeals. Round-10 adjudication: both reviews aligned (YES-with-guardrails on remeasure — executed; guardrails held: rule frozen pre-application, empty = final). GPT's **belief-engine/state-estimation** proposal ADOPTED as the REGIME-ANALOG design spec (analog retrieval over macro descriptors + belief states w/ confidence trajectories + evidence lists; LLM narrates, deterministic engine allocates; descriptive phase first). Next: JM2 + REGIME-ANALOG build (the allocation program), then batch 10 (8-K), ceiling ~196, freeze.
 
+**2026-07-26 round 11 — THE ALLOCATION PROGRAM: JM2 REJECT + BELIEF ENGINE LIVE.**
+**INSTR-REGIME-JM2** (inflation-gated rotation, post-hoc-repair provenance
+declared at freeze 470ed0f): explore FLATTERED the repair (12.2% CAGR, 2008
++32.4%, better than JM1 everywhere) → confirm **REJECT, gate made 2022 WORSE
+than JM1 (−23.9% vs −21.6%, t −1.18)** — 2022's bond crash was real-rate-driven
+(T10YIE fell through the worst of it), so the breakeven-momentum gate routed
+risk-off INTO TLT. Zero-weight declaration EARNED; single-trigger regime
+rotation CLOSED w/ two receipts (NEG_RESULTS §18). **INSTR-REGIME-ANALOG phase
+1 LIVE** (descriptive, never arms): macro_analog.py k-NN over 15-feature daily
+descriptor (6,053 vectors 2002-07→2026-07; DBAA−DGS10 substitutes ICE-truncated
+HY-OAS, GC=F substitutes removed LBMA fix — disclosed), episode clustering,
+forward dists 3/6/12/24m, **283 BeliefStates in ledger/belief_states.jsonl**
+w/ trajectories; face validity: 2020-03 retrieved GFC+2002, 2021-12 retrieved
+Oct-2007 top, confidence sags in stress; 7 tests green. Round-11 adjudication
+(`aegis-finance AI_PANEL_2026-07-26E.md`): Chen-Welch 2026 (7 bps/mo post-2005
+non-micro) VERIFIED → paper reference; GPT's SSRN 6962678 unverifiable;
+DeepSeek narrated the unbuilt belief engine as done (corrected); episodes +
+agreement-confidence ADOPTED+built, Bayesian/failed-thesis = phase 2;
+"close Phase I now" modified-refused (batch 10 + ceiling first). Batch-10
+prep: 8-K prior-check clean; zombie/rate-cut **DATA-BLOCKED on xint** (not in
+any pull — next WRDS tap). Next: batch 10 (8-K) → ceiling ~196 → FREEZE.
+
 ## 2026-07-22: STRATEGY FACTORY + BRAIN-008 (second survivor) + FULL WRDS HAUL
 
 - **Strategy Factory** built (explore 2004-2018 / confirm 2019-2024 held out;
