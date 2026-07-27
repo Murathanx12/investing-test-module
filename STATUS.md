@@ -36,6 +36,35 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-26 night2 — Round 10 + INSTR-COST-REMEASURE-REJECTS: COHORT EMPTY, shelf permanently closed.** Frozen mechanical rule (largemid, non-contaminated: t_ic≥2 AND t_gross≥1.5 AND t_net<1.5 = graduation-but-for-costs) committed BEFORE application → returned ZERO signals. Receipts: best gross among rank-real rejects = net_issuance_low **1.48** (0.02 below bar — cannot graduate even at zero cost); gross-passed-net-failed set literally empty across 155 candidates. **Paper finding: in large/mid caps, costs were never the sole executioner — every rejection was informational (arbitraged away), coherent w/ CZ-CALIB fame-decay + KO ~3-4bps realistic spreads.** No KO re-scan needed; no further cost-model appeals. Round-10 adjudication: both reviews aligned (YES-with-guardrails on remeasure — executed; guardrails held: rule frozen pre-application, empty = final). GPT's **belief-engine/state-estimation** proposal ADOPTED as the REGIME-ANALOG design spec (analog retrieval over macro descriptors + belief states w/ confidence trajectories + evidence lists; LLM narrates, deterministic engine allocates; descriptive phase first). Next: JM2 + REGIME-ANALOG build (the allocation program), then batch 10 (8-K), ceiling ~196, freeze.
 
+**2026-07-27 round 12 open — SWEEP ADJUDICATED + BATCH 10 REGISTERED (reframed; cumulative candidates 158).**
+External sweep (`aegis-finance docs/research/RESEARCH_SWEEP_2026-07-27.md`, 42
+re-matched sources; all harness "refutations" VOID — killed agents tallied as
+refutes) adjudicated in `AI_PANEL_2026-07-27F.md`. **Registered (freeze this
+commit): TRIAL-EVENT-8K-FILTER** (batch 10 REFRAMED picker→distress exclusion
+screen per Lerman-Livnat — drift lives on the short leg, good news reacts at
+event date; items {1.03, 2.04, 5.01} frozen, daily-index PIT, 63td deciding,
+Item-2.02 picker DECLINED: PEAD closed/inverted) **+ TRIAL-TEXT-LAZY** (CMN
+Lazy Prices post-publication test, text_cos/text_jac, prior WEAK long-leg,
+publishable either way; registered BEFORE any EDGAR text pull). **Declined
+with receipts:** Cop/cash-profit re-spec of gp-small = RE-LITIGATION (batch 2
+already ran the head-to-head: gp +27.8 t 2.35 vs cash_prof +12.9 t 1.26 small
+— our data answered; HXZ external doesn't override); rebalance-date
+randomization as live-lane change = FREEZE VIOLATION + paper lanes pay no
+price impact (adopt as future-lane seed default + paper citation, NBER 33554);
+vol-target refinements deferred post-freeze (2/10 markets significant;
+TSMOM-XA spec frozen). **Paper repositioning adopted:** McLean-Pontiff Fig 1.B
+is prior art for −0.544 → LEAD = method + empty cost-killed cohort; −0.544
+demoted to supporting w/ SignalDoc-own-construction robustness arm queued.
+Verified: "Reviving Anomalies" (SSRN 6468806) = NN-forecast overlay on anomaly
+rules — the complexity class we refused, cite-and-position, NOT adverse to the
+empty cohort; Berkin-Wang = long-only but GROSS, alpha in smallest quintile
+(the regime Chen-Welch kills net). LLM/agent-alpha closure receipts → NEG_RESULTS
+§19 (Kim-Muhn-Nikolaev WITHDRAWN; FINSABER 2004-2024 kills FinMem/FinAgent
+net). 10b5-1 2023 break note added to TRIAL-CMP-INSIDER-IC (sales signal
+destroyed post-amendment; our buys-side signal unaffected but pre/post-2023
+pooling flagged for the Oct refresh audit). Runs (EDGAR pulls + scans) =
+next research session (opus). Then: ceiling re-check at 158 → FREEZE → paper.
+
 **2026-07-26 round 11 — THE ALLOCATION PROGRAM: JM2 REJECT + BELIEF ENGINE LIVE.**
 **INSTR-REGIME-JM2** (inflation-gated rotation, post-hoc-repair provenance
 declared at freeze 470ed0f): explore FLATTERED the repair (12.2% CAGR, 2008
