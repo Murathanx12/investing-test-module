@@ -36,6 +36,7 @@ from aegis_brain.events.name_link import cik_permno_windows
 from aegis_brain.factory.explore import segment_mask
 
 KEEP_FORMS = ("8-K", "10-K", "10-Q")
+SHARD_SIZE = 200
 WIN_START, WIN_END = "2004-01-31", "2024-12-31"
 
 
@@ -56,18 +57,52 @@ def main() -> None:
     ciks = universe_ciks()
     logging.info("in-universe filers: %d", len(ciks))
 
+    # Shard checkpointing. An hour of rate-limited fetching must survive an
+    # interruption: this pass once reached 89% and lost everything because it
+    # only wrote at the end. Shards are flushed every SHARD_SIZE filers and
+    # completed CIKs are skipped on restart.
+    shard_dir = out_dir / "_subs_shards"
+    shard_dir.mkdir(exist_ok=True)
+    done: set[int] = set()
+    for sh in sorted(shard_dir.glob("shard_*.parquet")):
+        try:
+            done |= set(pd.read_parquet(sh, columns=["cik"])["cik"].astype(int))
+        except Exception:
+            logging.warning("unreadable shard %s — refetching its filers", sh.name)
+    if done:
+        logging.info("resuming: %d filers already banked in shards", len(done))
+
+    pending = [c for c in ciks if c not in done]
+    logging.info("filers pending: %d", len(pending))
+
+    COLUMNS = ["cik", "form", "accession", "items_raw", "filing_date",
+               "primary_document"]
     rows: list[tuple] = []
+    batch_ciks: list[int] = []
     n_missing = 0
-    for i, cik in enumerate(ciks, start=1):
+
+    def flush(tag: int) -> None:
+        if not batch_ciks:
+            return
+        # Filers with zero kept forms still get a marker row so a restart does not
+        # refetch them forever; markers are dropped at assembly.
+        recorded = {r[0] for r in rows}
+        extra = [(c, "_NONE_", "", "", "", "") for c in batch_ciks if c not in recorded]
+        pd.DataFrame(rows + extra, columns=COLUMNS).to_parquet(
+            shard_dir / f"shard_{tag:05d}.parquet", index=False)
+        rows.clear()
+        batch_ciks.clear()
+
+    for i, cik in enumerate(pending, start=1):
+        batch_ciks.append(cik)
         try:
             pages = _submission_pages(cik)
         except RuntimeError:
             logging.warning("submissions unavailable for CIK %d", cik)
             n_missing += 1
-            continue
+            pages = []
         if not pages:
             n_missing += 1
-            continue
         for page in pages:
             forms = page.get("form", [])
             n = len(forms)
@@ -79,16 +114,17 @@ def main() -> None:
                 fu = str(f).upper()
                 if fu.startswith(KEEP_FORMS):
                     rows.append((cik, fu, a, it or "", d, pd_ or ""))
-        if i % 250 == 0:
-            logging.info("filers %d/%d, rows %d, fetch_stats %s",
-                         i, len(ciks), len(rows), STATS)
+        if i % SHARD_SIZE == 0:
+            flush(i)
+            logging.info("filers %d/%d banked, fetch_stats %s", i, len(pending), STATS)
+    flush(10 ** 5)
 
-    if not rows:
+    shards = sorted(shard_dir.glob("shard_*.parquet"))
+    if not shards:
         raise RuntimeError("submissions pass returned ZERO rows — treat as fetch "
                            "failure, never as 'this universe files nothing'")
-
-    df = pd.DataFrame(rows, columns=["cik", "form", "accession", "items_raw",
-                                     "filing_date", "primary_document"])
+    df = pd.concat([pd.read_parquet(s) for s in shards], ignore_index=True)
+    df = df[df["form"] != "_NONE_"]
     df["filing_date"] = pd.to_datetime(df["filing_date"], errors="coerce")
     df = df.dropna(subset=["filing_date"]).drop_duplicates(subset=["accession", "form"])
     df.to_parquet(out_dir / "sec_submissions.parquet", index=False)

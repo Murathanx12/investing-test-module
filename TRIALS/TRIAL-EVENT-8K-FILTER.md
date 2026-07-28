@@ -128,5 +128,55 @@ is a separate attended step.
 
 ## Result (filled in AFTER the run — never edited afterwards)
 
-- Gate report:
-- Verdict:
+**Ran 2026-07-28 UTC, explore 2004-2018, one shot.** Acquisition: 4,860 EDGAR
+daily indexes walked (0 failed days), 1,530,116 8-K originals, 7,809 filings
+carrying a frozen item, 6,094 linked to permnos (78.0%, 169 ambiguous dropped),
+3,949 inside the explore window. Item mix in window: 5.01 ×2200, 2.04 ×1145,
+1.03 ×302, plus 302 multi-item filings.
+
+**Gate report (3-month market-adjusted, per the addendum):**
+
+| Arm | mean | median | t | n |
+|---|---|---|---|---|
+| B — flagged (the claim) | −5.95% | −5.22% | **−7.06** | 1,264 |
+| A — pseudo-event −12mo (declared expectation ~0) | −6.79% | −5.84% | **−11.33** | 2,528 |
+
+Calendar-time (secondary, cross-correlation-robust): B −79.7 bps/mo t **−1.50**;
+A −229.4 bps/mo t **−11.10**. 165 months, median 27 names (B).
+
+**Verdict: NO GRADUATION — the control arm invalidated the measurement.
+Confirm window NOT opened.**
+
+Arm B clears the frozen bar (negative, t −7.06 ≤ −2.0). It is not claimable,
+because Arm A — registered as "control, expected ~0 … validates the pipeline" —
+returned a LARGER negative effect than the treatment. A trial whose validation
+arm beats its hypothesis has not measured its hypothesis.
+
+**Diagnosis (attrition audit over the same 3,949 events, not speculation):**
+
+| | Arm B (filing month) | Arm A (−12mo) |
+|---|---|---|
+| usable | 1,264 (32%) | 2,528 (64%) |
+| dropped — NOT IN SEGMENT at formation | **2,574 (65%)** | 1,408 (36%) |
+| dropped — already dead (all-NaN returns) | 99 | 1 |
+
+Segment eligibility is dollar-volume rank ≤3000 **at the formation month**, so by
+the filing date two thirds of these names have already dropped out of the liquid
+universe. Arm B therefore silently excludes the worst distress cases while Arm A
+retains them (they were still liquid a year earlier). The two arms are not
+comparable cohorts, and the measurement conditions on survival-to-event.
+
+The economics that survives: **the ~−6% quarter is firm-level distress
+persistence plus universe-eligibility selection, not filing-date information.**
+These names were doing WORSE twelve months before they filed. The −12mo pseudo
+control did precisely the job it was registered to do — it is the reason this
+did not become a false positive.
+
+**What is barred from here:** no re-tuning of the item set, no horizon switch, no
+re-run of this trial, and the kill clause is NOT invoked (it requires a
+non-negative cohort, which is not what happened). A successor requires a NEW
+registration fixing the control — e.g. matched non-filing distressed firms, or
+segment eligibility frozen at a pre-event date to strip the selection — and it
+inherits the same one-shot discipline. Logged as NEGATIVE_RESULTS §20.
+
+Run artifact: `runs/TRIAL-EVENT-8K-FILTER/results_explore.json`.

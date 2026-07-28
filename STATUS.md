@@ -36,6 +36,36 @@ per-session detail in docs/SESSION_*.md.
 
 **2026-07-26 night2 — Round 10 + INSTR-COST-REMEASURE-REJECTS: COHORT EMPTY, shelf permanently closed.** Frozen mechanical rule (largemid, non-contaminated: t_ic≥2 AND t_gross≥1.5 AND t_net<1.5 = graduation-but-for-costs) committed BEFORE application → returned ZERO signals. Receipts: best gross among rank-real rejects = net_issuance_low **1.48** (0.02 below bar — cannot graduate even at zero cost); gross-passed-net-failed set literally empty across 155 candidates. **Paper finding: in large/mid caps, costs were never the sole executioner — every rejection was informational (arbitraged away), coherent w/ CZ-CALIB fame-decay + KO ~3-4bps realistic spreads.** No KO re-scan needed; no further cost-model appeals. Round-10 adjudication: both reviews aligned (YES-with-guardrails on remeasure — executed; guardrails held: rule frozen pre-application, empty = final). GPT's **belief-engine/state-estimation** proposal ADOPTED as the REGIME-ANALOG design spec (analog retrieval over macro descriptors + belief states w/ confidence trajectories + evidence lists; LLM narrates, deterministic engine allocates; descriptive phase first). Next: JM2 + REGIME-ANALOG build (the allocation program), then batch 10 (8-K), ceiling ~196, freeze.
 
+**2026-07-28 round 12 RUN — TRIAL-EVENT-8K-FILTER: NO GRADUATION, killed by its
+own control.** EDGAR acquisition clean and reusable: 4,860 daily indexes
+2004-2024, **0 failed days**, 1,530,116 8-K originals, 30,558 filers; plus a
+shared submissions pass over the 10,354 in-universe filers (13,444 fetches, 0
+failures) that serves BOTH registrations (8-K item codes + 10-K document URLs).
+New CIK bridge (CRSP historical names x EDGAR cik-lookup-data.txt, survivorship-
+neutral, 88.5% of universe permnos) replaces the absent `cik` column.
+**Result:** Arm B cleared its frozen bar (-5.95% 3m, t -7.06) and is NOT
+claimable -- the -12mo pseudo-event control, registered as "expected ~0",
+returned **-6.79%, t -11.33**. Attrition audit: Arm B keeps 32% of events vs Arm
+A 64%, gap driven by ONE filter (65% vs 36% dropped as "not in segment" at
+formation) -- distressed names fall out of the liquid universe before they file,
+so Arm B silently excludes the worst cases. Calendar-time agrees (B -80 bps/mo t
+-1.50 vs A -229 t -11.1). Reading: distress-8-K "drift" = firm-level distress
+persistence + eligibility selection, not filing-date information; these names
+were worse 12 months EARLIER. **Confirm window NOT opened** (uninterpretable
+explore must not spend the held-out window); kill clause NOT invoked (needs a
+non-negative cohort); family UNADJUDICATED, successors need a new registration
+with eligibility frozen pre-event. NEG_RESULTS §20.
+**Two departures declared BEFORE any data touch** (module 40047ba / 4ee7a40):
+8-K deciding metric moved to 3-CALENDAR-MONTH from the first month-end after
+filing (no daily CRSP for the general universe; bar unchanged), and TEXT-LAZY
+coverage shrunk to 10-K only (fetch-time-bound at 8/s, not disk -- the pipeline
+never persists raw filings). Acquisition hardening earned the hard way: the
+first walk died on `master.idx`, the dateless QUARTERLY AGGREGATE that the
+freeze BANS as an event source and that a loose glob had matched -- only SEC's
+403 stopped it being ingested silently. Now regex-pinned to `master.YYYYMMDD.idx`,
+per-year checkpointed, and >2% day-failure raises instead of yielding a thin
+cohort. TRIAL-TEXT-LAZY text pull running (72,061 annual filings, 7,815 permnos).
+
 **2026-07-27 round 12 open — SWEEP ADJUDICATED + BATCH 10 REGISTERED (reframed; cumulative candidates 158).**
 External sweep (`aegis-finance docs/research/RESEARCH_SWEEP_2026-07-27.md`, 42
 re-matched sources; all harness "refutations" VOID — killed agents tallied as

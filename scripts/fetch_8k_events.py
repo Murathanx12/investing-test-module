@@ -32,12 +32,15 @@ def main() -> None:
     out_dir = MODULE_ROOT / "data" / "events"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    df = harvest_daily_8k(START_YEAR, END_YEAR)
+    cache = out_dir / "_8k_year_cache"
+    cache.mkdir(exist_ok=True)
+    df, audit = harvest_daily_8k(START_YEAR, END_YEAR, cache_dir=cache)
     path = out_dir / "edgar_8k_daily_index.parquet"
     df.to_parquet(path, index=False)
 
     meta = {
         "window": f"{START_YEAR}-{END_YEAR}",
+        "walk_audit": audit,
         "n_rows": int(len(df)),
         "n_originals": int((~df["is_amendment"]).sum()),
         "n_amendments": int(df["is_amendment"].sum()),

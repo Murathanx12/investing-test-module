@@ -119,9 +119,11 @@ def link_filings_by_cik(filings: pd.DataFrame, cik_col: str, date_col: str,
     f["_row"] = range(len(f))
     n_in = len(f)
 
-    bridge = cik_permno_windows()
+    # Rename before merging: callers routinely pass a frame that already has a
+    # `cik` column, which pandas would silently suffix to cik_x/cik_y.
+    bridge = cik_permno_windows().rename(columns={"cik": "_bridge_cik"})
     slack = pd.Timedelta(days=slack_days)
-    m = f.merge(bridge, left_on="_cik", right_on="cik", how="inner")
+    m = f.merge(bridge, left_on="_cik", right_on="_bridge_cik", how="inner")
     m = m[(m["_d"] >= m["namedt"] - slack) & (m["_d"] <= m["nameenddt"] + slack)]
 
     nper = m.groupby("_row")["permno"].nunique()
@@ -130,7 +132,7 @@ def link_filings_by_cik(filings: pd.DataFrame, cik_col: str, date_col: str,
 
     linked = (m[m["_row"].isin(unique_rows)]
               .drop_duplicates(subset=["_row"])
-              .drop(columns=["namedt", "nameenddt", "cik"]))
+              .drop(columns=["namedt", "nameenddt", "_bridge_cik"]))
     linked["permno"] = linked["permno"].astype(int)
 
     report = {
