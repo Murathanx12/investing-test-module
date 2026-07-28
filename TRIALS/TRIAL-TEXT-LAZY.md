@@ -75,6 +75,41 @@ trial; any other failure mode closes the family outright.
 - Windows: explore 2004-2018, one run; confirm 2019-2024 only for explore
   graduates, one run, final.
 
+## PRE-RUN ADDENDUM — coverage shrink (2026-07-28 UTC, before any text pull)
+
+The registration pre-authorized exactly one departure if the EDGAR text pull
+proved infeasible: **shrink COVERAGE, never the window.** Exercised here, declared
+before a single document was fetched.
+
+**Coverage as run: 10-K only. 10-Q is dropped.**
+
+- Binding constraint is FETCH TIME, not disk. SEC's cap forces ≤8 requests/s
+  through one choke-point, so the pull is document-count-bound: the in-universe
+  10-K set is ~90k documents (~3-4h); adding 10-Q multiplies that by ~4 and the
+  pull stops fitting in a session. Disk is a non-issue by construction — the
+  pipeline never persists raw filings (see `aegis_brain/events/filing_text.py`:
+  one firm at a time, two token bags in memory, two floats out).
+- Effect on the signal: formation becomes ANNUAL rather than quarterly. The
+  frozen 15-month staleness limit already tolerates this (a 10-K-only firm-year
+  chain never goes stale between filings). CMN report annual-formation results
+  alongside quarterly, so the annual version is the paper's own weaker variant,
+  not an invention of ours.
+- Effect on power: fewer formation events and slower signal refresh → this is a
+  LOWER-powered test than CMN's. Stated as such next to any claim. A null here is
+  weaker evidence of absence than a full-coverage null would have been, and the
+  writeup must say so rather than reporting "Lazy Prices does not replicate."
+- **Windows UNCHANGED** (explore 2004-2018, confirm 2019-2024), signals unchanged
+  (`text_cos`, `text_jac`, both +), harness unchanged, arms unchanged, one shot.
+
+**Link departure (both round-12 trials):** the module's WRDS pull carries no `cik`
+column, so filings are joined to permnos through a CIK bridge built from CRSP
+historical name rows × EDGAR's `cik-lookup-data.txt` (every name a CIK ever filed
+under, former names included). Both sides are historical registries, so the bridge
+is survivorship-neutral — deliberately NOT `company_tickers.json`, which only
+knows current filers and would silently delete dead firms. Filings whose CIK maps
+to more than one permno inside the date window are DROPPED as ambiguous and
+counted; the match rate is reported with the result.
+
 ## What this rule may NOT do
 
 No short leg, no lane, no buy/sell language. Graduation earns confirm; a
