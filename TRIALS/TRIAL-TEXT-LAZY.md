@@ -117,5 +117,77 @@ confirm pass earns forward-clock candidacy only (attended).
 
 ## Result (filled in AFTER the run — never edited afterwards)
 
-- Gate report:
-- Verdict:
+**Run:** 2026-07-28, explore 2004-01-31 → 2018-12-31, one shot, results final.
+Confirm window NOT opened. Full artifact `runs/TRIAL-TEXT-LAZY/VERDICT.md`
+(+ `results_explore.json`, `diag_changer_cohort.json`, `runs/fetch_lazy.log`).
+
+**Acquisition:** 72,061 10-K filings fetched, **0 failed**, 12 retries, 358 min
+through the shared `sec_get` choke-point. 62,982 permno-month pairs / 7,392
+permnos / 2003-12-08 → 2024-12-31. Per-filing link rate 86.9% (1,609 ambiguous
+dropped, 9,261 unmatched), coverage shrink = 10-K only as declared in `4ee7a40`.
+Windows unchanged.
+
+### Gate report — PICKER
+
+| Arm | Signal | Segment | Net bps/mo | **t net** | t gross | IC t | Turnover |
+|---|---|---|---|---|---|---|---|
+| **B** | text_cos | largemid | −3.3 | **−0.36** | 0.02 | 1.49 | 0.071 |
+| **B** | text_cos | small | +1.5 | **+0.10** | 0.47 | 6.53 | 0.103 |
+| **B** | text_jac | largemid | −2.0 | **−0.24** | 0.28 | 2.39 | 0.087 |
+| **B** | text_jac | small | +11.0 | **+0.87** | 1.26 | 7.47 | 0.122 |
+| A | ctl_cos | small | +1.9 | +0.20 | 0.88 | 1.34 | 0.127 |
+| A | ctl_jac | largemid | −16.1 | −1.61 | −0.08 | 0.112 | 0.112 |
+| A | ctl_jac | small | −7.3 | −0.68 | −0.11 | **2.94** | 0.122 |
+
+Bar was net t ≥ +2.0. Best treatment cell **t = 0.87**, under half the bar.
+
+It does **not** die of costs — gross t 1.26 → net 0.87. Not a cost-killed
+candidate; it fails on alpha. The information *is* present (treatment IC t
+6.53/7.47 clearly exceeds control 1.34/2.94) and is worth **11 bps/month at
+t = 0.87** in a long-only top-decile book. Per the registration, that decay
+measurement is itself the deliverable — and per the low-power caveat above, this
+is weaker evidence of absence than a full-coverage null would have been.
+
+### Gate report — pre-declared FILTER fallback: **DOES NOT FIRE**
+
+The changer cohort returned −3.06% / t = −15.03 (largemid), apparently clearing
+the t ≤ −2.0 trigger by a wide margin. **It is an artifact.** Arm A is specified
+here as "pipeline validation; should carry no signal", so it was run through the
+identical statistic:
+
+| Frame | Seg | 3m excess | t naive | **t NW(3)** | persistence | med dv pctile |
+|---|---|---|---|---|---|---|
+| text_cos | largemid | −3.06% | −15.03 | −9.74 | 0.838 | 0.512 |
+| **ctl_cos** | **largemid** | **−2.46%** | −12.65 | **−8.39** | 0.880 | 0.598 |
+| **ctl_jac** | **largemid** | **−2.54%** | −10.14 | **−6.26** | 0.887 | 0.620 |
+| text_cos | small | −3.05% | −13.75 | −11.14 | 0.821 | 0.446 |
+| **ctl_cos** | **small** | **−1.82%** | −6.15 | **−3.83** | 0.837 | 0.488 |
+
+The control — same filings scored against a **random different firm** — fires the
+trigger at 80% of treatment magnitude. Two supporting reasons it was never a
+signal: (i) monthly observations of 3-month returns overlap 2/3, and NW(3) cuts
+−15.03 to −9.74 (a correction, not the kill — the control is the kill);
+(ii) the cohort is **82–89% the same names month over month**, i.e. a persistent
+characteristic (structurally odd filings), not an event set, resampled 178 times.
+
+### Verdict
+
+**REJECT. Family CLOSED outright** under this spec's own clause ("any other
+failure mode closes the family outright"). No successor FILTER registration.
+Cumulative candidates unchanged at 158. Binding B2 noted: the CIK-bridge caveat
+attaches to a PASS; this is a rejection and takes no discount.
+
+### Spec defect logged (carry forward)
+
+The picker had a control arm; **the fallback trigger did not** — it was a bare
+one-sided threshold on a treatment quantity. Without the diagnostic this trial
+would have "failed into" a successor registration on a statistic pure noise
+satisfies at t = −8.4, eventually spending held-out window on an artifact.
+
+**Rule: every pre-declared fallback trigger must name its own control arm and its
+own overlap correction at registration time.** A fallback is a hypothesis; it
+does not get to skip the design the primary hypothesis had to pass.
+
+Second consecutive trial invalidated by its control arm (TRIAL-EVENT-8K-FILTER,
+`b92a20f`, NEG_RESULTS §20, was the first). Two for two in one round is the house
+discovering its treatment effects were mostly design.

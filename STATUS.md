@@ -64,7 +64,31 @@ first walk died on `master.idx`, the dateless QUARTERLY AGGREGATE that the
 freeze BANS as an event source and that a loose glob had matched -- only SEC's
 403 stopped it being ingested silently. Now regex-pinned to `master.YYYYMMDD.idx`,
 per-year checkpointed, and >2% day-failure raises instead of yielding a thin
-cohort. TRIAL-TEXT-LAZY text pull running (72,061 annual filings, 7,815 permnos).
+cohort.
+
+**2026-07-28 round 12 RUN 2 — TRIAL-TEXT-LAZY: REJECT, family CLOSED, and its
+fallback trigger was an artifact.** Text pull completed clean: 72,061 10-K
+filings, **0 failed**, 12 retries, 358 min; 62,982 permno-month pairs / 7,392
+permnos; per-filing link 86.9% (1,609 ambiguous dropped). **Picker fails
+cleanly** — best cell `text_jac`/small **net t 0.87** vs bar 2.0 — and fails on
+ALPHA, not costs (gross t 1.26 → net 0.87), so it does NOT belong on the closed
+cost-killed shelf. Honest positive: treatment IC t 6.53/7.47 clearly exceeds
+control 1.34/2.94, so the Lazy-Prices information IS present in our data and is
+worth **11 bps/mo at t 0.87** long-only — the pre-registered decay measurement,
+delivered. **The pre-declared FILTER fallback (changer cohort t ≤ −2.0) appeared
+to fire at t −15.03 and DOES NOT COUNT:** Arm A — the same filings scored against
+a RANDOM DIFFERENT FIRM — fires it too at t_NW −8.39, 80% of treatment
+magnitude. Supporting: monthly obs of 3m returns overlap 2/3 (NW(3) cuts −15.03
+to −9.74 — a correction, not the kill), and the cohort is **82–89% the same names
+month over month**, a persistent characteristic (structurally odd filings), not
+an event set. **Spec defect logged: the picker had a control arm, the fallback
+trigger did not.** New house rule — *every pre-declared fallback trigger must
+name its own control arm and overlap correction at registration time; a fallback
+is a hypothesis and does not skip the design the primary had to pass.* This is
+the **second consecutive trial invalidated by its control arm** (8-K was the
+first): two for two in one round is the house discovering its treatment effects
+were mostly design. Confirm window untouched by both. Cumulative candidates
+unchanged at **158**.
 
 **2026-07-27 round 12 open — SWEEP ADJUDICATED + BATCH 10 REGISTERED (reframed; cumulative candidates 158).**
 External sweep (`aegis-finance docs/research/RESEARCH_SWEEP_2026-07-27.md`, 42
