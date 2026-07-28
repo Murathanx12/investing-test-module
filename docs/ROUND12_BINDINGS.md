@@ -13,8 +13,8 @@ reset. Binding text wins over anything in a run script's comments.
 | # | Binding | Source | Status |
 |---|---|---|---|
 | B1 | CIK-bridge coverage audit runs BEFORE the TEXT-LAZY explore result is read; banked next to it, never deciding | 28 §3.1 | **DONE** `64f86b4` → `docs/AUDIT_CIK_BRIDGE_2026-07-28.md` |
-| B2 | The bridge-audit caveat attaches to a **PASS, not a REJECT** | 28B §3.1 | **PENDING** — applies at interpretation |
-| B3 | Freeze at the converged count on the **existing** ceiling measurement; no re-registration below ~196; state it explicitly in the freeze note | 28 §3.2 / 28B | **PENDING** — applies at the freeze |
+| B2 | The bridge-audit caveat attaches to a **PASS, not a REJECT** | 28B §3.1 | **DONE** `1702003` — TEXT-LAZY is a REJECT, no discount applied |
+| B3 | Freeze at the converged count on the **existing** ceiling measurement; no re-registration below ~196; state it explicitly in the freeze note | 28 §3.2 / 28B | **DONE** — `docs/FREEZE_2026-07-28.md` §1, frozen at 158 |
 | B4 | R12-B SignalDoc robustness arm = **unified batch of all 13** matched signals under CZ's own construction, one shot; no decay-ranked subsetting | 28B §3.2 | **PENDING** — applies at registration |
 
 ### B2 — why the asymmetry (do not "balance" it)
