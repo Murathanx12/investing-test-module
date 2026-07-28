@@ -82,6 +82,44 @@ switching, no picker retry. One run.
   universes (attended wiring; the filter only ever EXCLUDES — house never
   shorts).
 
+## PRE-RUN ADDENDUM — measurement resolution (2026-07-28 UTC, before any EDGAR touch)
+
+The frozen deciding metric ("63 **trading-day** market-adjusted return") is NOT
+computable on the data this module holds. Verified at re-entry, before any 8-K
+acquisition: the module has CRSP **monthly** (`crsp_msf`) and daily *aggregates*
+(`dsf_monthly_agg`); the only true daily return file is `dsf_pharma_2002`
+(750 pharma permnos). A general-universe `crsp.dsf` pull is an attended WRDS tap
+(Duo). yfinance is barred as a historical source for delisted names (T7 —
+and a distress cohort is exactly the delisted tail).
+
+**Departure declared and authorized (Murat, 2026-07-28, before the pull):**
+
+- Deciding metric becomes the **3-calendar-month market-adjusted return measured
+  from the first month-end ON OR AFTER the filing date** — i.e. the compounded
+  returns of the three months FOLLOWING the filing month. The filing month itself
+  is excluded entirely, so no partial-month pre-filing return can leak in.
+- Bar **UNCHANGED**: cohort mean not negative with t ≤ −2.0 → family CLOSED.
+  Confirm gate unchanged (same sign, t ≤ −1.5).
+- Everything else in the run spec is unchanged: item set, daily-index event
+  source, PIT match, segment-EW market adjustment, Arm A/Arm B, one shot.
+
+**What this costs, stated up front:** the announcement-window reaction is now
+entirely excluded, so the measured effect is strictly weaker than Lerman &
+Livnat's headline magnitudes (which are measured from the filing date). This
+cuts both ways and is disclosed as such: it removes any "you captured the
+event-day crash" objection, and it is the *implementable* resolution — an
+exclusion screen on a month-end-formed book can only ever act at a month-end.
+The trial is therefore a test of post-filing DRIFT, not of the event reaction.
+
+A true 63-trading-day re-measurement after a `crsp.dsf` tap would be a NEW
+registration (the BRAIN-006 → BRAIN-011 pattern), never a rerun of this one.
+
+**Secondary (reported, not deciding):** the same cohort is also run through the
+house calendar-time flag-portfolio harness. Event-time cohort t-stats are
+overstated when events cluster (bankruptcies cluster hard in 2008-09); the
+calendar-time arm is the cross-correlation-robust cross-check. If the two
+disagree, both are reported and the frozen event-time rule still decides.
+
 ## What this rule may NOT do
 
 Never a short signal, never a standalone lane, never buy/sell language. On a
