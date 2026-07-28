@@ -68,17 +68,72 @@ def factor_alpha(port_excess: pd.Series, factors: pd.DataFrame,
     }
 
 
-def load_ff_factors(cache_dir) -> pd.DataFrame:
-    """FF5 + momentum monthly factors from Ken French's library (fetched once, cached).
-    Returns a DataFrame indexed by month-end with columns
-    [mktrf, smb, hml, rmw, cma, umd, rf] in DECIMAL (not percent)."""
+def ff_vintage(cache_dir) -> dict:
+    """The recorded vintage of the pinned Ken French cache: sha256, download date,
+    source URLs, coverage. Every paper figure regressed on these factors must
+    carry it. Returns {} if the sidecar has not been written yet."""
     from pathlib import Path
+    import json
+
+    p = Path(cache_dir) / "ff_factors_VINTAGE.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def load_ff_factors(cache_dir) -> pd.DataFrame:
+    """FF5 + momentum monthly factors from Ken French's library, PINNED TO A VINTAGE.
+
+    Ken French silently rewrites history: measured across one 18-month vintage
+    step, 92.8% of overlapping HML months, 91.5% of SMB and 61.2% of Mkt-RF
+    changed — in every decade including the 1920s. Same filename, same URL,
+    different numbers. So "we regressed on the Ken French factors" is an
+    under-specified sentence and this loader refuses to write it.
+
+    The parquet cache IS the pin. `ff_factors_VINTAGE.json` records its sha256,
+    download date and source URLs. On every load the hash is verified; a mismatch
+    raises rather than silently re-deriving results on a different vintage.
+
+    Returns a DataFrame indexed by month-end with columns
+    [mktrf, smb, hml, rmw, cma, umd, rf] in DECIMAL (not percent).
+    """
+    from pathlib import Path
+    import hashlib
     import io
+    import json
+    import time
     import zipfile
     import requests
 
     cache = Path(cache_dir) / "ff_factors.parquet"
+    sidecar = Path(cache_dir) / "ff_factors_VINTAGE.json"
+
     if cache.exists():
+        digest = hashlib.sha256(cache.read_bytes()).hexdigest()
+        if sidecar.exists():
+            recorded = json.loads(sidecar.read_text()).get("sha256")
+            if recorded and recorded != digest:
+                raise RuntimeError(
+                    f"Ken French cache {cache} does not match its recorded vintage "
+                    f"(sha256 {digest[:16]}… vs recorded {recorded[:16]}…). French "
+                    "rewrites history; re-deriving results on a silently changed "
+                    "vintage is not reproducible. Restore the pinned file or "
+                    "re-pin deliberately and re-run every affected figure."
+                )
+        else:
+            # Pre-existing cache from before pinning: adopt it, record what we can.
+            df = pd.read_parquet(cache)
+            sidecar.write_text(json.dumps({
+                "sha256": digest,
+                "bytes": cache.stat().st_size,
+                "download_date": "UNKNOWN — adopted from pre-existing cache",
+                "file_mtime_utc": time.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ", time.gmtime(cache.stat().st_mtime)),
+                "coverage": [str(df.index.min().date()), str(df.index.max().date())],
+                "n_months": int(len(df)),
+                "source": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp",
+                "note": "Vintage inferred from file mtime, not observed at download. "
+                        "Cite the mtime as an upper bound on the vintage date.",
+            }, indent=2))
+            return df
         return pd.read_parquet(cache)
 
     base = "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp"
@@ -105,4 +160,17 @@ def load_ff_factors(cache_dir) -> pd.DataFrame:
     out = ff5.join(mom, how="left")
     cache.parent.mkdir(parents=True, exist_ok=True)
     out.to_parquet(cache)
+    sidecar.write_text(json.dumps({
+        "sha256": hashlib.sha256(cache.read_bytes()).hexdigest(),
+        "bytes": cache.stat().st_size,
+        "download_date": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "coverage": [str(out.index.min().date()), str(out.index.max().date())],
+        "n_months": int(len(out)),
+        "source": base,
+        "files": ["F-F_Research_Data_5_Factors_2x3_CSV.zip",
+                  "F-F_Momentum_Factor_CSV.zip"],
+        "note": "Ken French rewrites history across vintages (92.8% of HML months "
+                "changed across one 18-month step). This is the vintage every "
+                "figure derived from this file must cite.",
+    }, indent=2))
     return out

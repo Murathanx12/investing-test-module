@@ -1,0 +1,13 @@
+{
+  "sha256": "54e3b8dda4e70756d1c1da00983d930acd5e99e398666d6eb4419a140917eb11",
+  "bytes": 36961,
+  "download_date": "UNKNOWN \u2014 adopted from pre-existing cache",
+  "file_mtime_utc": "2026-07-21T10:46:35Z",
+  "coverage": [
+    "1963-07-31",
+    "2026-05-31"
+  ],
+  "n_months": 755,
+  "source": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp",
+  "note": "Vintage inferred from file mtime, not observed at download. Cite the mtime as an upper bound on the vintage date."
+}
