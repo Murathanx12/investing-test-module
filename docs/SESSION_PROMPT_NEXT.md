@@ -1,49 +1,81 @@
-# Kickoff — Investor Brain (next session)
+# Kickoff — next session (written 2026-07-29, post-diagnostics)
 
-Read `STATUS.md` first (one-screen state), then this. Workspace:
-`C:\Users\mrthn\Aegis module`. Repo: github.com/Murathanx12/investing-test-module.
+Run `/go` first (Optimus MCP tools load verified state; confirm the deploy
+commit and `nav.all_fresh`). Then read `STATUS.md` top entries and
+`aegis-finance/docs/research/ROADMAP_2026-07-29_POST_FREEZE.md`. Workspaces:
+`C:\Users\mrthn\aegis-finance` (product/prod), `C:\Users\mrthn\Aegis module`
+(research), `C:\Users\mrthn\optimus` (context layer).
 
-## State (2026-07-21 PM): v1.0 shipped AND adopted
+## Where the program stands (one paragraph)
 
-The signal battery is complete (BRAIN-000..005 final, 007 not-run) and the one
-survivor is PROMOTED: TRIAL-CMP-INSIDER-IC runs live in aegis-finance
-(`insider_cmp:` forward clock, earliest decision 2027-07-21). The module's job
-now shifts from building to (a) feeding the forward ledger and (b) hunting a
-second survivor so BRAIN-007 fusion re-opens.
+Freeze holds at **159 cumulative trials**. The belief engine failed its
+diagnostics (hedged base-rate emitter; phase 2 BLOCKED; descriptive-only).
+Conditional VT rejected at confirm (family closed, NEG_RESULTS §21) — third
+allocation instrument killed by the wall. The open frontier: **the paper**,
+**the product's descriptive news surface**, the running forward clocks, and
+(only as a new walled registration, research-round first) a successor belief
+engine. Panel rounds are MANUAL: Murat pastes external reviews; the session
+adjudicates into `AI_PANEL_<date>.md` with receipts.
 
-## Standing duties (calendar-driven, cheap, non-negotiable)
+## First: verify the Optimus restart (2 minutes, this session)
 
-1. **Score the PDUFA ledger as calls mature.** 7 pre-registered calls, first
-   event 2026-07-26 (SCPH) → scoreable ~21 trading days later (~late Aug).
-   `.venv\Scripts\python -m scripts.ledger_score` — then register the NEXT
-   batch of event calls (the calibration record is the product; it compounds
-   only if fed).
-2. **Quarterly artifact refresh** (next ~Oct 2026 when SEC publishes 2026Q2):
-   `download_insider` → `build_insider_panel` → `export_routine_history`, then
-   re-commit `cmp_routine_history.json.gz` into aegis-finance/backend/data/.
-   Artifact >210d stale = every live score flags degraded (loud by design).
+The brain_query fixes (floor 20.0 + abstention + domain scoping, optimus
+`831cffe`) go live when the MCP server respawns. Verify live: a garbage query
+must return `no_match`; "freeze 158 candidates" must hit `aegis-module`
+material, no robotics. If the session still runs old code, tell Murat to
+`/mcp` reconnect.
 
-## The next research arcs (each a new pre-registered trial, one run each)
+## Priority A (build session — Fable): EVENT-INTEL, the descriptive news brain
 
-- **TRIAL-THEME-SUPPLY** — Murat's suppliers-vs-appliers thesis, the arc's
-  headline study, still unrun. Now runnable at PAPER GRADE on the CRSP panel
-  (better than the original EODHD plan). Two-arm: themes-vs-SPY (expected-loss
-  arm) + suppliers-minus-appliers (the open question).
-- **FDA event-drift** — sponsor→ticker PIT mapping is now buildable offline
-  (CCM link + IBES cusip in data/wrds_raw); 2,742 NDA/BLA events harvested.
-- **Low-turnover quality/size** (PLAN_B rung 2) — the Novy-Marx-Velikov class
-  of net-of-cost survivors; less romantic, clears costs.
-- Any second survivor re-opens **BRAIN-007 fusion** (weights pre-registered
-  BEFORE seeing the singles — the doc is already written).
+The adopted next product build (AI_PANEL_2026-07-29 §ADOPTED): upgrade news
+from "headlines + summary" to **structured events with honest context** —
+Murat's core product goal (news arrives → what it may mean), descriptive-only.
 
-## Deferred hygiene (from AUDIT_2026-07-21)
+- Extractor service: input = existing feeds (news_intelligence/GDELT, EDGAR
+  8-K, earnings calendar); output = typed events {scope (ticker/sector/macro),
+  event_type (earnings/guidance/FDA-regulatory/M&A/macro-print/geopolitical),
+  direction/magnitude, source+timestamp, confidence}. LLM extraction through
+  the existing spend-guarded DeepSeek path with a deterministic keyword
+  fallback; LLM never invents numbers — extraction only.
+- Context card per event: attach ONLY measured descriptive context that
+  already exists (e.g., screener stats, options surface, earnings history);
+  where no measured base rate exists, the card says so explicitly. No
+  buy/sell language anywhere (Brier gate never passed — A4/Goal 5).
+- Surface: stock page + daily brief. Cache-honest, budget-honest.
+- Discipline: silent-fragility-audit after building (the GDELT
+  fabricated-calm lesson: failed feed → disclosed unavailable); offline
+  tests in the fast suite; verify-prod-after-deploy exercising the CHANGED
+  surface with a cache-busting request.
+- Hard line: the moment any event output feeds an allocation, it needs
+  pre-registration. Until then it never arms anything.
 
-M6 purged-CV post-test embargo < label horizon (fix BEFORE any crash/forward-
-window label uses PurgedKFold) · generic-runner M4 NaN-renormalize port ·
-sr_variance batch estimate · L8-L13 low-severity items.
+## Priority B (research session — Opus, `/model opus`): PAPER-1 skeleton
 
-## Hard rules (unchanged)
+Assemble the paper draft from receipts (verify every number against the repo;
+respect the do-not-cite list in FABLE_HANDOFF §6):
+- Method: pre-registration + prior_check, explore/confirm wall, deflation vs
+  cumulative count, KO cost model, and the **D3 scoring protocol** (persistence
+  baseline never climatology; DM on Brier differences; N_eff; Murphy
+  REL/RES/UNC — resolution is the payable part).
+- Exhibits: the 159-trial graveyard; empty cost-killed cohort; contrarian-t
+  (CZ-CALIB rank corr −0.544); the belief-engine null (D1–D4, verified);
+  the conditional-VT held-out refutation (first long-only no-leverage SPY vol
+  target with post-2010 held-out, named mechanism); TSMOM-XA as the lone
+  confirmed survivor (defensive, not beat-SPY).
 
-Pre-register before data · one run per hypothesis · two-arm with a leak bar ·
-deflated numbers only · LLM never allocates · never write into aegis-finance
-(promotion = human-reviewed bundle commit, as executed 2026-07-21).
+## Standing duties / attended (Murat)
+
+- PDUFA ledger: first calls scoreable ~late Aug (`scripts.ledger_score`).
+- Quarterly artifact refresh ~Oct 2026 (insider panel + routine history).
+- Unset stale `AEGIS_SEED_*` flags on Railway.
+- Conviction lane: keep logging real decisions (only forward test of
+  stock-picking judgment).
+
+## Do NOT
+
+Reopen the cross-sectional search (freeze; ceiling re-check only legitimate
+at ~196 with real hypotheses). Rebuild dead-list items (continuous OR
+conditional VT, knowledge graphs, LLM-as-historical-predictor, vector-DB swap,
+phase-randomised controls). Register anything without prior_check +
+pre-registration. Arm anything from descriptive surfaces. Claim skill before
+24 months. Touch `paper_nav` write paths without lane-integrity-check.
