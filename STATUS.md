@@ -6,6 +6,21 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-07-29 PM — Priority A EXECUTED (Fable sandbox): EVENT-INTEL LIVE +
+FF product pin LIVE + 2 prod catches** (aegis-finance b4275c2/e9f0880/987ce03,
+prod-verified). EVENT-INTEL per the 2B acceptance spec: typed events over
+news/EDGAR/earnings, LLM classifies ENUMS only (playbook by construction),
+per-feed canaries, measured-only context cards, stock page + brief + /dev;
+shakedown 162 events, 100% valid structure. FF pin: research vintage is
+monthly-only → product got its own frozen DAILY csv.gz (sha 17a97adc…,
+pinned+live_append provenance on every decompose response). Catches: (1)
+brief geopolitical event_score/label silently None for weeks (producer-key
+mismatch, fixed, verified live); (2) **EDGAR 8-K feed silently dead in prod
+since v13** — canary caught it on day 1; edgar_events' standalone github.io
+UA is SEC-rejected; all its HTTP now routes through insider_form4._sec_get
+(§5 convention, second dead SEC collector caught). GOOGL 8-K serves live.
+Freeze holds at 159; nothing arms; fast suite 3,061 green.
+
 **2026-07-29 — REGIME-ANALOG diagnostics D1-D4 RUN (Fable build session, kill lines pre-committed in FABLE_HANDOFF): the belief engine is a hedged base-rate emitter — phase 2 BLOCKED.** D1 NOT fired (10.78% of analogs ≤12mo vs 40% line; red-team distance-doubling didn't reproduce at real spec, 1.13x not 2.06x). D2 FIRED (D_A(90%)=9) but the 2-3-PC remedy fails on measurement: ~80-87% of analogs change, state_probs move ≤0.05 — retrieval is near-no-op on output (beliefs sit 0.06-0.13 from unconditional base rates). D3 at the leak-closed 504-td spec (causal standardization built + outcome aggregation causal; 63-td run's dd15/dd20 "wins" were the outcome leak): fwd6m BEATS persistence (DM t -2.31) but 87.6% of the win is hedging; other 3 INCONCLUSIVE; **REL>RES on all four — a constant at the base rate strictly beats the engine everywhere**. D4 unresolved (Pearson/Spearman disagree). Engine defect: retrieve_analogs guards candidates not acceptances — 59/239 causal states (whole GFC block) silently used <50 analogs (min 3). Everything independently re-verified by an adversarial pass (all deciding numbers exact; 3 report-prose defects corrected). Engine stays descriptive-only; successor = new walled registration, look at fwd12m first (RES/UNC 29.3%). Artifacts: causal_standardize.py + diag_d3_score.py (the persistence/DM/Murphy harness, reusable), diag_d1_d2.py, DIAG_* docs, belief_states_causal.jsonl. Sacred ledger untouched.
 
 **2026-07-24 — TRIAL-BRAIN-006 FDA approval drift: REJECT** (pre-registered, one run): 671 in-panel NDA/BLA events 2002-2024; B large/mid -30.1 bps/mo net t=-0.89, B-PRI t=0.13, noise clean; micro segment untestable (2 live months) - daily-CAR revisit = NEW registration post crsp.dsf pull. Crosswalk data trap recorded: openFDA sponsor_name = CURRENT holder; roll-up events excluded as unattributable.
