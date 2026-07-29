@@ -144,3 +144,49 @@ clustering (GPT retrieve→cluster→explain) + agreement-based confidence
 (GPT uncertainty proposal). Deferred to phase 2 as registered: Bayesian
 updating, failed-thesis scoring (PDUFA-ledger pattern), evidence graphs,
 insider-flow feature.
+
+---
+
+## Diagnostics D1–D4 (2026-07-29) — run per FABLE_HANDOFF_2026-07-29, kill lines pre-committed in that doc (aegis-finance @ da6b22d, committed before any run)
+
+Full reports: `docs/DIAG_D1_D2_2026-07-29.md`, `docs/DIAG_D3_2026-07-29.md`
+(504-td deciding run; `_exc63` companion), independently verified by an
+adversarial recompute of every deciding number (all confirmed; report-prose
+defects found and corrected inline).
+
+- **D1 analog age — kill line (>40% of analogs within 12mo) DID NOT FIRE:**
+  10.78% ≤12m pooled, median analog age 4.93y. The red team's distance-doubling
+  did not reproduce at the real spec (1.13×, not 2.06×); 63-td vs 504-td analog
+  sets Jaccard 0.676.
+- **D2 effective dimension — kill line (D_A(90%)≥5) FIRED: D_A(90%)=9** (robust
+  across six estimator variants). But the prescribed remedy fails on
+  measurement: 2–3-PC retrieval changes ~80–87% of analogs while moving
+  state_probs by only 0.02–0.05 — because the published beliefs sit within
+  0.06–0.13 of unconditional base rates. **Retrieval is close to a no-op on the
+  output**; the deciding question was never dimension, it was resolution.
+- **D3 causal scoring (504-td: standardization AND outcome aggregation causal)
+  vs PERSISTENCE:** fwd6m_positive BEATS (DM t_NW −2.31 / boot −2.20, N_eff
+  54.9) — but 87.6% of the win is ΔREL (hedging vs a 0/1 baseline);
+  fwd12m/dd15/dd20 INCONCLUSIVE. **REL_eng > RES_eng on all four outcomes: a
+  constant forecast at the base rate scores a strictly better Brier than the
+  engine everywhere** (+0.031/+0.044/+0.095/+0.040). Full-sample-z
+  contamination was real but not load-bearing (no verdict changed). The 63-td
+  run's dd15/dd20 "wins" were carried by the outcome-aggregation leak.
+- **D4 confidence channel:** Pearson corr(distance, |error|) 0.104/0.063
+  (return-sign — under the 0.15 kill line) vs 0.204/0.259 (crash outcomes).
+  Spearman flips the first two; no monotone confidence→resolution pattern.
+  UNRESOLVED — not settled either way.
+- **Engine defects found:** (1) `retrieve_analogs` guards candidate count, not
+  acceptance count under NMS — 56/283 shipped states (2003–2007) and 59/239
+  causal states (2006-09→2011-08, the whole GFC block) silently used <50
+  analogs (min 3–4). Any successor must guard and disclose `n_analogs_used`.
+  (2) One duplicate ledger row (2026-07-24).
+
+**Consequence (binding on phase 2):** phase 2 as designed (allocation layer on
+these belief states) is NOT supported — the states are hedged base-rate
+emitters with weak, statistically unconfirmed resolution. The engine stays
+live as descriptive narration only (its registered role; it never armed). Any
+successor engine is a NEW walled registration and must fix acceptance-count
+disclosure, use causal standardization from birth, score vs persistence with
+the D3 harness, and demonstrate resolution before any allocation use. The
+fwd12m horizon (RES/UNC 29.3%) is where a successor should look first.
