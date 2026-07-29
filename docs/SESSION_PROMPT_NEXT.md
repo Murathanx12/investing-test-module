@@ -19,11 +19,23 @@ adjudicates into `AI_PANEL_<date>.md` with receipts.
 
 ## First: verify the Optimus restart (2 minutes, this session)
 
-The brain_query fixes (floor 20.0 + abstention + domain scoping, optimus
-`831cffe`) go live when the MCP server respawns. Verify live: a garbage query
-must return `no_match`; "freeze 158 candidates" must hit `aegis-module`
-material, no robotics. If the session still runs old code, tell Murat to
-`/mcp` reconnect.
+~~The brain_query fixes go live when the MCP server respawns.~~ **DONE
+2026-07-29 (round 2B): verified live** — garbage query → `no_match`; freeze
+query → finance corpus only. Replace this step with the **clock check**
+(roadmap 2026-07-29B amendments): confirm no forward clock is near a
+decision threshold (day 51; nothing matures before mid-2028; PDUFA ~late
+Aug, panel refresh ~Oct, insider_cmp earliest 2027-07-21).
+
+**Panel round 2B adjudicated same day** (`AI_PANEL_2026-07-29B.md`):
+Priority A now has a BINDING acceptance spec (direction taxonomy,
+extraction tiers, per-feed canaries, source integrity, 50-event shakedown,
+playbook, /dev stats), **D4 is CLOSED by decision** (no outcome-confidence
+labels anywhere until a successor validates the channel under the D3
+harness), Priority B is a concrete 3-page deliverable + Data Artifact
+Graveyard section, and one new small hardening item precedes or joins
+Priority A: **pin the product-side FF vintage** (`factor_model.py:57` still
+dynamic; use the research harness's pinned parquet + hash, fail-loud).
+Read the roadmap's `2026-07-29B amendments` section before building.
 
 ## Priority A (build session — Fable): EVENT-INTEL, the descriptive news brain
 
