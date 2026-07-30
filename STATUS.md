@@ -6,6 +6,20 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-07-30 — PAPER-1 DRAFT v0.1 WRITTEN (Priority B executed):
+`paper/PAPER1_DRAFT.md`** ("The Empty Shelf") — intro + methods + results
+shell + all fixed exhibits (159 graveyard, empty cost cohort, −0.544
+supporting, 3-dead-allocation-instruments signature, belief-engine null,
+6-item data-artifact graveyard). Every number verified in its primary
+artifact by 3 independent passes; adversarial 4th pass found 8 provenance
+defects (25-vs-50bps wall, phantom robustness-arm registration, fused
+collector mechanisms, fusion counting seam, clock dates) — all fixed and
+logged in-draft. Two dated corrections pushed to aegis-finance
+(AI_PANEL_2026-07-29 SPY maxDD −45.2→−55.19; CANON §3 ~37% attribution).
+OPEN pre-submission: reconcile 32% vs 37% lookahead magnitude (same arXiv
+ID, two repo docs); register-and-run the CZ-CALIB same-construction
+robustness arm if −0.544 is to harden beyond supporting.
+
 **2026-07-29 PM — Priority A EXECUTED (Fable sandbox): EVENT-INTEL LIVE +
 FF product pin LIVE + 2 prod catches** (aegis-finance b4275c2/e9f0880/987ce03,
 prod-verified). EVENT-INTEL per the 2B acceptance spec: typed events over
