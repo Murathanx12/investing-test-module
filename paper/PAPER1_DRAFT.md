@@ -170,6 +170,27 @@ locates the post-publication decay mechanism in arbitrage of the
 information, not in friction — the retail-accessible large/mid shelf is
 not cost-gated, it is empty.
 
+**The small-cap extension (INSTR-SMALL-SHELF, 2026-07-30) — and why the
+claim is now a named exception rather than a blanket.** Large/mid is the
+least retail-specific segment in a paper about retail accessibility, and
+the small segment had been structurally barred from graduation by a design
+premise ("25 bps *understates* small-cap costs") that our own later
+measurement inverted: KO half-spreads in small are 11.6–13.1 bps, so the
+flat wall *over*-penalized by 2–4×. Applying the identical frozen rule to
+small returns a **non-empty cohort of five** (rec_mom, industry_mom,
+fscore_lite, cash_prof, re_me) and **zero graduates** — two clear the
+primary cost arm and both fail the pre-required stress arm. The deciding
+column is again the zero-cost bound: in large/mid *nothing* could graduate
+even for free, whereas in small exactly one candidate can (`rec_mom`, free
+net t 2.64, IC t 3.32) and is destroyed by 36.8%/month turnover. So across
+160 candidates there is **exactly one genuinely cost-killed signal in the
+retail-accessible universe, and its executioner is turnover, which no cost
+model repairs.** Two further facts belong in the same breath: the design
+premise was wrong for the entire search, and correcting it moved **zero
+verdicts**; and below dollar-volume rank 3000 the eligible universe is a
+median of 35 names per month at the honest $1 / $200k floors, so there is
+no smaller shelf left to appeal to.
+
 ### Exhibit B (supporting) — the published t-statistic as a contrarian ordering
 
 Across 13 signals matched to the Chen–Zimmermann SignalDoc, the Spearman

@@ -142,3 +142,74 @@ confirm window decides — probably against.**
 If this trial produces a confirm survivor it is the second in the program's
 history and it will be the first one the factory's own design assumption had
 been suppressing.
+
+---
+
+## RESULT (one run, 2026-07-30): **cohort NON-EMPTY (5), ZERO graduates. Small-cap cost shelf CLOSED.**
+
+Artifact: `data/factory/instr_small_shelf.json`. Runner:
+`scripts/run_instr_small_shelf.py` (written after the freeze).
+
+### Cohort (frozen rule applied mechanically)
+
+| signal | source | t_ic | t_gross | t_net (flat-25) | turnover 1-way |
+|---|---|---|---|---|---|
+| rec_mom | batch3a | 3.32 | **2.64** | 0.48 | 0.368 |
+| industry_mom | batch9 | 2.06 | 2.03 | 1.39 | 0.244 |
+| fscore_lite | batch2 | 6.63 | 2.01 | 1.46 | 0.129 |
+| cash_prof | batch2 | 7.90 | 1.73 | 1.26 | 0.095 |
+| re_me | batch7 | 5.30 | 1.56 | 1.37 | 0.074 |
+
+The pre-registration disclosed that `fscore_lite` and `cash_prof` were visible
+before the doc was written; the three that were not (`rec_mom`, `industry_mom`,
+`re_me`) came from uninspected batches, and `rec_mom` — the strongest member —
+was found only by the rule.
+
+**Builder gap, caught and closed:** the first execution reported `rec_mom` as
+having no builder (batch-3a constructs its signals inline in the runner script
+rather than in a `build_*` function). Rather than report a cohort with its
+strongest member missing, the loader was rebuilt from the same
+`altstores.load_rec_momentum` with the same declared direction, and the run
+repeated. Mechanical plumbing, disclosed; no spec, direction, window or bar
+changed.
+
+### Re-scan, explore 2004-2018, small
+
+| signal | KO-half (primary) | KO-full (stress) | zero-cost bound | flat-25 guard | banked flat-25 |
+|---|---|---|---|---|---|
+| rec_mom | 1.42 | **0.20** | 2.64 | 0.48 | 0.48 ✓ |
+| industry_mom | 1.63 | 1.22 | 2.03 | 1.39 | 1.39 ✓ |
+| fscore_lite | **1.72** | 1.44 | 2.01 | 1.46 | 1.46 ✓ |
+| cash_prof | 1.45 | 1.17 | 1.73 | 1.26 | 1.26 ✓ |
+| re_me | 1.39 | 1.23 | 1.56 | 1.37 | 1.37 ✓ |
+
+**The flat-25 regression guard reproduces every banked number exactly** — the
+rebuilds are byte-identical and the re-measure is a pure cost substitution.
+
+**GRADUATES: NONE.** `fscore_lite` (1.72) and `industry_mom` (1.63) clear the
+1.5 bar under the primary arm and both fail the stress arm, which the
+registration required them to clear as well. The both-arms rule was frozen
+before the run and is what decides this trial. Confirm window NOT opened.
+
+### The finding
+
+The **zero-cost bound** is the deciding column and it equals `t_gross` by
+construction — "could this graduate if trading were free?"
+
+- **large/mid (round 10):** best rank-real reject reached 1.48 gross — *nothing
+  could graduate even at zero cost*, which is why that cohort was empty.
+- **small (here):** exactly one candidate, `rec_mom`, clears both legs for free
+  (2.64 net / 3.32 IC). It is **the only signal in 160 candidates genuinely
+  killed by trading costs alone** — and its executioner is 36.8%/month turnover,
+  which no cost-model correction repairs.
+
+So the paper's lead exhibit extends to the retail-accessible segment with a
+named exception rather than a blanket claim: the shelf is not empty everywhere;
+it contains one signal, and that signal trades itself to death.
+
+**Bookkeeping:** the factory's small-segment cost premise was backwards for the
+entire 159-candidate search, and correcting it moved **zero verdicts.** The
+design defect was real and immaterial — both halves belong on the record.
+
+Per the frozen kill clause: **small-cap cost-killed shelf CLOSED permanently;
+no further cost-model appeals exist for either segment.** NEGATIVE_RESULTS §22.

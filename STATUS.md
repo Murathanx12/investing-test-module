@@ -6,6 +6,56 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-07-30 PM — ROUND 13: two registrations frozen before code, both RUN, both
+REJECT. Cumulative candidates 159 → 162.** External-panel round adjudicated
+first (`aegis-finance docs/research/AI_PANEL_2026-07-30.md`): of ~30
+recommendations across GPT/DeepSeek/Gemini, **24 were already built, already
+refuted with a receipt, or already refused with one** — the three models
+independently reproduced our graveyard. Two factual errors about the repo
+logged (DeepSeek: "your EDGAR parser is dead" — fixed and prod-verified twice;
+insider magnitude quoted 2-5× current literature). New external receipts banked:
+**VRP/options-income killed at prior-check for free** (Dew-Becker & Giglio,
+Chicago Fed WP 2025-17: index-option alphas indistinguishable from zero over
+~15 years — a family closed before it cost a registration); TLH tax alpha
++69-110 bps/yr (Chaudhuri-Burnham-Lo FAJ 2020) but **zero for a HK-resident
+book**; insider-buy decay 60-70% post-2010; TSMOM adverse prior (Huang et al.).
+
+- **INSTR-SMALL-SHELF (160) — cohort NON-EMPTY (5), ZERO graduates, shelf
+  CLOSED.** Found a real design defect: STRATEGY_FACTORY froze graduation on
+  largemid ONLY, justified by "25 bps *understates* true small-cap costs" —
+  and INSTR-COST-MODEL later measured small KO half-spreads at **11.6-13.1 bps**,
+  i.e. the flat wall *over*-penalizes by 2-4×. The largemid propagation ran in
+  round 10; small never got it. Ran it once under the identical frozen rule.
+  Cohort: rec_mom / industry_mom / fscore_lite / cash_prof / re_me. **flat-25
+  regression guard reproduced every banked number exactly.** fscore_lite (1.72)
+  and industry_mom (1.63) clear the primary KO-half bar and BOTH fail the
+  pre-required stress arm. **The sharper result than "empty": the zero-cost
+  bound shows largemid had nothing that could graduate even for FREE (best gross
+  1.48), while small has exactly one — `rec_mom`, the only signal in 160
+  candidates genuinely cost-killed, executed by 36.8%/mo turnover.** Design
+  defect real, and correcting it moved zero verdicts. NEG_RESULTS §22.
+- **INSTR-RESID-MOM (161-162) — REJECT, family CLOSED, and the mechanism is the
+  finding.** Residual momentum (Blitz-Huij-Martens 2011 verbatim), admitted
+  against the closed momentum family as a new mechanism class (#13/#14 both
+  ranked TOTAL return and varied only the holding rule). **First execution
+  VOIDED by a spec test** — the signal window included position 35 = the
+  formation month, folding one-month reversal into a momentum signal; void
+  numbers published alongside (the defect made it look *worse*, not better).
+  Corrected run: no graduate in either segment. The construction worked exactly
+  as advertised — β_mkt 1.19→0.96 small, maxDD −65.7%→**−54.3%** (11.4pp
+  shallower), FF3 alpha −52.4 bps (t −3.04) → −8.8 (t −0.78) — **and the rank
+  information left with the tilt: small IC t 3.05 → 0.81.** Reading: in this
+  window the cross-sectional information in small-cap total momentum WAS its
+  factor tilt, not idiosyncratic continuation. Validated before write-up (rank
+  corr 0.662 vs mom_12_1, 180/180 months, sane dispersion). Momentum now closed
+  at BOTH total-return and residual resolution. NEG_RESULTS §23.
+- **Micro-segment idea killed by measurement, no registration spent:** below
+  dollar-vol rank 3000 the eligible universe is **median 35 names/month** (zero
+  in 123 of 276 months) at the honest $1 / $200k floors, and the marginal name
+  at rank 3000 already trades a median **$379k/day**. The existing two segments
+  exhaust the retail-accessible universe; there is no untapped shelf beneath them.
+- 7 new spec tests (`tests/test_resid_mom.py`), one of which caught the void.
+
 **2026-07-30 — PAPER-1 DRAFT v0.1 WRITTEN (Priority B executed):
 `paper/PAPER1_DRAFT.md`** ("The Empty Shelf") — intro + methods + results
 shell + all fixed exhibits (159 graveyard, empty cost cohort, −0.544

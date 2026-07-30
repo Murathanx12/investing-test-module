@@ -155,3 +155,91 @@ failure this project measured itself rather than one it read about.
 **Expected outcome: IC leg improves over `mom_12_1`, book leg remains negative
 or marginal, 0 graduates.** A graduate would be a genuine surprise and is what
 makes the trial worth its deflation slot.
+
+---
+
+## ⚠️ FIRST EXECUTION VOIDED — spec defect, disclosed with its numbers
+
+The implementation placed the signal window at estimation-window positions
+24..**35**. Position 35 is the **formation month itself**, so the first run
+folded one-month reversal into a momentum signal and violated the frozen 12-1
+skip. Caught by a spec test written after the run
+(`tests/test_resid_mom.py::test_frozen_spec_constants`), not by inspection.
+
+A run that does not implement the registered spec is not an execution of it —
+the fix and re-run are repair, not a second bite. The void numbers are recorded
+anyway, because a reader is entitled to check that the correction did not run
+in the direction of a nicer answer:
+
+| VOID run | segment | net bps | t_net | t_ic |
+|---|---|---|---|---|
+| resid_mom | largemid @ flat25 | −15.6 | −0.90 | −0.06 |
+| resid_mom | small @ KO-half | −12.7 | −0.98 | −0.58 |
+
+The defective version looked **worse** on rank (IC t −0.58 vs the corrected
++0.81) and **better** on the book (−12.7 vs −16.9 bps) — the signature of
+one-month reversal being folded in. Verdict is REJECT under both.
+
+## RESULT (one run of the corrected spec, 2026-07-30): **REJECT — no graduate in either segment. Family CLOSED.**
+
+Artifact: `data/factory/instr_resid_mom.json`. 180 explore months, both
+segments, `mom_12_1` re-run on identical windows and cost arms as the paired
+control.
+
+| | segment / cost arm | net bps/mo | t_net | t_gross | **t_ic** | turnover | **maxDD** |
+|---|---|---|---|---|---|---|---|
+| resid_mom | largemid @ flat25 *(deciding)* | −20.6 | −1.29 | −0.67 | **0.33** | 0.201 | −0.585 |
+| mom_12_1 | largemid @ flat25 | −28.6 | −1.17 | −0.82 | 0.63 | 0.170 | −0.641 |
+| resid_mom | small @ KO-half *(deciding)* | −16.9 | −1.34 | −0.83 | **0.81** | 0.207 | **−0.543** |
+| mom_12_1 | small @ KO-half | −37.5 | −1.83 | −1.50 | **3.05** | 0.181 | −0.657 |
+| resid_mom | small @ flat25 *(bridge)* | −20.8 | −1.65 | −0.83 | 0.81 | 0.207 | −0.546 |
+| resid_mom | largemid @ KO-half *(reported)* | −12.5 | −0.78 | −0.67 | 0.33 | 0.201 | −0.582 |
+
+Neither deciding arm comes close to `t_net >= 1.5 AND t_ic >= 2.0`. Confirm
+window NOT opened.
+
+### Implementation validation (run before the result was written up)
+
+A null is worthless if the signal is broken, so three checks were run:
+
+1. **Cross-sectional rank correlation with `mom_12_1`: mean 0.662** (median
+   0.676, range 0.414–0.786, 268 months) — related but distinct, exactly as BHM
+   describe residual vs total momentum. A broken signal would be near 0 or near 1.
+2. **Coverage:** 3,424 names/month mean, 180/180 explore months scored — the
+   1963-panel splice worked and no window was silently lost.
+3. **Dispersion:** pooled mean −0.03, sd 0.26, range −2.66..+1.91 — a sane
+   t-like ratio over 11 observations.
+
+### The mechanism worked. That is why it failed.
+
+FF3 regression of the top-decile book's excess return, explore window:
+
+| book | segment | FF3 alpha | t(alpha) | β_mkt | β_smb | β_hml |
+|---|---|---|---|---|---|---|
+| resid_mom | largemid | −15.0 bps | −0.92 | **1.045** | 0.492 | −0.196 |
+| mom_12_1 | largemid | −44.1 bps | −1.94 | 1.286 | 0.817 | −0.597 |
+| resid_mom | small | −8.8 bps | −0.78 | **0.956** | 1.027 | +0.148 |
+| mom_12_1 | small | **−52.4 bps** | **−3.04** | 1.189 | 1.207 | −0.268 |
+
+Residualisation did precisely what BHM say it does: market beta returns to ~1.0
+(1.19 → 0.96 in small), the size/value tilts shrink, max drawdown improves by
+**11.4 points** (−65.7% → −54.3%), and the net bleed halves. The
+significantly-negative FF3 alpha of the total-momentum book (−52.4 bps, t −3.04)
+becomes indistinguishable from zero (−8.8 bps, t −0.78).
+
+**And the rank information leaves with the tilt: small-cap IC t falls 3.05 → 0.81.**
+
+The reading, which is the point of the trial: **in this window the cross-
+sectional information in small-cap total-return momentum WAS its factor tilt,
+not idiosyncratic continuation.** Strip the tilt and there is nothing
+underneath. What residual momentum delivers is a better-behaved book with
+nothing in it — lower beta, shallower drawdown, no alpha, no rank.
+
+The one anomaly on our shortlist with an explicit post-publication OOS survival
+claim does not survive on this panel, and it fails in a way that explains its
+parent's failure rather than merely repeating it.
+
+Per the frozen kill clause: **residual-momentum family CLOSED. The momentum
+family is now closed at BOTH total-return and residual resolution.** No third
+variant; a successor needs a mechanism class distinct from both timing and
+residualisation, registered fresh. NEGATIVE_RESULTS §23.
