@@ -100,3 +100,76 @@ which is exactly where the cost question matters. My honest guess: rank corr
 If small fails high, the empty-small-cohort result (NEG_RESULTS §22) is the
 first thing that has to be re-derived — and since that trial found exactly one
 genuinely cost-killed signal, a harsher ruler could produce more.
+
+---
+
+## RESULT (one run, 2026-07-30): **rank agreement PASSES, level agreement FAILS HIGH. Verdict per the frozen rule: KO UNDERSTATES COSTS.**
+
+Artifact: `data/factory/instr_cs_spread.json`. Runner:
+`scripts/run_instr_cs_spread.py` (written after the freeze).
+**Repair disclosed:** the first execution crashed before any result was
+readable — pandas nullable dtypes made `np.where` raise on NA. Cast to float64
+and re-ran. No spec, gate or bar changed.
+
+| segment | era | CS median | KO median | ratio CS/KO | Spearman | n |
+|---|---|---|---|---|---|---|
+| largemid | 2004-2010 | 32.16 | 4.22 | **7.61** | 0.570 | 83,888 |
+| largemid | 2011-2018 | 25.80 | 3.35 | **7.70** | 0.600 | 95,919 |
+| largemid | 2019-2024 | 30.92 | 3.41 | **9.08** | 0.621 | 71,882 |
+| small | 2004-2010 | 48.23 | 13.07 | **3.69** | 0.679 | 163,441 |
+| small | 2011-2018 | 41.69 | 12.12 | **3.44** | 0.613 | 182,468 |
+| small | 2019-2024 | 49.17 | 11.63 | **4.23** | 0.673 | 137,925 |
+
+**Pooled Spearman 0.660 (n = 735,523).** Gates: sanity PASS, primary PASS,
+level FAIL.
+
+**The two estimators agree strongly on WHICH names are expensive and disagree
+by 3.4-9.1× on HOW expensive.** That is the whole result.
+
+### Interpretation — stated with both hands
+
+The frozen verdict is "KO understates costs," and it is reported as frozen. But
+the honest scientific reading is **disagreement, not refutation**, and the case
+against taking CS as truth is specific:
+
+- Corwin-Schultz is **documented to be biased upward**, most severely in
+  illiquid names and where overnight gaps are frequent — the paper's own
+  caveat, and the honest prior in this registration predicted it.
+- A $0.01 minimum tick is a hard floor on quoted spreads: on a $10 stock that
+  is 10 bps of round-trip spread before any liquidity effect. Much of the small
+  segment trades at low nominal prices, so CS partly measures the tick grid.
+- A CS median of 26-32 bps one-way for the **top 1000 US stocks by dollar
+  volume** is implausibly high against any market-quality report of the era.
+
+The defensible conclusion is that **true one-way costs lie between the two
+estimates, closer to KO in large/mid than the ratio suggests**, and that a
+single-model cost number should never again be quoted without an interval.
+
+### ⚠️ The consequence the frozen rule did NOT anticipate — and it matters more than the verdict
+
+The registration said an adverse result means "the cost-killed cohort must be
+re-derived under CS, and if it becomes non-empty the paper's lead exhibit
+changes." **On inspection that does not follow, and the reason is worth more
+than the trial was.**
+
+Both cohort results were decided by a **cost-independent leg**:
+
+- **Large/mid (INSTR-COST-REMEASURE-REJECTS):** the cohort was empty because
+  the best gross t among rank-informative rejects was **1.48, below the 1.5
+  gross bar**. Gross t does not contain costs. **No cost model — KO, CS, flat,
+  or zero — can move it.** The empty large/mid cohort is robust to this trial
+  by construction.
+- **Small (NEG_RESULTS §22):** graduation required clearing the bar under
+  *both* cost arms, and the deciding exhibit was the **zero-cost bound** —
+  "could this graduate if trading were free?" Raising the cost estimate can
+  only push net t **down**. Zero graduates stays zero graduates.
+
+**So the exhibit survives, and now survives for a demonstrated reason rather
+than an assumed one.** What must change is the *wording*: the claim "costs were
+never the executioner" is a statement about cost levels and is now contested,
+while the claim "nothing could graduate even at zero cost" is cost-model-
+independent and stands. The paper should lead with the second, which was always
+the stronger sentence.
+
+**No re-derivation registration is opened.** The frozen consequence was
+conditional on the cohort changing; it cannot change. Recorded, not spent.
