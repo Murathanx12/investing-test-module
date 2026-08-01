@@ -6,6 +6,74 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-08-02 — TRIAL-OPT-COHORT RUN (167-173): all seven arms REJECTED, the
+option-implied family CLOSES. EDGAR 13D/13G collector built. Candidates 173.**
+Level, spread, skew, term structure, flow and residual are every mechanism class
+the literature offers, so this cohort was the family's one real test and it
+returns nothing. **The zero-cost bound graduates nothing either** (best
+zero-cost gross t = +1.02 of fourteen deciding cells) and **DSR = 0.0000 in
+every cell** — at n_trials 173 the expected max Sharpe under the null is 0.3816
+against a best observed 0.0396, so multiple testing alone disqualifies the
+cohort before costs. Receipts: `TRIALS/TRIAL-OPT-COHORT.md`, NEG_RESULTS §27.
+
+**The residualisation finding is now a house finding, not a coincidence.** The
+pre-declared prediction `t_ic(skew_resid) <= t_ic(skew_25d)` HELD in both
+segments (0.41 vs 1.17 large/mid; 7.90 vs 8.34 small). That is the **third**
+receipt across three independent construction classes — factor returns (§23),
+firm characteristics (§26), option-implied skew (§27) — each declared in advance.
+Standing prior: any future "abnormal X" construct starts three receipts down.
+
+**`os_ratio` is a significant ANTI-signal** — t_ic −3.15 large/mid and **−6.11**
+small, net **−92.3 bps/mo at t −6.68**, against a frozen +1 direction from
+Johnson-So (2012). Lowest turnover of all seven arms (0.052), so not a cost
+artifact: the ranking itself is inverted. Sign flip is a new candidate, never a
+free retry (§17 pattern). **Rank-real/book-dead repeats a third time**: iv_atm
+small t_ic 5.45, skew_25d 8.34, skew_resid 7.90 against gross t +0.63/+1.01/
++1.02 — same shape as §26's io_level (11.29 vs +0.02), unrelated data source.
+Untested, unregistered, now the most-repeated unexplained pattern in the ledger.
+
+**The frozen robustness line was right to exist and right not to fire.** Raw
+surface nulls ARE stress-correlated (0.8% 2004-06 vs 13.0% 2020), but inside the
+ranked universe and the explore window every high/low drop ratio landed in
+0.58-1.05 — large/mid drops actually FALL in high-VIX (0.0088 vs 0.0134). The
+13% was 2020, which sits in confirm and was not read.
+
+**Repair disclosed, made before any number existed:** the blanket link-ambiguity
+rule inherited from §26 was discarding **379 resolvable permnos/month to
+disambiguate 2** (660 of 1,041 multi-secid permnos had no data-bearing secid at
+all — dead link records, score 4-5). Fixed to judge ambiguity among secids that
+actually carry data; reverse drops 770,482 → **658**, coverage 2,291.9 →
+**2,352.7** names/month, 99.98% of links used are score 1.
+
+**External predictions: two more misses, still no hits.** R15-2 (DeepSeek,
+RIV-spread) predicted net t 0.4-1.0 / IC t 1.0-2.0, measured **−2.75 / −1.07**.
+R15-3 (GPT, skew/term) predicted 0.8-1.5 / 1.5-2.4, measured −2.81/−3.46 and
+1.17/1.05 — scored with a disclosed spec caveat (GPT specified *dispersion*, the
+cohort registered *levels*). Across rounds 13-16 **no external reviewer has yet
+produced a prediction scored as a HIT**; the house went 5 of 7 this round.
+Ledger updated: `docs/research/PANEL_PREDICTION_LEDGER.md`.
+
+**EDGAR 13D/13G collector BUILT + HARVESTED** (`aegis_brain/data/edgar_13dg.py`,
+92/92 quarters 2002-2024, zero failures, one rate-limited `_sec_get` choke
+point). Parser verified on real data before the harvest: **38,752 of 38,752**
+`SC 13*` lines accounted for on 2010Q1, zero unparsed (112 were SC 13E3).
+Measured: 681,411 accessions, **98.8% carry exactly 2 CIKs** (issuer + filer,
+no role field in the index), **subject resolution rate 63.31%**. Explore events:
+SC 13D **12,447** / 13D/A 42,683 / 13G **73,340** / 13G/A 148,973 over 8,542
+permnos. Draft updated with the counts and an era-split robustness check
+declared in advance — **still NOT frozen, still uncounted**; registration waits
+on Murat's review of whether the 63.31% heuristic is acceptable or worth ~24h of
+paced header fetches to resolve exactly.
+
+**ICSA check (round-16 task 3): one-off, not recurring.** Live endpoint returns
+`indicators_tracked: 8` with Initial Jobless Claims present; shared FRED loader
+23/23 with `series_failed: []`. Degradation is observable in the payload, so a
+recurrence is detectable without new instrumentation.
+
+Module tests **155 green**. Prod untouched and verified healthy (10/10 lanes
+fresh, `nav.all_fresh` true).
+
+
 **2026-08-01 — ROUND 16 EXECUTION: TRIAL-ABIO-KIRK run (164-166), all three arms
 REJECTED; daily event harness BUILT. Cumulative candidates 163 → 166.**
 The pre-declared decisive comparison fired: pooled t_ic(io_abn) **+6.89** vs
