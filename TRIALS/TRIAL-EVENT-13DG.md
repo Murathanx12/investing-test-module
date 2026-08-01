@@ -239,7 +239,7 @@ graduates to a book."*
 | 13D +1..+60 ≈ zero | zero | +105.2, t 1.74 | **HIT** (below the bar) |
 | 13G zero at all horizons | zero | −3.3 / −34.6 / −29.1, all \|t\| < 1.8 | **HIT** |
 | contrast < raw 13D number | smaller | **larger in all three windows** | **MISS** |
-| nothing graduates to a book | nothing | **not yet resolvable** | **PENDING** |
+| nothing graduates to a book | nothing | nothing did (BOOK STAGE below) | **HIT** |
 
 The size of the effect was called almost exactly and its significance was
 badly underestimated — the prediction was calibrated on the WEAK-NEGATIVE prior
@@ -306,3 +306,124 @@ positive but small, net excess **+5 to +35 bps/mo**, t **0.5-1.5**,
 `13d_first` > `13d_all`, **neither clears the 1.5 bar**. The §29 prior was
 wrong once already (predicted-dead family passed); recorded so this one can be
 scored too, either way.
+
+---
+
+# BOOK STAGE RESULTS — run 2026-08-02, one shot per book, explore 2004-2018
+
+**Chain:** frozen at module commit `6fcc381` (construction, benchmark, costs,
+bar and the honest prediction all declared before any run code existed) ->
+`aegis_brain/factory/event_book.py` + `tests/test_event_book.py` written after
+-> one shot per book. No new candidates.
+
+**Frozen verdict: NEITHER BOOK CLEARS THE BAR.** Confirm not read, no forward
+lane seeded, nothing registered.
+
+| book | cost arm | months | mean n held | net excess bps/mo | **t** | gross excess bps/mo | t | mean cost bps/mo | turnover 1-way |
+|---|---|---|---|---|---|---|---|---|---|
+| `13d_all` | **KO-half (deciding)** | 179 | 80.7 | **−44.9** | **−3.08** | −32.9 | −2.25 | 12.0 | 0.349 |
+| | flat-25 guard | 179 | 80.7 | −50.3 | −3.45 | −32.9 | −2.25 | 17.4 | 0.349 |
+| | zero-cost bound | 179 | 80.7 | −33.7 | −2.30 | −32.9 | −2.25 | 0.8 | 0.349 |
+| `13d_first` | **KO-half (deciding)** | 179 | 56.8 | **−41.0** | **−2.63** | −28.7 | −1.84 | 12.3 | 0.374 |
+| | flat-25 guard | 179 | 56.8 | −47.4 | −3.04 | −28.7 | −1.84 | 18.7 | 0.374 |
+| | zero-cost bound | 179 | 56.8 | −29.4 | −1.89 | −28.7 | −1.84 | 0.7 | 0.374 |
+
+The books do not merely fail to clear a positive bar — **they are significantly
+negative, and the zero-cost bound is negative too.** Costs are not the
+executioner: the gross excess is already −32.9 and −28.7 bps/mo. In levels, the
+`13d_all` book earns **+39.7 bps/mo gross (2.73%/yr)** against an eligible-
+universe benchmark of **+72.6 bps/mo (7.04%/yr)**.
+
+## THE PLACEBO, AND WHY IT CHANGES WHAT MAY BE CLAIMED
+
+The result reverses the sign of the event-resolution finding (§29: +96.6 bps
+differenced CAR at clustered t 4.75). A sign reversal between two stages of the
+same trial is exactly the situation in which this programme's own rule says to
+**suspect the pipeline before believing the number**. So the book was run again
+on a placebo: the SAME permnos, the same count, the same construction, with
+filing dates redrawn uniformly at random across the explore window. Five seeds:
+
+| seed | mean n held | net excess bps/mo | t | gross excess bps/mo | t |
+|---|---|---|---|---|---|
+| 0 | 58.6 | −47.0 | −3.01 | −36.8 | −2.36 |
+| 1 | 59.9 | −85.9 | −5.52 | −75.5 | −4.86 |
+| 2 | 58.9 | −44.5 | −2.45 | −33.9 | −1.87 |
+| 3 | 59.2 | −39.9 | −2.63 | −29.5 | −1.94 |
+| 4 | 59.6 | −64.1 | −4.45 | −53.6 | −3.72 |
+
+**The real book's −44.9 bps/mo sits inside the placebo's range.** Random entry
+dates on the 13D-targeted cohort produce the same significantly negative excess
+as the true filing dates do. The negative number is a property of **which names
+these are**, not of **when the book buys them** — activists target laggards, and
+laggards underperform the equal-weighted universe whenever you hold them.
+
+The consequence is a limit on interpretation, not on the verdict:
+
+- **The verdict stands as frozen.** The bar, the benchmark and the one-shot rule
+  were fixed in advance; the book does not clear; the stage is closed. No re-cut
+  was taken and none is licensed.
+- **The frozen kill-condition wording overstates what this design can support.**
+  It records "13D drift is real at event resolution and unharvestable by a
+  monthly long-only book at realistic costs." The first clause is established
+  (§29). The second is true of THIS book, but the reason is not the one the
+  wording implies: **the registered benchmark — the EW eligible universe — does
+  not control for the cohort, so this stage cannot separate an event-timing
+  effect from a cohort effect, and would have failed even if the drift were
+  fully harvestable.** That is a defect in the frozen design, disclosed here
+  rather than repaired after the fact.
+
+This is the third receipt for one house lesson, now from three directions: §20
+(the control arm IS the test), §28 (a result is only meaningful relative to a
+stated construction class), and now this — **an event book benchmarked against
+an unmatched universe measures cohort selection, not event information.**
+
+## Entry attrition — 51% of banked events never take a position
+
+| book | events in | not in panel | ineligible at entry | **entered** |
+|---|---|---|---|---|
+| `13d_all` | 12,447 | 2,072 | 4,237 | **6,138 (49.3%)** |
+| `13d_first` | 7,360 | 1,308 | 2,261 | **3,791 (51.5%)** |
+
+The micro exclusion is doing most of this and was declared in advance (§29
+measured 31% of matched events outside rank ≤ 3000); the rest is the $1 price
+and dollar-volume floors plus permnos absent from the panel. Eligibility is
+checked at ENTRY only, as frozen; measured rather than assumed, **10.2% and
+9.1% of held name-months are held while no longer eligible** — the exposure the
+entry-only rule creates, reported, not repaired.
+
+## Segment breakdown — reported, never deciding
+
+| book | segment | months | mean n held | net excess bps/mo | t |
+|---|---|---|---|---|---|
+| `13d_all` | largemid | 179 | 17.9 | −26.8 | −1.35 |
+| `13d_all` | small | 179 | 55.4 | −47.9 | −2.63 |
+| `13d_first` | largemid | 179 | 13.4 | −14.9 | −0.65 |
+| `13d_first` | small | 179 | 38.8 | −50.1 | −2.49 |
+
+The largemid slice is thin, as predicted at freeze, and is the least negative in
+both books. It decides nothing and no cut was taken on it.
+
+## The frozen book-stage prediction, scored — 2 of 4
+
+Declared before the run: *"both books positive but small, net excess +5 to +35
+bps/mo, t 0.5-1.5, `13d_first` > `13d_all`, neither clears the 1.5 bar."*
+
+| leg | predicted | measured | verdict |
+|---|---|---|---|
+| both books +5..+35 bps/mo | positive, small | **−44.9 / −41.0** | **MISS** |
+| t in 0.5-1.5 | mildly positive | **−3.08 / −2.63** | **MISS** |
+| `13d_first` > `13d_all` | yes | −41.0 > −44.9 | **HIT** |
+| neither clears the 1.5 bar | neither | neither | **HIT** |
+
+The ordering call and the outcome call were right; the level and the sign were
+wrong in the opposite direction from §29's miss. Last stage the house
+under-predicted a family it expected to die; this stage it over-predicted a book
+it expected to be merely weak. **Both misses come from the same root: the
+predictions were made about event timing, and both stages were actually
+measuring something closer to cohort selection.**
+
+## Scope honoured
+
+One shot per book. The confirm window was NOT read. No forward lane seeded, no
+re-cut taken, no successor registered. Cumulative candidates unchanged at
+**177**; the book stage added none.

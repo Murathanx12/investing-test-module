@@ -1,10 +1,30 @@
 # Aegis Investor Brain — Status Snapshot
 
 **As of:** 2026-07-21 (post-v1.0) · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Tests:** 193 green · **Cumulative candidate count:** 177 (see TRIALS/registry.jsonl)
+**Tests:** 215 green · **Cumulative candidate count:** 177 (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
+
+**2026-08-02 (book stage) — NEITHER 13DG BOOK CLEARS, AND THE PLACEBO SAYS THE
+BOOK STAGE WAS MEASURING THE WRONG THING. Candidates still 177.**
+`13d_all` **−44.9 bps/mo (t −3.08)**, `13d_first` **−41.0 (t −2.63)** on the
+deciding KO-half arm — significantly NEGATIVE, and negative at the zero-cost
+bound too (−33.7 / −29.4), so costs are not the executioner. **The sign reversal
+against §29 triggered a placebo:** same permnos, random filing dates, five seeds
+→ **−39.9 to −85.9 bps/mo**. The real book sits INSIDE that range. The negative
+number is a property of *which names these are* (activists target laggards), not
+of *when the book buys them*. **Verdict stands as frozen** (bar fixed in advance,
+one shot, no re-cut) **but the frozen kill-condition wording overstates the
+design**: the registered EW-universe benchmark does not control for the cohort,
+so the stage cannot separate event timing from cohort selection and would have
+failed even if the drift were fully harvestable. **Third receipt for one lesson**
+(§20 control-arm-is-the-test, §28 construction class, now this). Entry attrition
+51%; entry-only eligibility leaves 10.2%/9.1% of held name-months ineligible.
+House prediction scored **2 of 4** (ordering + outcome HIT, level + sign MISS).
+**ATTENDED DECISION OWED:** whether to register a cohort-matched successor — a
+new registration against the deflation count, not a retry. Receipts:
+`TRIALS/TRIAL-EVENT-13DG.md` BOOK STAGE, NEG_RESULTS §29 book-stage block.
 
 **2026-08-02 — INSTR-RANK-DEAD (174) SOLVES THE PUZZLE + TRIAL-EVENT-13DG
 (175-177) IS THE FIRST EVENT FAMILY TO PASS. Candidates 177.**
