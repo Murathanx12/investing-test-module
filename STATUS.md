@@ -1,10 +1,46 @@
 # Aegis Investor Brain — Status Snapshot
 
 **As of:** 2026-07-21 (post-v1.0) · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Tests:** 215 green · **Cumulative candidate count:** 177 (see TRIALS/registry.jsonl)
+**Tests:** 243 green · **Cumulative candidate count:** 178 (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
+
+**2026-08-02 (harvest stage) — THE PLACEBO GATE FIRED. NO CONCLUSION, AND THE
+REAL NUMBER WAS NEVER COMPUTED. Candidates 178, nothing registered.**
+TRIAL-EVENT-13DG-HARVEST (178) was the cohort-matched successor the book stage
+called for: the parent's control rule reused VERBATIM, and the random-date
+placebo promoted from diagnostic to **GATE** — read first, and `gated_run` only
+calls the real arm's closure on the passing branch, so compute order is the
+tamper-evidence. **The gate failed: pooled placebo differenced net −102.9 bps
+over the 3-month window (−34.3 bps/mo), clustered t −3.17**, against a |t| < 2.0
+bar. Every one of five seeds negative in net, four of five in gross. The pooled
+decomposition reconciles exactly (gross −74.3 minus the 28.5 bps event-leg-only
+round trip = −102.8 vs −102.9), so **72% of it is a gross cohort drag of −24.8
+bps/mo the matched control does not remove.** **What was learned: matching on
+segment, month and nearest dollar-volume rank is a LIQUIDITY match, not cohort
+control** — within a segment and month, activist targets are still the laggard
+tail. The design's null is therefore not zero, and a bar written at zero cannot
+score it. **The frozen FAIL branch is NOT triggered and the 13D family does NOT
+close**; harvestability stays open and unanswered. **§29 is undamaged and the
+bias runs in its favour** (a negatively-biased design still measured +152.2 at
+t 2.37). Pipeline checked before the number was believed: the control leg
+reproduces 73.3 bps/mo against the book stage's independently measured 72.6
+bps/mo universe benchmark, and the result matches the book-stage placebo reduced
+by about half — the amount the matching buys. Prediction scored **0 of 1
+scoreable**, the placebo leg a MISS at |t| 3.17; the other three legs are
+permanently UNSCOREABLE by design. **Fourth receipt for one lesson** (§20, §28,
+book stage, now this): a control arm can be mandatory, matched, and still not
+control the thing that matters — the only way to know is to run the null through
+it. Standing rule adopted: every future control-armed design carries a
+random-date placebo gate in front of its result. **ATTENDED DECISION OWED:**
+whether to register a successor matching on RETURN-RELEVANT characteristics
+(size / book-to-market / prior return) instead of liquidity rank. Receipts:
+`TRIALS/TRIAL-EVENT-13DG-HARVEST.md`, NEG_RESULTS §30.
+*Ledger reviewed same session:* `scripts.ledger_score` run, **0 newly scoreable**
+— all 7 pre-registered PDUFA calls still pending, earliest (SCPH, event
+2026-07-26) matures ~2026-08-24 at 21 trading days. The forward clock is running
+and untouched.
 
 **2026-08-02 (book stage) — NEITHER 13DG BOOK CLEARS, AND THE PLACEBO SAYS THE
 BOOK STAGE WAS MEASURING THE WRONG THING. Candidates still 177.**
