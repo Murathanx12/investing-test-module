@@ -254,3 +254,55 @@ way — we expected an event family to die and it did not.
 One shot per arm. No re-cuts by market cap, campaign type, filer identity or
 window. The portfolio / `scan_signal` step was NOT taken, confirm was NOT read,
 and no forward lane was seeded. Cumulative candidates unchanged at **175-177**.
+
+---
+
+# BOOK STAGE — authorised 2026-08-02, FROZEN BEFORE ANY RUN CODE
+
+Authorised by the orchestrating session under Murat's standing "continue
+working" direction; this stage was pre-declared in the frozen evaluation ("a
+passing arm must then be built as a monthly portfolio..."). **No new
+candidates** — this is the second stage of already-counted arms 175 and 177.
+`13g_all` (176) failed its gate and gets no book.
+
+## Frozen book construction (one book per passing arm, one shot each)
+
+- **Events:** exactly the banked event sets as run (`13d_all` 12,447;
+  `13d_first` 7,360 under the rule-as-written, discrepancy disclosed above).
+- **Eligibility:** standard factory universe, dollar-volume rank ≤ 3000 at the
+  entry month-end. The micro third is excluded by construction — that is the
+  question this stage exists to answer.
+- **Entry:** a name enters at the first month-end ON OR AFTER its filing date.
+  **This forfeits the +1..+5 pop and part of +1..+20 by design** — a monthly
+  book cannot trade the filing day, and pretending otherwise would be the
+  lookahead this program exists to refuse. What is being tested is the
+  harvestable REMAINDER of the drift.
+- **Hold:** through the 3rd month-end after entry, then exit. A new initial
+  13D on a held name resets the clock; no doubled positions.
+- **Weighting:** equal-weight across active names, rebalanced monthly.
+- **Benchmark:** EW of all eligible names (factory convention), pooled.
+  Deciding number = pooled net excess vs this benchmark. Segment breakdown
+  reported, never deciding (the largemid slice will be thin).
+- **Costs:** deciding arm = per-name Kyle-Obizhaeva half-spread on actual
+  entry/exit/rebalance turnover; flat-25 guard and zero-cost bound reported
+  alongside (post-§25 interval convention).
+- **Bar to earn the confirm shot:** pooled net excess t ≥ 1.5 with positive
+  mean. The IC-t leg of the standard bar is N/A for a binary event signal —
+  declared here, not decided after numbers exist. **Confirm (2019-2024) still
+  requires Murat's explicit authorisation even on a pass.**
+
+## Kill condition (book stage)
+
+One shot per book. If neither book clears the bar, the recorded finding is:
+**"13D drift is real at event resolution (§29) and unharvestable by a monthly
+long-only book at realistic costs"** — the family closes at book resolution,
+and a daily-rebalance harvest test would be a NEW registration against the
+deflation count, not a retry of this one.
+
+## Honest prediction (declared before the run)
+
+Month-end entry forfeits most of the front-loaded drift, so: both books
+positive but small, net excess **+5 to +35 bps/mo**, t **0.5-1.5**,
+`13d_first` > `13d_all`, **neither clears the 1.5 bar**. The §29 prior was
+wrong once already (predicted-dead family passed); recorded so this one can be
+scored too, either way.
