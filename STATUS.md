@@ -6,6 +6,43 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
 
+**2026-08-01 — ROUND 16 EXECUTION: TRIAL-ABIO-KIRK run (164-166), all three arms
+REJECTED; daily event harness BUILT. Cumulative candidates 163 → 166.**
+The pre-declared decisive comparison fired: pooled t_ic(io_abn) **+6.89** vs
+t_ic(io_level) **+7.77**, gap **−0.88** against a frozen +0.50 margin →
+*residualisation added nothing over the raw level*, i.e. NEG_RESULTS §23
+reproduced in a second construction class (factor returns there, firm
+characteristics here). The 13F ownership family is now closed at level, flow AND
+residual resolution — 8 variants, 0 survivors. Two repairs disclosed, both made
+before any number existed: the frozen spec named `tr13f_ownership_ext`, which
+holds **1980-2001 only** and contains zero rows of the 2004-2018 explore window
+(repaired by unioning `tr13f_ownership`, verified same series, continuous
+boundary); and shrout matched on calendar year-month because CRSP month-ends are
+trading days while 13F fdates are calendar quarter-ends. Confirm window NOT read.
+Sharpest open question the run leaves: `io_level` small carries mean IC
+**+4.91% at t 11.29** and earns a gross excess t of **+0.02** — the starkest
+rank-real/book-dead instance in the programme, and the zero-cost bound rules out
+costs as the cause. Full receipts: `TRIALS/TRIAL-ABIO-KIRK.md`, NEG_RESULTS §26.
+
+**Daily event harness built** (`aegis_brain/factory/daily_events.py`, 11 spec
+tests): control-armed CARs, event-month-clustered t, delisting-aware. Verified
+against real data, not just synthetics — **crsp.dsf.ret does NOT contain
+delisting returns** (permno 11713: dsf −0.096 on its delist date vs dlret
+**−0.697**), so `crsp.dsedelist` is joined; without it every distress-adjacent
+CAR is biased upward. A 3,000-event random-date placebo reproduced the §20 trap
+on demand: **+170 bps** event-leg drift over +1..+60, **−26 bps (t −0.50)** once
+differenced against matched controls.
+
+**P0b + P0c landed and VERIFIED.** OptionMetrics: 23/23 years, largemid coverage
+**99.7%**, AAPL ATM IV matches public history (2008-09 **0.805**, 2017
+0.16-0.28, 2020-03 0.536). Caveat found: surface nulls are **stress-correlated**
+(0.8% in 2004-06, **13.0% in 2020**), so the cohort must freeze its null rule up
+front. Two DRAFT registrations written, **neither frozen, candidate count stays
+166**: `docs/DRAFT_OPTION_COHORT_REGISTRATION_2026-08-01.md` and
+`docs/DRAFT_13DG_REGISTRATION_2026-08-01.md` — the latter blocked: **wrdssec is
+NOT SUBSCRIBED**, so 13D/13G needs an EDGAR collector before it can register.
+
+
 **2026-07-30 PM — ROUND 13: two registrations frozen before code, both RUN, both
 REJECT. Cumulative candidates 159 → 162.** External-panel round adjudicated
 first (`aegis-finance docs/research/AI_PANEL_2026-07-30.md`): of ~30

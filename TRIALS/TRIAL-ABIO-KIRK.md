@@ -97,3 +97,200 @@ common and strategically timed) — our snapshot is the original filings;
 handled only by the frozen winsorisation; (c) shrout is month-end while fdate
 holdings are as-of quarter-end — same date, different sources, minor
 misalignment possible on corporate actions.
+
+---
+
+# RESULTS — one shot taken 2026-08-01, explore only. FINAL.
+
+**VERDICT (frozen bars, no arm graduated): all three arms REJECTED.**
+`io_level`, `io_chg` and `io_abn` each fail the explore bar in both segments.
+The 13F ownership family is now closed at **level, flow AND residual**
+resolution — eight variants, zero survivors.
+
+**Pre-declared decisive comparison — the headline, and it fired:**
+
+| pooled explore IC t | value |
+|---|---|
+| `t_ic(io_level)` | **+7.77** |
+| `t_ic(io_abn)` | **+6.89** |
+| gap | **-0.88** (frozen margin: +0.50) |
+
+Since -0.88 <= +0.50, the finding is recorded exactly as registered:
+**"residualisation added nothing over the raw level."** Residualising on five
+firm characteristics did not merely fail to add information — it *removed*
+some. This is NEG_RESULTS §23 (INSTR-RESID-MOM) reproduced in a second,
+structurally different construction class: there the residualisation was on
+factor *returns*, here on firm *characteristics*, and both times the fitted leg
+carried the information and the residual carried less.
+
+The confirm window (2019-2024) was **NOT read**. No arm earned it.
+
+## Explore 2004-01..2018-12, 180 months (deciding arms in bold)
+
+| arm | segment | cost arm | net bps/mo | t_net | t_gross | t_ic | IC mean | turnover | maxDD |
+|---|---|---|---|---|---|---|---|---|---|
+| io_level | largemid | **flat25** | **-19.0** | **-1.91** | **-1.42** | **1.64** | +0.0095 | 0.097 | -0.620 |
+| io_level | largemid | zero-cost bound | -14.1 | -1.42 | -1.42 | 1.64 | +0.0095 | 0.097 | -0.616 |
+| io_level | largemid | KO-half (reported) | -15.4 | -1.55 | -1.42 | 1.64 | +0.0095 | 0.097 | -0.617 |
+| io_level | small | **KO-half** | **-1.4** | **-0.14** | **+0.02** | **11.29** | +0.0491 | 0.087 | -0.671 |
+| io_level | small | zero-cost bound | +0.2 | +0.02 | +0.02 | 11.29 | +0.0491 | 0.087 | -0.669 |
+| io_level | small | flat25 guard | -4.1 | -0.41 | +0.02 | 11.29 | +0.0491 | 0.087 | -0.672 |
+| io_chg | largemid | **flat25** | **-46.2** | **-3.50** | **-2.40** | **-3.34** | -0.0107 | 0.291 | -0.644 |
+| io_chg | largemid | zero-cost bound | -31.6 | -2.40 | -2.40 | -3.34 | -0.0107 | 0.291 | -0.632 |
+| io_chg | largemid | KO-half (reported) | -35.1 | -2.66 | -2.40 | -3.34 | -0.0107 | 0.291 | -0.636 |
+| io_chg | small | **KO-half** | **-30.0** | **-2.47** | **-1.80** | **-0.07** | -0.0002 | 0.251 | -0.649 |
+| io_chg | small | zero-cost bound | -21.9 | -1.80 | -1.80 | -0.07 | -0.0002 | 0.251 | -0.642 |
+| io_chg | small | flat25 guard | -34.4 | -2.84 | -1.80 | -0.07 | -0.0002 | 0.251 | -0.652 |
+| io_abn | largemid | **flat25** | **-4.5** | **-0.46** | **+0.32** | **1.66** | +0.0101 | 0.154 | -0.507 |
+| io_abn | largemid | zero-cost bound | +3.2 | +0.32 | +0.32 | 1.66 | +0.0101 | 0.154 | -0.498 |
+| io_abn | largemid | KO-half (reported) | +1.2 | +0.12 | +0.32 | 1.66 | +0.0101 | 0.154 | -0.501 |
+| io_abn | small | **KO-half** | **+7.4** | **+0.87** | **+1.16** | **10.64** | +0.0406 | 0.068 | -0.645 |
+| io_abn | small | zero-cost bound | +9.9 | +1.16 | +1.16 | 10.64 | +0.0406 | 0.068 | -0.643 |
+| io_abn | small | flat25 guard | +6.5 | +0.76 | +1.16 | 10.64 | +0.0406 | 0.068 | -0.646 |
+
+Bar was t_ic >= 2.0 AND t_gross >= 1.5 AND t_net >= 1.5, per segment, on the
+deciding arm. The **zero-cost bound never graduates any arm either** — the best
+zero-cost net t across all six deciding cells is +1.16 (io_abn small). Costs are
+not what killed this; there was nothing to kill.
+
+## Scoring the honest prediction registered before the run
+
+| registered prediction | outcome | scored |
+|---|---|---|
+| `io_abn` IC t 1.5-3.0 in largemid | 1.66 | PASS |
+| `io_abn` net t < 1.0 in largemid | -0.46 | PASS |
+| `io_chg` highest turnover | 0.291 / 0.251 vs 0.097 / 0.087 — 3x the level arms | PASS |
+| `io_chg` dead net | -46.2 and -30.0 bps/mo, t -3.50 / -2.47 | PASS |
+| `io_chg` **highest IC** | **WRONG** — it had the *lowest*: pooled t_ic -2.37, and -3.34 in largemid | FAIL |
+| no arm graduates | none did | PASS |
+
+Five of six legs correct. The miss is worth keeping: we predicted the §24 flow
+pattern (*flows carry more rank information than levels, and less tradability*)
+and got only its second half. Institutional-ownership **change** is not a
+high-IC/high-turnover signal here — in largemid it is a **negative** signal
+(t_ic -3.34), i.e. names institutions bought last quarter underperform next
+month. That is the Dasgupta-Prat-Verardo (2011) persistence result appearing
+with the sign their paper predicts, and it means §24's "flow" generalisation
+does **not** extend to 13F ownership flow. §24 is narrowed accordingly, not
+extended.
+
+## The finding under both hands
+
+**The uncomfortable one first.** `io_level` in small carries a mean rank IC of
+**+4.91% with t 11.29**, and `io_abn` in small **+4.06% with t 10.64**. Those
+are among the largest IC t-statistics in the entire 166-candidate programme.
+And the book earns **+0.02 and +1.16 gross t** — nothing. This is the starkest
+instance yet of the pattern the ledger keeps producing: *rank information that a
+long-only top-decile book cannot convert*. With turnover of only 0.068-0.087
+one-way, this is not a cost story either — the zero-cost bound is still flat.
+
+The mechanism the numbers point to: the information sits in the **lower** tail.
+Low-IO small names — the neglected, un-held micro end — reliably underperform;
+high-IO small names are merely average. A long-only decile book buys the top and
+never harvests the short leg, so a large full-cross-section IC converts to zero
+excess return. This is a hypothesis consistent with these numbers, **not a
+tested claim** — testing it means a new registration (a short-leg or
+long-short construction), and this trial does not license one.
+
+**The other hand.** Nothing here rescues the family. The declared prior was
+WEAK-NEGATIVE on three grounds (the §23 residualisation receipt, CZ-CALIB fame
+decay at -0.544 on a large published effect, and five-for-five 13F rejections)
+and all three held. Kirk's reported 76 bps/mo high-minus-low did not survive
+transplant into a long-only, cost-charged, EW-benchmarked harness on
+2004-2018 US data — which is what a long-short academic spread usually does
+here, and is why the harness exists.
+
+## Repairs disclosed (both found BEFORE the run, no results seen)
+
+**REPAIR 1 — the frozen spec named a table that cannot answer the question.**
+The registration specifies `tr13f_ownership_ext` and quotes its row count
+(662,688, "1980+"). That file in fact spans **1980-03-31..2001-12-31 only**; the
+explore window 2004-2018 contains **zero rows** of it. The 2002-2025
+continuation of the identical WRDS s34 series is `tr13f_ownership` (1,169,903
+rows). Run literally as written, the trial would have produced no scored month
+at all. We read the **union** of both files, having first verified they are one
+series split by era: identical dtypes, disjoint fdate ranges, no duplicate
+(fdate, cusip), 8-char cusips in both, and a continuous boundary
+(2001Q4 -> 2002Q1: 11,374 -> 11,221 cusips; median inst_shares 858,827 ->
+862,849; median n_inst 8 -> 9). No lag, winsorisation, characteristic, direction
+or bar changed. In practice the explore window is served entirely by
+`tr13f_ownership`. Recorded here because the discipline that matters is *when*
+the fix was made: before any number existed, so it cannot have been
+outcome-conditional.
+
+**REPAIR 2 — month-end matching.** The spec takes shrout "at the month-end equal
+to fdate". CRSP month-end dates are **trading**-day month ends (2002-03-28)
+while 13F fdate is a **calendar** quarter end (2002-03-31), so exact date
+equality matches almost nothing. Matched on calendar year-month instead, which
+is what the phrase means.
+
+## Mechanical plumbing (spec silent; disclosed, not hidden)
+
+- Characteristics for the residual regression are read at the **fdate**
+  month-end — the information contemporaneous with the holdings snapshot. The
+  60-day availability lag is then applied to the residual, so a score used at
+  formation month *m* rests only on data >= 60 days old.
+- "Months since first CRSP obs" = min(`namedt`) per permno from
+  `crsp_stocknames` (full CRSP history, not the 2002+ panel window, which would
+  truncate every incumbent to the same age).
+- The availability rule is a forward-fill with **no staleness cap**, because the
+  frozen text says "the *latest* fdate with fdate + 60 calendar days <= m" and
+  names no cap. Measured rather than assumed harmless — see below.
+- A (fdate, permno) pair reachable from two different cusips is dropped on the
+  same no-discretion principle the spec states for the forward direction.
+
+## Construction diagnostics
+
+| quantity | value |
+|---|---|
+| ownership rows read (both era files) | 1,832,591 |
+| rows surviving the date-valid ncusip link | 1,213,060 |
+| dropped, cusip -> >1 permno (the frozen ambiguity rule) | **0** |
+| dropped, permno -> >1 cusip (the mirror rule) | **0** |
+| quarters | 180 |
+| name-quarters with io | 850,131 |
+| name-quarters with io_abn | 344,367 |
+| mean explore coverage — io_level / io_chg / io_abn | 7,661 / 7,597 / 7,039 names |
+
+The no-discretion ambiguity rule cost **nothing**: zero rows dropped in either
+direction. Worth recording — the rule was written to be safe, and it turns out
+to be free.
+
+**Staleness of the uncapped forward-fill**, measured because it was the one
+plumbing choice that could have quietly changed the question:
+
+| population | median months since fdate | p95 | >6m | >12m |
+|---|---|---|---|---|
+| all panel columns | 4.96 | 146.98 | 46.9% | 44.3% |
+| **ranked largemid** | **3.02** | **4.96** | **0.5%** | 0.3% |
+| **ranked small** | **3.02** | **4.96** | **1.2%** | 0.5% |
+
+The alarming 47%-stale figure is entirely dead names that are never ranked.
+Among names the scan actually ranks — eligible and inside the segment — the
+quarter in use is 3.0 months old at the median with a p95 of 5.0, exactly the
+quarterly cadence plus the 60-day lag, and under 1.2% ever exceeds six months.
+The uncapped fill is harmless where it matters, and now that is measured rather
+than asserted.
+
+One further check, run because the run log emitted a `divide by zero in log`
+warning: **zero infinities in all five regressors** (log_mktcap, mom_12_1,
+log_dvol3m, inv_price, log_age all finite where non-null). The warning is pandas
+masked-array noise — `np.log` touching the masked buffer at positions that are
+already NA. `dropna` would not have caught an `inf`, so this was verified
+directly rather than assumed.
+
+## Scope of the conclusion
+
+One shot, taken and spent. No arm graduates, no confirm read, no lane seeded,
+no forward clock started. Cumulative candidates **166** (164-166 counted here,
+all rejected). The disclosed limitations registered before the run stand
+unchanged: 13F restatements are unresolved in tr13f (Cao, Da, Jiang & Yang, Mgmt
+Sci 2026), s34 double-counting is handled only by the frozen winsorisation, and
+shrout is month-end while fdate holdings are quarter-end.
+
+What this does **not** license: a sign flip, a long-short rebuild, a different
+characteristic set, or a decile-tail variant, without a fresh registration.
+
+Artifacts: `scripts/run_trial_abio_kirk.py`, `aegis_brain/factory/abio.py`,
+`tests/test_abio_kirk.py` (14 spec tests, written before the run),
+`data/factory/trial_abio_kirk.json`.
