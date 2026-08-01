@@ -1,13 +1,93 @@
 # DRAFT — 13D/13G activist-stake event family (NOT REGISTERED, NOT FROZEN)
 
 **Status: DRAFT FOR REVIEW. Nothing here is registered. No candidate is counted.
-Cumulative candidates remain 166.** Murat and the next session freeze this (or
-reject it) after review. Written 2026-08-01 by the Opus session that built the
-daily event harness, per OPUS_SESSION_PROMPT task 2.
+Cumulative candidates remain 173** (167-173 are TRIAL-OPT-COHORT; this family
+would take it to 176 if all three arms are registered as drafted). Murat and a
+later session freeze this or reject it. Written 2026-08-01 by the Opus session
+that built the daily event harness; **updated 2026-08-02 with the measured
+collector output** by the session that built the collector.
 
 ---
 
-## Blocking dependency, found this session — read this first
+## UPDATE 2026-08-02 — the collector is BUILT and RUN. Here is the reality.
+
+The blocking dependency below is CLEARED: `aegis_brain/data/edgar_13dg.py` +
+`scripts/harvest_edgar_13dg.py` harvested every quarterly form index 2002-2024
+(92 quarters, zero failures), through one rate-limited `_sec_get` choke point.
+
+**Parser verified against real data before the harvest.** On 2010Q1 the parser
+accounts for **38,752 of 38,752** raw `SC 13*` lines: 38,640 kept (13D/13G) and
+112 excluded as `SC 13E3`/`SC 13E3/A` going-private filings, with **zero
+unparsed lines**. A silent parse gap here would have quietly shrunk every year.
+
+### What landed
+
+| quantity | value |
+|---|---|
+| index rows, 2002-2024 | 1,354,952 |
+| distinct accessions | **681,411** |
+| accessions carrying exactly 2 CIKs | **673,541 (98.8%)** |
+| accessions carrying 1 CIK | 7,870 (1.2%) |
+| CIK→permno row match rate (bridge, ±180d) | 42.4% (573,759 rows) |
+| ambiguous CIK→permno dropped | 20,399 |
+
+The 98.8% two-CIK figure is the structural fact this family must be designed
+around, now measured rather than asserted: EDGAR indexes each 13D/13G under
+**both** the issuer and the filer, and the index carries no role field.
+
+### The measured resolution rate — the number the registration turns on
+
+**63.31%** of accessions (431,386 of 681,411) have **exactly one** CIK that
+resolves to a CRSP permno, giving an unambiguous subject *candidate*. Of the
+rest, 71,102 have more than one CRSP-resolvable CIK (genuinely undecidable from
+the index) and 178,923 have none (issuer outside CRSP, or bridge miss).
+
+**This is a heuristic with a measured rate, not a verified role assignment.**
+Activists are typically funds and partnerships absent from CRSP; issuers are
+listed equities present in it. That is why it works 63% of the time and why it
+cannot be called 100%. Verifying the role for certain means fetching each
+filing's SGML header (`SUBJECT COMPANY` block) — roughly 680k additional
+requests, ~24 hours at the 8/s cap. **Not done, and a separate attended
+decision.** Any registration built on the index alone must carry the 63.31%
+figure as a disclosed limitation, and should state that the unresolved 37% is
+not random: it skews toward issuers our CRSP bridge cannot see.
+
+### Resolved event counts — all three drafted arms are well-powered
+
+Subject-candidate events after resolution, **explore window 2004-2018**:
+
+| arm | form type | events |
+|---|---|---|
+| A `13d_all` | SC 13D | **12,447** |
+| B `13g_all` | SC 13G | **73,340** |
+| C `13d_first` | SC 13D, first on the name in 24 months | **6,826** |
+| (context) | SC 13D/A | 42,683 |
+| (context) | SC 13G/A | 148,973 |
+
+8,542 distinct permnos; median 23 events per permno across the window.
+
+Full-history counts per year are in `data/events/edgar_13dg_resolution.json`;
+the event rows are `data/events/edgar_13dg_events.parquet`.
+
+**One trend worth noting before anyone reads a result:** raw SC 13D accessions
+fall from 2,756/yr (2002) to 1,024/yr (2024) while 13G/A rises from 13,036 to
+22,720. Activist 13D filing is declining over the sample and passive 13G
+disclosure is rising. Any pooled 2004-2018 13D result is therefore weighted
+toward the early years, and a subsample split by era is the obvious robustness
+check — declared here, before any number exists.
+
+### What remains before this can be frozen
+
+1. Murat reviews these counts and decides whether the family is worth 3 of the
+   candidate budget.
+2. A decision on the 63.31% heuristic: accept it with the disclosed limitation,
+   or spend ~24 hours of paced requests to resolve roles exactly from filing
+   headers first.
+3. Only then: freeze, with the era-split robustness check written in.
+
+---
+
+## Blocking dependency as originally found (2026-08-01) — now CLEARED
 
 `wrdssec` is **NOT SUBSCRIBED** on our WRDS account. From `manifest_p0c.json`:
 
@@ -31,8 +111,14 @@ pre-registration theatre. The honest ordering is:
 1. Build + verify an EDGAR 13D/13G date collector routed through the existing
    `_sec_get` choke-point (shared limiter, env UA, 403 retry). Non-negotiable:
    it reuses that choke-point rather than making raw `requests.get` calls.
+   ✅ **DONE 2026-08-02** — `aegis_brain/data/edgar_13dg.py`, 14 spec tests,
+   92/92 quarters harvested with zero failures.
 2. Audit coverage against a hand-checked sample of known activist campaigns.
+   ⚠️ **PARTIAL** — the *structural* audit is done and quantified (63.31%
+   subject resolution, §UPDATE above). A hand-checked campaign sample is still
+   outstanding and is cheap; it belongs in the freeze session.
 3. **Then** freeze this registration against the landed dataset.
+   ⬜ pending Murat's review of the counts.
 
 Estimated: one build session. No Duo tap needed (EDGAR is public).
 
