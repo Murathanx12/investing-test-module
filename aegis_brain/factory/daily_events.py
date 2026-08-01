@@ -44,6 +44,15 @@ CAR convention: arithmetic sum of daily differenced returns over trading days
 +1..+k relative to the event date (day 0 excluded — the event date itself is
 never tradable on information released that day). Windows are TRADING days, not
 calendar days.
+
+NON-POSITIVE WINDOWS ARE SUPPORTED AND ARE NEVER TRADABLE. A window such as
+-1..0 spans the announcement itself, so it can only ever be a DIAGNOSTIC: it is
+the live check that the event dates are real, because a filing that moved
+nothing on its own announcement day is more likely a broken date than a
+non-event. Any trial that reports one must declare it non-deciding at
+registration — the harness will compute it, but no CAR containing day 0 or
+earlier is a return an account could have earned. Default windows remain
++1-and-later only, so this capability is opt-in per trial.
 """
 
 from __future__ import annotations
@@ -232,15 +241,25 @@ def match_controls(events: pd.DataFrame, panel: DailyEventPanel,
 
 # ── CARs ─────────────────────────────────────────────────────────────────────
 def _leg_returns(permnos: np.ndarray, t0: np.ndarray, max_day: int,
-                 panel: DailyEventPanel) -> np.ndarray:
-    """[n_events x max_day] daily returns for trading days +1..+max_day."""
+                 panel: DailyEventPanel, min_day: int = 1) -> np.ndarray:
+    """[n_events x (max_day - min_day + 1)] daily returns for trading days
+    +min_day..+max_day relative to the event date.
+
+    min_day defaults to 1, so the positive-window path is unchanged.
+    """
     n = len(permnos)
-    rel = np.arange(1, max_day + 1)
-    pn = np.repeat(np.asarray(permnos, dtype="int64"), max_day)
+    rel = np.arange(min_day, max_day + 1)
+    k = len(rel)
+    pn = np.repeat(np.asarray(permnos, dtype="int64"), k)
     tt = (t0[:, None] + rel[None, :]).ravel()
     idx = pd.MultiIndex.from_arrays([pn, tt])
     vals = panel.ret.reindex(idx).to_numpy(dtype=float)
-    return vals.reshape(n, max_day)
+    return vals.reshape(n, k)
+
+
+def window_label(a: int, b: int) -> str:
+    """'+1..+5' for tradable windows, '-1..0' for a diagnostic one."""
+    return f"+{a}..+{b}" if a > 0 else f"{a}..{b}"
 
 
 def compute_cars(matched: pd.DataFrame, panel: DailyEventPanel,
@@ -261,9 +280,13 @@ def compute_cars(matched: pd.DataFrame, panel: DailyEventPanel,
     m, t0 = m[keep].copy(), t0[keep]
 
     max_day = max(b for _, b in windows)
-    ev = _leg_returns(m["permno"].to_numpy(dtype="int64"), t0, max_day, panel)
+    min_day = min(min(a, b) for a, b in windows)
+    if min_day > 1:
+        min_day = 1                       # keep the positive path byte-identical
+    ev = _leg_returns(m["permno"].to_numpy(dtype="int64"), t0, max_day, panel,
+                      min_day)
     ct = _leg_returns(m["control_permno"].to_numpy(dtype="int64"),
-                      t0, max_day, panel)
+                      t0, max_day, panel, min_day)
     logger.info("CAR fill: %.3f%% of event-days and %.3f%% of control-days "
                 "were missing and treated as 0 (post-delisting cash)",
                 100 * np.isnan(ev).mean(), 100 * np.isnan(ct).mean())
@@ -272,7 +295,7 @@ def compute_cars(matched: pd.DataFrame, panel: DailyEventPanel,
     m = m.reset_index(drop=True)
     m["event_month"] = m["event_date"].dt.to_period("M")
     for a, b in windows:
-        sl = slice(a - 1, b)
+        sl = slice(a - min_day, b - min_day + 1)
         m[f"car_event_{a}_{b}"] = ev[:, sl].sum(axis=1)
         m[f"car_control_{a}_{b}"] = ct[:, sl].sum(axis=1)
         m[f"car_{a}_{b}"] = m[f"car_event_{a}_{b}"] - m[f"car_control_{a}_{b}"]
@@ -317,7 +340,8 @@ def summarise(cars: pd.DataFrame,
     for a, b in windows:
         diff = clustered_t(cars[f"car_{a}_{b}"], cars["event_month"])
         rows.append({
-            "window": f"+{a}..+{b}",
+            "window": window_label(a, b),
+            "tradable": a > 0,
             "n_events": diff["n"], "n_months": diff["n_clusters"],
             "car_event_bps": round(cars[f"car_event_{a}_{b}"].mean() * 1e4, 1),
             "car_control_bps": round(cars[f"car_control_{a}_{b}"].mean() * 1e4, 1),

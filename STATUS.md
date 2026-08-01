@@ -1,10 +1,42 @@
 # Aegis Investor Brain — Status Snapshot
 
 **As of:** 2026-07-21 (post-v1.0) · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Tests:** 61 green · **Cumulative trial count:** 21 (see TRIALS/registry.jsonl)
+**Tests:** 193 green · **Cumulative candidate count:** 177 (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
+
+**2026-08-02 — INSTR-RANK-DEAD (174) SOLVES THE PUZZLE + TRIAL-EVENT-13DG
+(175-177) IS THE FIRST EVENT FAMILY TO PASS. Candidates 177.**
+
+**The rank-real/book-dead pattern is explained, and our method is not broken.**
+Both frozen builders reproduced their banked explore IC t to the decimal
+(`io_level` 11.29, `skew_25d` 8.34) before any ladder number was computed. Under
+published conditions — decile long-short, gross, EW and VW — both signals are
+large and highly significant (EW spread t **5.92** and **6.52**; VW **3.96** and
+**4.94**). **R2 fired on both: 99.9% and 88% of the equal-weighted spread lives
+in the leg a long-only mandate cannot hold.** R1 fired on `io_level` (literally;
+`skew_25d` misses only the ≤0.5 book-t clause). **R3 did NOT fire** — the
+information is *not* below tradability (liquidity-half IC t ratios 1.23 and
+1.45, against a 2× bar), which nobody predicted. R4 did not fire, so the
+harness-audit branch is not triggered. Receipts: `TRIALS/INSTR-RANK-DEAD.md`,
+NEG_RESULTS §28. **Standing rule from this: any comparison of one of our
+rejections to a published effect must state the construction class.**
+
+**TRIAL-EVENT-13DG cleared its CAR gate and the run STOPPED there.** `13d_all`
++96.6 bps (clustered t **4.75**) at +1..+5 and +120.7 (t 3.38) at +1..+20;
+`13d_first` +95.8 / +164.3 / +152.2 (t 4.01 / 4.07 / 2.37). The **counted 13G
+placebo is flat to mildly negative at every horizon** (−3.3 / −34.6 / −29.1,
+all |t| < 1.8), so the 13D-minus-13G contrast is +99.9 bps at t **4.25** and the
+"disclosure is a selection marker" branch is refuted on its own terms. The
+−1..0 window (reported, never deciding) confirms the dates are real: 13D +95.5
+at t 7.74 vs 13G +9.7 at t 1.64. **ATTENDED NEXT STEP:** build a passing arm as
+a monthly book and clear it through `scan_signal` under the deciding cost arms —
+not taken here, and confirm is Murat's to authorise. Two limitations decide what
+that step is really testing: **24.2% of 13D events never reach a CAR** (no CRSP
+dollar-volume in the filing month — §20-shaped survivorship), and **31% of the
+matched population is micro-cap** and unholdable. Receipts:
+`TRIALS/TRIAL-EVENT-13DG.md`, NEG_RESULTS §29.
 
 **2026-08-02 — TRIAL-OPT-COHORT RUN (167-173): all seven arms REJECTED, the
 option-implied family CLOSES. EDGAR 13D/13G collector built. Candidates 173.**
