@@ -129,6 +129,61 @@ def test_dgpb_changes_assignment(fixture_panel):
     assert same < 0.10 * fixture_panel.monthly_ret.notna().sum().sum()
 
 
+def test_restandardization_c_is_deterministic_and_finite(inputs):
+    """v6: c_t is a function of the real panel only — same inputs, same c."""
+    assert inputs.c_t.shape == (N_MONTHS,)
+    assert np.isfinite(inputs.c_t).all()
+    assert (inputs.c_t > 0).all()
+    # rebuilt inputs give the identical c_t (no rng involvement)
+    from aegis_brain.calibration.panel_gen import _restandardization_c
+    c2 = _restandardization_c(inputs.sigma_t * inputs.z, inputs.sigma_t, inputs.z)
+    np.testing.assert_allclose(inputs.c_t, c2)
+
+
+# ---------------------------------------------------------------- injection
+
+
+def test_injection_alpha_zero_is_exact_noop(fixture_panel):
+    from aegis_brain.calibration.inject import build_injection_inputs, inject
+    inj = build_injection_inputs(fixture_panel, 0.5, np.random.default_rng(5))
+    pnl = inject(fixture_panel, inj, "I1", 0.0)
+    pd.testing.assert_frame_equal(pnl.monthly_ret, fixture_panel.monthly_ret)
+
+
+def test_injection_mean_zero_within_mask(fixture_panel):
+    """dr must be mean-zero across the injected set every month (the EW
+    benchmark may not absorb a level effect)."""
+    from aegis_brain.calibration.inject import (
+        build_injection_inputs, delta_frame)
+    inj = build_injection_inputs(fixture_panel, 0.5, np.random.default_rng(6))
+    dr = delta_frame(fixture_panel, inj, "I4", 0.4)
+    months = dr.index
+    for t in range(1, len(months)):
+        row = dr.iloc[t]
+        nz = row[row != 0.0]
+        if len(nz) > 10:
+            assert abs(nz.mean()) < 1e-4  # (rank-0.5)/n is exactly mean-0.5;
+            # live-cell skips leave only a tiny residual
+
+
+def test_injection_signal_correlates_with_x_at_rho(fixture_panel):
+    from aegis_brain.calibration.inject import build_injection_inputs
+    inj = build_injection_inputs(fixture_panel, 0.5, np.random.default_rng(7))
+    x = inj.X.to_numpy().ravel()
+    s = inj.S.to_numpy().ravel()
+    ok = ~np.isnan(x) & ~np.isnan(s)
+    corr = np.corrcoef(x[ok], s[ok])[0, 1]
+    assert abs(corr - 0.5) < 0.05
+
+
+def test_injection_i2_decays(fixture_panel):
+    from aegis_brain.calibration.inject import decay_weights
+    w = decay_weights(N_MONTHS, "I2")
+    assert abs(w.mean() - 1.0) < 1e-12
+    assert w[0] > w[-1]
+    np.testing.assert_allclose(w[1] / w[0], np.exp(-1 / 60))
+
+
 def test_load_factors_raises_on_missing_months(monkeypatch):
     """A silently NaN-filled factor month must be impossible (S-rule).
 

@@ -36,6 +36,21 @@ ALPHA_GRID = (0.0, 0.2, 0.4, 0.6)          # annualized Sharpe of the edge
 INJECTION_DESIGNS = ("I1", "I2", "I3", "I4")
 I2_DECAY_TAU_MONTHS = 60
 TOP_DECILE_MEAN_PCTRANK = 0.95              # -> per-month payoff ~= 0.9 * k
+I4_SIZE_CORR = 0.5                          # corr(X, size) for design I4
+
+# Stage 0 measured null decile-book excess vol (runs/GATE-M1/stage0_seam.json).
+# Frozen here: k = S_ann * SIGMA_HAT / (0.9 * sqrt(12)). All designs use this
+# largemid-book unit, including I3-small (stated: injected Sharpe is defined
+# against the largemid sigma unit; realized small-book vol reported alongside).
+SIGMA_HAT_MONTHLY = 0.009712678472979281
+
+# Seed lanes: panel rng = SEED_BASE + rep; injection rng gets its own offset so
+# X/noise draws never collide with the panel permutation stream.
+INJECT_SEED_OFFSET = 10_000_000
+
+# Stage 2 gate tolerances (design §6 stage 2)
+S2_SHARPE_REL_TOL = 0.20     # perfect-foresight book vs target, per alpha level
+S2_MIN_NONZERO_FRAC = 0.99   # (r_inj - r_null) must differ on >=99% of cells
 
 # Pre-registered rep counts (§4.4) — fixed before results. If Stage 0 finds
 # even this infeasible, the registered descope is n=250 everywhere, stated.
