@@ -257,8 +257,10 @@ def _init_worker() -> None:
     _W["inputs"] = build_dgpa_inputs(real)
 
 
-def run_rep(rep: int, rho: float, designs: tuple[str, ...]) -> str:
-    tag = "" if rho == RHO_SIG_HEADLINE else f"_rho{rho}"
+def run_rep(rep: int, rho: float, designs: tuple[str, ...],
+            include_base: bool = True, tag: str = "") -> str:
+    if rho != RHO_SIG_HEADLINE:
+        tag = f"_rho{rho}"
     out_path = GRID_DIR / f"rep{tag}_{rep:04d}.json"
     if out_path.exists():
         return f"rep {rep}{tag}: exists, skipped"
@@ -274,10 +276,12 @@ def run_rep(rep: int, rho: float, designs: tuple[str, ...]) -> str:
     if len(signals) != 21:
         raise RuntimeError("candidate list must be 21 signals")
 
-    # alpha = 0 base cell (shared across designs by CRN)
-    base_lm = scan_segment(panel_null, signals, "largemid")
-    base_sm = scan_segment(panel_null, signals, "small")
-    cells = {"a0.0/base": run_cell(panel_null, signals, base_lm, base_sm)}
+    cells = {}
+    if include_base:
+        # alpha = 0 base cell (shared across designs by CRN)
+        base_lm = scan_segment(panel_null, signals, "largemid")
+        base_sm = scan_segment(panel_null, signals, "small")
+        cells["a0.0/base"] = run_cell(panel_null, signals, base_lm, base_sm)
 
     for design in designs:
         for a in POSITIVE_ALPHAS:
@@ -366,13 +370,25 @@ def wilson(k: int, n: int) -> tuple[float, float]:
 
 
 def aggregate(rho: float) -> None:
-    tag = "" if rho == RHO_SIG_HEADLINE else f"_rho{rho}"
-    files = sorted(GRID_DIR.glob(f"rep{tag}_[0-9]*.json"))
+    if rho == RHO_SIG_HEADLINE:
+        # merge wave files (rep_NNNN + rep_w2_NNNN) by rep number
+        files = sorted(GRID_DIR.glob("rep_[0-9]*.json")) + sorted(
+            GRID_DIR.glob("rep_w2_[0-9]*.json"))
+    else:
+        files = sorted(GRID_DIR.glob(f"rep_rho{rho}_[0-9]*.json"))
     if not files:
         raise FileNotFoundError(f"no rep files under {GRID_DIR}")
-    reps = [json.loads(f.read_text(encoding="utf-8")) for f in files]
+    by_rep: dict[int, dict] = {}
+    for f in files:
+        r = json.loads(f.read_text(encoding="utf-8"))
+        cur = by_rep.setdefault(r["rep"], {"rep": r["rep"], "cells": {}})
+        overlap = set(cur["cells"]) & set(r["cells"])
+        if overlap:
+            raise RuntimeError(f"duplicate cells {overlap} for rep {r['rep']}")
+        cur["cells"].update(r["cells"])
+    reps = list(by_rep.values())
     n = len(reps)
-    print(f"aggregating {n} reps (rho={rho})")
+    print(f"aggregating {n} reps from {len(files)} files (rho={rho})")
 
     cell_keys = sorted({k for r in reps for k in r["cells"]})
     t1_rows, t2_rows = [], []
@@ -434,6 +450,9 @@ def main() -> None:
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--rho", type=float, default=RHO_SIG_HEADLINE)
+    ap.add_argument("--wave", type=int, default=0,
+                    help="1 = base + I2 headline (the Gate M number first); "
+                         "2 = I1/I3/I4, no base; 0 = everything in one pass")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--aggregate", action="store_true")
     args = ap.parse_args()
@@ -446,15 +465,23 @@ def main() -> None:
         aggregate(args.rho)
         return
 
-    designs = INJECTION_DESIGNS if args.rho == RHO_SIG_HEADLINE else ("I2",)
+    if args.rho != RHO_SIG_HEADLINE:
+        designs, include_base, tag = ("I2",), True, ""
+    elif args.wave == 1:
+        designs, include_base, tag = ("I2",), True, ""
+    elif args.wave == 2:
+        designs, include_base, tag = ("I1", "I3", "I4"), False, "_w2"
+    else:
+        designs, include_base, tag = INJECTION_DESIGNS, True, ""
     todo = [r for r in range(args.start, args.start + args.reps)]
-    print(f"grid: reps {todo[0]}..{todo[-1]}, rho={args.rho}, "
+    print(f"grid: reps {todo[0]}..{todo[-1]}, rho={args.rho}, wave={args.wave}, "
           f"designs={designs}, workers={args.workers}")
     t0 = time.time()
     done = 0
     with ProcessPoolExecutor(max_workers=args.workers,
                              initializer=_init_worker) as ex:
-        futs = {ex.submit(run_rep, r, args.rho, designs): r for r in todo}
+        futs = {ex.submit(run_rep, r, args.rho, designs, include_base, tag): r
+                for r in todo}
         for fut in as_completed(futs):
             done += 1
             print(f"[{done}/{len(todo)} {round(time.time() - t0)}s] "

@@ -155,40 +155,37 @@ def _design_X(inj: InjectionInputs, design: str, panel: Panel) -> pd.DataFrame:
     return X4.where(inj.X.notna())
 
 
-def _pct_ranks(x_row: pd.Series) -> pd.Series:
-    """(rank − 0.5)/n over the given values — mean is exactly 0.5."""
-    r = x_row.rank(method="average")
-    return (r - 0.5) / len(x_row)
-
-
 def delta_frame(panel_null: Panel, inj: InjectionInputs, design: str,
                 s_ann: float) -> pd.DataFrame:
     """dr (months x symbols): the injected GROSS return increment.
 
     Zero everywhere except (m+1, i) with i in mask_m and a live null return.
+    Vectorized in numpy (the original per-month pandas .loc writes cost
+    ~180 s/panel and dominated an injected cell). Ranks are ordinal
+    ((rank − 0.5)/n, 0-based argsort-of-argsort + 0.5): X is continuous so
+    ties are measure-zero, making this identical to method="average".
     """
     ret = panel_null.monthly_ret
     months = ret.index
     k_base = k_base_for(s_ann)
-    w = decay_weights(len(months), design)
-    X = _design_X(inj, design, panel_null)
-    mask = inj.masks[design]
-
-    dr = pd.DataFrame(0.0, index=months, columns=ret.columns)
+    dr_arr = np.zeros(ret.shape)
     if k_base == 0.0:
-        return dr
-    for m_pos in range(len(months) - 1):
-        fm, tm = months[m_pos], months[m_pos + 1]
-        in_mask = mask.loc[fm]
-        x = X.loc[fm].dropna()
-        x = x[x.index.isin(in_mask[in_mask].index)]
-        if len(x) < 2:
+        return pd.DataFrame(dr_arr, index=months, columns=ret.columns)
+    w = decay_weights(len(months), design)
+    X = _design_X(inj, design, panel_null).to_numpy()
+    mask = inj.masks[design].to_numpy()
+    live = ret.notna().to_numpy()
+
+    for m in range(len(months) - 1):
+        idx = np.flatnonzero(mask[m] & ~np.isnan(X[m]))
+        if idx.size < 2:
             continue
-        pct = _pct_ranks(x)
-        d = k_base * w[m_pos] * 2.0 * (pct - 0.5)
-        live = ret.loc[tm].reindex(d.index).notna()
-        dr.loc[tm, d.index[live]] = d[live]
-    return dr
+        x = X[m, idx]
+        pct = (np.argsort(np.argsort(x)) + 0.5) / idx.size
+        d = k_base * w[m] * 2.0 * (pct - 0.5)
+        target = live[m + 1, idx]
+        dr_arr[m + 1, idx[target]] = d[target]
+    return pd.DataFrame(dr_arr, index=months, columns=ret.columns)
 
 
 def inject(panel_null: Panel, inj: InjectionInputs, design: str,
