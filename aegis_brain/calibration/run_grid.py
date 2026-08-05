@@ -370,6 +370,7 @@ def wilson(k: int, n: int) -> tuple[float, float]:
 
 
 def aggregate(rho: float) -> None:
+    tag = "" if rho == RHO_SIG_HEADLINE else f"_rho{rho}"
     if rho == RHO_SIG_HEADLINE:
         # merge wave files (rep_NNNN + rep_w2_NNNN) by rep number
         files = sorted(GRID_DIR.glob("rep_[0-9]*.json")) + sorted(
