@@ -20,6 +20,7 @@ Run:  .venv/Scripts/python.exe -m aegis_brain.calibration.exhibits
 
 from __future__ import annotations
 
+import argparse
 import json
 
 import matplotlib
@@ -44,6 +45,12 @@ STAGES = [
     ("p_adopt_n42", "+ DSR/PBO (n=42)"),
     ("p_adopt_n179", "+ DSR@179"),
 ]
+# RECAL-1 bank tables: one adopt column, the ladder's own terminal state.
+STAGES_BANK = [
+    ("p_graduate", "graduate"),
+    ("p_confirm_pass", "+ confirm"),
+    ("p_adopt", "+ DSR/PBO"),
+]
 DESIGNS = {"I1": "I1 constant · largemid (easy mode)",
            "I2": "I2 decaying τ=60m (headline)",
            "I3": "I3 small-segment only",
@@ -61,13 +68,18 @@ def _style(ax):
     ax.set_axisbelow(True)
 
 
-def exhibit_a(tables: dict) -> None:
+def exhibit_a(tables: dict, out_name: str = "exhibit_A_operating_characteristics",
+              subtitle: str = "") -> None:
     t1 = {r["cell"]: r for r in tables["table1_operating_characteristics"]}
     base = t1["a0.0/base"]
+    # RECAL-1 bank tables carry one adopt column (the ladder's own terminal
+    # state) instead of the M1 n42/n179 pair — pick whichever the file has.
+    stages = STAGES if "p_adopt_n42" in base else STAGES_BANK
+    wkey = "p_adopt_n42_wilson95" if "p_adopt_n42" in base else "p_adopt_wilson95"
     fig, axes = plt.subplots(2, 2, figsize=(10, 7.5), facecolor=SURFACE)
     for ax, (design, title) in zip(axes.ravel(), DESIGNS.items()):
         _style(ax)
-        for (kcol, label), color in zip(STAGES, SERIES):
+        for (kcol, label), color in zip(stages, SERIES):
             xs, ys = [0.0], [base[kcol]]
             for a in ALPHA_GRID[1:]:
                 row = t1.get(f"a{a}/{design}")
@@ -82,7 +94,7 @@ def exhibit_a(tables: dict) -> None:
         for a in ALPHA_GRID:
             row = base if a == 0 else t1.get(f"a{a}/{design}")
             if row:
-                lo, hi = row["p_adopt_n42_wilson95"]
+                lo, hi = row[wkey]
                 ax.plot([a, a], [lo, hi], color=SERIES[2], linewidth=1,
                         alpha=0.6)
         ax.set_title(title, fontsize=10, color=INK, loc="left")
@@ -95,25 +107,29 @@ def exhibit_a(tables: dict) -> None:
     for ax in axes[:, 0]:
         ax.set_ylabel("P(candidate survives stage)", fontsize=9, color=INK2)
     n_note = (f"n = {base['n']} reps/cell (registered descope), Wilson 95% "
-              "whiskers on the n=42 adopt line; x = 0 intercept = FDR")
+              "whiskers on the adopt line; x = 0 intercept = FDR"
+              + (f" · {subtitle}" if subtitle else ""))
     fig.suptitle("Exhibit A — Operating characteristics of the strategy "
                  "factory (DGP-A v6, ρ_sig = 0.5)", fontsize=12, color=INK,
                  x=0.02, ha="left")
     fig.text(0.02, 0.945, n_note, fontsize=8.5, color=INK2)
     fig.tight_layout(rect=(0, 0, 1, 0.93))
-    out = RUNS_DIR / "exhibit_A_operating_characteristics.png"
+    out = RUNS_DIR / f"{out_name}.png"
     fig.savefig(out, dpi=200, facecolor=SURFACE)
     print(f"-> {out}")
 
 
-def exhibit_b(post: dict) -> None:
+def exhibit_b(post: dict, out_name: str = "exhibit_B_posterior_heatmap") -> None:
     buckets = post["buckets"]
     keys = sorted(buckets, key=lambda k: eval(k))
+    bank = "buckets_definition" in post      # RECAL-1 coordinates
     # rows = explore bucket, cols = (confirm, dsr) pairs actually observed
     e_labels = ["t<1.5", "t 1.5-2", "t 2-2.5", "t≥2.5"]
     cd_pairs = sorted({tuple(eval(k)[1:]) for k in keys})
-    c_lab = ["none", "<0.8", "0.8-1.5", "≥1.5"]
-    d_lab = ["none", "<0.5", ".5-.95", "≥.95"]
+    c_lab = (["none", "<0.75", "0.75-1.5", "≥1.5"] if bank
+             else ["none", "<0.8", "0.8-1.5", "≥1.5"])
+    d_lab = (["none", "<0.25", ".25-.75", "≥.75"] if bank
+             else ["none", "<0.5", ".5-.95", "≥.95"])
     mat = np.full((4, len(cd_pairs)), np.nan)
     counts = np.zeros_like(mat)
     for k in keys:
@@ -143,7 +159,8 @@ def exhibit_b(post: dict) -> None:
                         for c, d in cd_pairs], fontsize=8, color=INK2)
     ax.set_yticks(range(4))
     ax.set_yticklabels(e_labels, fontsize=9, color=INK2)
-    ax.set_ylabel("explore t(net excess) bucket", fontsize=9, color=INK2)
+    ax.set_ylabel("explore t(rank IC) bucket" if bank
+                  else "explore t(net excess) bucket", fontsize=9, color=INK2)
     ax.tick_params(colors=MUTED)
     for s in ax.spines.values():
         s.set_visible(False)
@@ -152,25 +169,49 @@ def exhibit_b(post: dict) -> None:
     cb.ax.tick_params(colors=MUTED, labelsize=8)
     monotone = "monotone — SHIPPED" if post["monotone"] else \
         "NON-MONOTONE — not shipped to the ladder"
+    design = post.get("design", "I2")
     ax.set_title("Exhibit B — What the verdict is worth\n"
-                 f"posterior under I2/ρ=0.5 + prior π(0)=0.85 · {monotone} · "
-                 "cell annotation = sizing-ladder multiplier",
+                 f"posterior under {design}/ρ=0.5 + prior π(0)=0.85 · "
+                 f"{monotone} · cell annotation = sizing-ladder multiplier",
                  fontsize=10.5, color=INK, loc="left")
     fig.tight_layout()
-    out = RUNS_DIR / "exhibit_B_posterior_heatmap.png"
+    out = RUNS_DIR / f"{out_name}.png"
     fig.savefig(out, dpi=200, facecolor=SURFACE)
     print(f"-> {out}")
 
 
 def main() -> None:
-    tables = json.loads((RUNS_DIR / "stage3_tables.json").read_text(
-        encoding="utf-8"))
-    exhibit_a(tables)
-    post_path = RUNS_DIR / "stage4_posterior_report.json"
-    if post_path.exists():
-        exhibit_b(json.loads(post_path.read_text(encoding="utf-8")))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", default=None,
+                    help="RECAL-1 bank tag; absent = frozen BRAIN-008 exhibits")
+    ap.add_argument("--ruleset", default="BRAIN-009")
+    ap.add_argument("--design", default="I2")
+    args = ap.parse_args()
+
+    if args.tag is None:
+        tables = json.loads((RUNS_DIR / "stage3_tables.json").read_text(
+            encoding="utf-8"))
+        exhibit_a(tables)
+        post_path = RUNS_DIR / "stage4_posterior_report.json"
+        if post_path.exists():
+            exhibit_b(json.loads(post_path.read_text(encoding="utf-8")))
+        else:
+            print("no posterior report yet — Exhibit B skipped")
+        return
+
+    sfx = f"_{args.tag}_{args.ruleset}"
+    tpath = RUNS_DIR / f"stage3_tables{sfx}_all.json"
+    if not tpath.exists():
+        raise SystemExit(f"missing {tpath} — run the bank aggregate first")
+    exhibit_a(json.loads(tpath.read_text(encoding="utf-8")),
+              out_name=f"exhibit_A_operating_characteristics{sfx}",
+              subtitle=f"ladder {args.ruleset}")
+    ppath = RUNS_DIR / f"stage4_posterior_report{sfx}_{args.design}.json"
+    if ppath.exists():
+        exhibit_b(json.loads(ppath.read_text(encoding="utf-8")),
+                  out_name=f"exhibit_B_posterior_heatmap{sfx}_{args.design}")
     else:
-        print("no posterior report yet — Exhibit B skipped")
+        print(f"no posterior report at {ppath} — Exhibit B skipped")
 
 
 if __name__ == "__main__":

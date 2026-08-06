@@ -452,11 +452,36 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--rho", type=float, default=RHO_SIG_HEADLINE)
     ap.add_argument("--wave", type=int, default=0,
-                    help="1 = base + I2 headline (the Gate M number first); "
-                         "2 = I1/I3/I4, no base; 0 = everything in one pass")
+                    help="BRAIN-008 grid: 1 = base + I2 headline (the Gate M "
+                         "number first), 2 = I1/I3/I4 no base, 0 = one pass. "
+                         "RECAL-1 bank (--ruleset/--tag): 1 = base + I1 (the "
+                         "acceptance targets), 2 = I2/I3/I4 sweep, 0 = both.")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--aggregate", action="store_true")
+    # RECAL-1: when either flag is present this entry point delegates to
+    # calibration.bank (the gate-agnostic evidence bank). The frozen
+    # BRAIN-008 path below is untouched and stays the default.
+    ap.add_argument("--ruleset", default=None,
+                    help="RECAL-1 ladder name (e.g. BRAIN-009-seed) or "
+                         "@path.json; delegates to calibration.bank")
+    ap.add_argument("--tag", default=None,
+                    help="RECAL-1 bank tag -> bank_<tag>_NNNN.json (never "
+                         "collides with the frozen rep_*.json grid)")
+    ap.add_argument("--subset", default="all", choices=("all", "even", "odd"))
     args = ap.parse_args()
+
+    if args.ruleset is not None or args.tag is not None:
+        from aegis_brain.calibration import bank
+        argv = ["--reps", str(args.reps), "--start", str(args.start),
+                "--workers", str(args.workers), "--rho", str(args.rho),
+                "--wave", str(args.wave), "--subset", args.subset,
+                "--tag", args.tag or "r1"]
+        if args.ruleset is not None:
+            argv += ["--ruleset", args.ruleset]
+        if args.aggregate:
+            argv += ["--aggregate"]
+        bank.main(argv)
+        return
 
     assert_production_constants()
     if args.smoke:
