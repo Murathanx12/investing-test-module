@@ -192,10 +192,15 @@ def test_terminal_states_are_exhaustive_and_exclusive():
 def test_select_family_is_deterministic_and_covers_the_seed():
     from aegis_brain.calibration.select import family
     fam = family()
-    assert len(fam) == len({r.key() for r in fam}) == 600
+    assert len(fam) == len({r.key() for r in fam}) == 1800
     assert any(r.explore_t_ic == 2.0 and r.explore_segments == ("largemid",)
                and r.confirm_t_ic == 1.0 and r.dsr_book == "eng"
-               and r.dsr_threshold == 0.95 for r in fam)
+               and r.dsr_threshold == 0.95 and r.pbo_threshold == 0.5
+               for r in fam)
+    # pbo_threshold=1.0 must be report-only, never a rejection
+    rs = next(r for r in fam if r.pbo_threshold == 1.0)
+    cell = make_cell(pbo=0.99)
+    assert R.evaluate(cell, rs)["terminal"] != "pbo_fail"
 
 
 def test_wilson_bounds_are_sane():

@@ -51,7 +51,7 @@ rem ---------------------------------------------------------------- wave 1
 %PY% -u scripts\launch_m1_grid.py --wave 1 --reps %REPS% --workers %WORKERS% --ruleset BRAIN-009 --tag %TAG% >> %RUNS%\recal_wave1.log 2>&1
 echo [%date% %time%] wave 1 done (exit %errorlevel%) >> %LOG%
 
-for /f %%c in ('dir /b %RUNS%\bank_%TAG%_*.json 2^>nul ^| find /c /v ""') do set NBANK=%%c
+for /f %%c in ('dir /b %RUNS%\grid\bank_%TAG%_*.json 2^>nul ^| find /c /v ""') do set NBANK=%%c
 if not defined NBANK set NBANK=0
 if %NBANK% LSS %REPS% goto :incomplete
 

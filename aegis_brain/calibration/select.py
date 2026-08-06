@@ -15,9 +15,9 @@ Pre-registered protocol (spec docs/RECAL1_SPEC_2026-08-06.md §4):
     to 9.2% of explore-window strength by construction), so it is the only
     design on which end-to-end adoption power is a meaningful target.
   - Tie-breaks, in order: P(adopt | 0.2, I1) desc; FDR asc; then STRICTEST
-    surviving ladder (dsr_threshold desc, explore_t_ic desc, confirm_t_ic
-    desc, largemid-only before both-segments, prod book before engineered) —
-    ties are resolved toward conceding as little as possible.
+    surviving ladder (pbo_threshold asc, dsr_threshold desc, explore_t_ic
+    desc, confirm_t_ic desc, largemid-only before both-segments, prod book
+    before engineered) — ties resolve toward conceding as little as possible.
   - The winner is written to runs/GATE-M1/brain009_frozen.json. That file IS
     the freeze record; everything downstream reads it with @path.
 
@@ -50,22 +50,28 @@ F_EXPLORE_SEGMENTS = (("largemid",), ("largemid", "small"))
 F_CONFIRM_T_IC = (0.5, 0.75, 1.0, 1.25, 1.5)
 F_BOOK = ("prod", "eng")
 F_DSR_THRESHOLD = (0.0, 0.10, 0.25, 0.50, 0.75, 0.95)
+# Spec delta 2026-08-06 (§10): PBO is computed on the CELL's 42 explore books,
+# 41 of which are null, so it measures the batch's selection noise rather than
+# the candidate's robustness — measured 0.51/0.59 on the two rep-0 control
+# cells. Left fixed at 0.5 it would reject roughly half of everything by coin
+# flip. It becomes a calibrated slot; 1.0 = reported, not gating.
+F_PBO_THRESHOLD = (0.5, 0.6, 1.0)
 
 
 def family() -> list[Ruleset]:
     out = []
-    for e, segs, c, book, d in product(
+    for e, segs, c, book, d, p in product(
             F_EXPLORE_T_IC, F_EXPLORE_SEGMENTS, F_CONFIRM_T_IC, F_BOOK,
-            F_DSR_THRESHOLD):
+            F_DSR_THRESHOLD, F_PBO_THRESHOLD):
         segtag = "lm" if len(segs) == 1 else "lm+sm"
         out.append(Ruleset(
-            name=f"B009[e{e}/{segtag}|c{c}|{book}|d{d}]",
+            name=f"B009[e{e}/{segtag}|c{c}|{book}|d{d}|p{p}]",
             explore_t_ic=e, explore_t_net=None, explore_rank_by="t_ic",
             explore_segments=segs, explore_top_n=5,
             confirm_t_ic=c, confirm_t_net=None,
             confirm_sign_ic=True, confirm_sign_net=False, confirm_book=book,
             dsr_book=book, dsr_n_trials=179, dsr_threshold=d,
-            pbo_threshold=0.5))
+            pbo_threshold=p))
     return out
 
 
@@ -84,16 +90,19 @@ def score(reps: list[dict], rs: Ruleset) -> dict:
         p2 = rate(reps, rs, SECOND_CELL)[0]
     except KeyError:
         p2 = float("nan")
-    lo, hi = wilson(kf, nf)
-    return {"ruleset": rs, "fdr": fdr, "fdr_wilson": [lo, hi],
-            "power_a04_I1": pw, "power_a02_I1": p2,
-            "n_fdr": nf, "n_power": np_,
-            "feasible": fdr <= FDR_MAX and hi <= FDR_WILSON_MAX}
+    lo, hi = (float(x) for x in wilson(kf, nf))
+    # numpy scalars must not escape into the report — json refuses them, and
+    # a chain that dies at the freeze write has burned the whole grid.
+    return {"ruleset": rs, "fdr": float(fdr), "fdr_wilson": [lo, hi],
+            "power_a04_I1": float(pw), "power_a02_I1": float(p2),
+            "n_fdr": int(nf), "n_power": int(np_),
+            "feasible": bool(fdr <= FDR_MAX and hi <= FDR_WILSON_MAX)}
 
 
 def strictness(rs: Ruleset) -> tuple:
     """Higher = concedes less. Used only as a deterministic tie-break."""
-    return (rs.dsr_threshold, rs.explore_t_ic, rs.confirm_t_ic,
+    return (-rs.pbo_threshold, rs.dsr_threshold, rs.explore_t_ic,
+            rs.confirm_t_ic,
             1 if rs.explore_segments == ("largemid",) else 0,
             1 if rs.dsr_book == "prod" else 0)
 
@@ -101,6 +110,10 @@ def strictness(rs: Ruleset) -> tuple:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="r1")
+    ap.add_argument("--out", default="brain009_frozen.json",
+                    help="freeze record filename under runs/GATE-M1 "
+                         "(smoke runs MUST override so they cannot write the "
+                         "real freeze record)")
     args = ap.parse_args()
     assert_production_constants()
 
@@ -155,7 +168,7 @@ def main() -> None:
             key=lambda d: -d["power_a04_I1"])[:60],
         "held_out_tables": tables(hold, frozen),
     }
-    out = RUNS_DIR / "brain009_frozen.json"
+    out = RUNS_DIR / args.out
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps({k: report[k] for k in
                       ("ruleset", "selection_half", "held_out_half",

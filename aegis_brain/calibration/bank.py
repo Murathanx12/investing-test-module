@@ -306,6 +306,13 @@ def main(argv: list[str] | None = None) -> None:
 
     cells = WAVES[args.wave]
     todo = list(range(args.start, args.start + args.reps))
+    if not todo:
+        # --reps 0 is the wiring pre-flight: proves launcher -> run_grid ->
+        # bank delegation and the production-constant assert without paying
+        # for a single scan.
+        print(f"no reps requested (wave={args.wave} cells={cells}) — "
+              "delegation and production constants OK")
+        return
     print(f"bank grid: reps {todo[0]}..{todo[-1]} tag={args.tag} "
           f"rho={args.rho} wave={args.wave} cells={cells} "
           f"workers={args.workers}", flush=True)
