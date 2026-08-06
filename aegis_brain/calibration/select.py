@@ -34,7 +34,12 @@ from itertools import product
 
 from aegis_brain.calibration.bank import load_bank, tables
 from aegis_brain.calibration.config import RUNS_DIR, assert_production_constants
-from aegis_brain.calibration.ruleset import BRAIN_008, Ruleset, evaluate
+from aegis_brain.calibration.ruleset import (
+    BRAIN_008,
+    BRAIN_009_SEED,
+    Ruleset,
+    evaluate,
+)
 from aegis_brain.calibration.run_grid import wilson
 
 FDR_CELL = "a0.0/base"
@@ -125,11 +130,38 @@ def main() -> None:
     feasible = [s for s in scored if s["feasible"]]
     print(f"family: {len(scored)} ladders, {len(feasible)} feasible "
           f"(FDR <= {FDR_MAX}, Wilson upper <= {FDR_WILSON_MAX})")
+
+    def frontier(rows: list[dict], n: int = 60) -> list[dict]:
+        return sorted([{"key": s["ruleset"].key(), "fdr": round(s["fdr"], 4),
+                        "fdr_wilson_hi": round(s["fdr_wilson"][1], 4),
+                        "power_a04_I1": round(s["power_a04_I1"], 4),
+                        "power_a02_I1": round(s["power_a02_I1"], 4),
+                        "feasible": s["feasible"]} for s in rows],
+                      key=lambda d: -d["power_a04_I1"])[:n]
+
     if not feasible:
-        raise SystemExit(
-            "NO FEASIBLE LADDER in the pre-registered family. This is a "
-            "reportable outcome, not an error — widen the family only with a "
-            "committed spec delta.")
+        # A night of compute must never end with an empty hand: write the
+        # diagnosis (what the constraint cost, what the best infeasible
+        # ladders looked like) even though nothing freezes.
+        infeasible_report = {
+            "utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "tag": args.tag, "verdict": "NO FEASIBLE LADDER",
+            "note": ("No member of the pre-registered family met the FDR "
+                     "budget on the selection half. This is a reportable "
+                     "outcome, not an error — widen the family only with a "
+                     "committed spec delta."),
+            "family_size": len(scored),
+            "fdr_max": FDR_MAX, "fdr_wilson_max": FDR_WILSON_MAX,
+            "n_selection_reps": len(sel), "n_heldout_reps": len(hold),
+            "best_by_power_ignoring_feasibility": frontier(scored),
+            "control_BRAIN_008": {k: score(sel, BRAIN_008)[k]
+                                  for k in ("fdr", "power_a04_I1")},
+        }
+        path = RUNS_DIR / "brain009_infeasible_report.json"
+        path.write_text(json.dumps(infeasible_report, indent=2),
+                        encoding="utf-8")
+        print(f"NO FEASIBLE LADDER — diagnosis written to {path}")
+        raise SystemExit(4)
 
     best = max(feasible, key=lambda s: (round(s["power_a04_I1"], 6),
                                         round(s["power_a02_I1"], 6),
@@ -160,12 +192,14 @@ def main() -> None:
                                             ("fdr", "power_a04_I1")},
                               "held_out": {k: ctl_ho[k] for k in
                                            ("fdr", "power_a04_I1")}},
-        "frontier": sorted(
-            [{"key": s["ruleset"].key(), "fdr": round(s["fdr"], 4),
-              "power_a04_I1": round(s["power_a04_I1"], 4),
-              "power_a02_I1": round(s["power_a02_I1"], 4),
-              "feasible": s["feasible"]} for s in scored],
-            key=lambda d: -d["power_a04_I1"])[:60],
+        # interpretable anchors, so the morning verdict can say what the
+        # chosen ladder bought relative to the ratified starting point
+        "anchor_BRAIN_009_seed": {
+            "selection": {k: score(sel, BRAIN_009_SEED)[k]
+                          for k in ("fdr", "power_a04_I1", "feasible")},
+            "held_out": {k: score(hold, BRAIN_009_SEED)[k]
+                         for k in ("fdr", "power_a04_I1")}},
+        "frontier": frontier(scored),
         "held_out_tables": tables(hold, frozen),
     }
     out = RUNS_DIR / args.out
