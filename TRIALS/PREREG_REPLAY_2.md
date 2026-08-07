@@ -1,8 +1,25 @@
-# PREREG — REPLAY-2 (DRAFT — NOT FROZEN)
+# PREREG — REPLAY-2 (FROZEN 2026-08-08)
 
-**Status: DRAFT for Murat's attended review. Nothing here is registered until
-this file is frozen (dated, hashed, committed) in an attended session. The
-one-shot replay of the 179 remains BLOCKED until then (Kill Audit Amendment 3).**
+**Status: FROZEN. Murat attended 2026-08-08 and delegated the open parameters
+("choose the best for me", on record in the session transcript). Ratified:**
+
+1. **Ladder = BRAIN-010** (both-seg / top-10; E1/E2/E3 all PASS, blind,
+   prediction band hit at 2.90%).
+2. **Error control = D1 (BH step-up on empirical p-values, real-null floor),
+   q = 0.10**, with D2 (e-BH) as challenger under the §1 Pareto rule —
+   evaluated on the existing bank BEFORE the replay; whichever the
+   pre-stated rule selects, ships.
+3. **Episode floor for SUPPORT-INADEQUATE = 3 independent episodes.**
+4. **OSAP predictors: ENTER as a SEPARATE batch (EXT-BANK-1), the 179
+   untouched.** The 179 replay runs under this registration with its own
+   BH accounting over its own 179-candidate denominator. The 209 OSAP
+   predictors are a second, separately registered batch with their own
+   denominator and their own (future) confirm registration — no mixing of
+   deflation accounting in either direction. Murat's stated intent: keep
+   the 179's potential fully intact AND gain the external bank.
+
+Sizing S3 freezes jointly per §5. No parameter below may change after this
+banner without a new trial ID.
 
 Drafted 2026-08-07/08 from: Amendment 3 (F1-F6), review round 3 (Opus repo
 review), review round 4 (GPT challenge response), REAL-NULL-1 (K=4000),
