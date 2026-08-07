@@ -38,8 +38,15 @@ from aegis_brain.factory.osap import ScoreGridder, load_doc, meta_table
 from aegis_brain.factory.signals import FactorySignal
 
 COHORT = ["GP", "OperProf", "OperProfRD", "CBOperProf", "cfp", "roaq"]
-GUARD = {"signal": "osap_GP", "segment": "small", "t_ic": 7.31,
-         "t_net": 2.42}
+# GUARD PROVENANCE CORRECTION (2026-08-08): first pinned to 7.31/2.42 from
+# the handoff's early scan, which used the per-signal NETWORK endpoint
+# (dl_signal). This trial reads the LOCAL bulk parquet, whose banked scan
+# row (runs/EXT-NULL-1/scan_predictor.csv, GP/small) is 7.24/2.40 — the
+# guard fired on the mismatch and VOIDed the first run before any cohort
+# number was read (correct behavior; the two OSAP distributions differ at
+# the ~0.07-t level). Anchored here to the same provenance the trial scans.
+GUARD = {"signal": "osap_GP", "segment": "small", "t_ic": 7.24,
+         "t_net": 2.40}
 Q = 0.10
 # EXT-BANK-1 denominator at registration: 209 scanned predictors + the
 # registered EXT designs (6 cohort members here + 7 issuance + 2 composites
