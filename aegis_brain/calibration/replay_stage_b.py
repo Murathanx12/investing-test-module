@@ -97,8 +97,30 @@ def resolve_signal(name: str, panel: Panel) -> tuple[FactorySignal | None, str]:
         from aegis_brain.factory.batch8 import build_batch8
         return build_batch8(panel, _stores())
 
+    def _b3a():
+        # byte-identical to scripts/run_factory_batch3a.py — the reproduction
+        # guard verifies against the banked explore line before any confirm
+        from aegis_brain.factory.altstores import (
+            load_breadth_chg,
+            load_daily_agg,
+            load_rec_momentum,
+            load_short_interest_chg,
+        )
+        daily = load_daily_agg(panel)
+        return [
+            FactorySignal("max_dret_low_D", "b3a", lambda p: daily["max_dret"], -1),
+            FactorySignal("ivol_low_D", "b3a", lambda p: daily["vol_d"], -1),
+            FactorySignal("amihud_D", "b3a", lambda p: daily["amihud_d"], +1),
+            FactorySignal("si_chg_low", "b3a",
+                          lambda p, _s=load_short_interest_chg(panel): _s, -1),
+            FactorySignal("breadth_chg", "b3a",
+                          lambda p, _b=load_breadth_chg(panel): _b, +1),
+            FactorySignal("rec_mom", "b3a",
+                          lambda p, _r=load_rec_momentum(panel): _r, +1),
+        ]
+
     for label, fn in (("batch2", _b2), ("batch5", _b5), ("batch6", _b6),
-                      ("batch8", _b8)):
+                      ("batch8", _b8), ("batch3a", _b3a)):
         sig, src = _try(label, fn)
         if sig:
             return sig, src
