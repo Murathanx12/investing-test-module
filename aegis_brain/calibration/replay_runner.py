@@ -208,7 +208,9 @@ def stage_a(cands: pd.DataFrame, cdfs: dict[str, np.ndarray],
         if len(seg_grads):
             bar = float(seg_grads.t_ic.min())
             rate, n_c = conditional_confirm_rate(confirm_pairs[seg], bar)
-            cond[seg] = {"bar": bar, "rate": rate, "n_conditioning": n_c}
+            cond[seg] = {"bar": bar,
+                         "rate": round(rate, 4) if np.isfinite(rate) else None,
+                         "n_conditioning": n_c}
     e_false_real, terms = 0.0, []
     for _, g in graduates.iterrows():
         c = cond.get(g.segment, {})
@@ -283,7 +285,9 @@ def main() -> None:
         raise SystemExit(
             "Refusing to run without --fire. Stage A reads the small-segment "
             "candidate rows, which is irreversible under the standing rule.")
-    out = RUNS_DIR.parent / "REPLAY-2" / "stageA_selection.json"
+    out_dir = RUNS_DIR.parent / "REPLAY-2"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / "stageA_selection.json"
     if out.exists():
         raise SystemExit(f"{out} already exists — Stage A is one-shot; a "
                          "rerun requires a new trial ID (REPLAY-2 §6).")
