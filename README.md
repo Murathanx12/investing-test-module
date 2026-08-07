@@ -21,6 +21,13 @@ constraint (Chen-Velikov: the average anomaly nets ~4-10 bps/mo).
 
 ## Results so far (all pre-registered, deflated, leak-checked)
 
+> **Reading note (2026-08-07):** the verdicts below were produced under gates
+> that GATE-M1 later measured at **~0% power** — a REJECT driven only by the
+> explore threshold is unmeasured, not proven-false. Verdicts backed by their
+> own receipts (placebo gates, sign flips, zero-cost bounds) stand as written.
+> See `docs/KILL_AUDIT_2026-08-07.md` for the classification and
+> `docs/RECAL1_VERDICT_RUN1_2026-08-07.md` for the recalibrated ladder.
+
 | Trial | Signal | Verdict |
 |---|---|---|
 | BRAIN-000/001 | GKX price factors (EODHD) | REJECT — surfaced data poison + turnover drag |

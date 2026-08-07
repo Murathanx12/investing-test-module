@@ -1,5 +1,21 @@
 # Strategy Factory — explore/confirm protocol (pre-registered 2026-07-22)
 
+> **SUPERSEDED IN PART (2026-08-07, RECAL-1).** This document remains the
+> tamper-evident record of the rules the 179-candidate search actually ran
+> under — do not edit the body. But GATE-M1 measured those rules and the
+> decision ladder was recalibrated:
+> - the graduation rule below (largemid t_net ≥ 1.5 AND t_ic ≥ 2.0 → DSR/PBO)
+>   has a **measured 0% probability of adopting even a true α=0.6 edge**;
+>   the 0-for-179 record was inevitable, not informative
+>   (`docs/RECAL1_VERDICT_RUN1_2026-08-07.md`);
+> - the production ladder is now **BRAIN-009** (explore t_ic ≥ 1.5, confirm
+>   t_ic ≥ 0.5 + sign, DSR/PBO inert, FDR *measured* at 1.6%), frozen in
+>   `runs/GATE-M1/brain009_frozen.json`;
+> - the small-segment ineligibility below is measured as total structural
+>   blindness (I3), and IC-only graduation carries a documented σ-family
+>   artifact channel — see `docs/KILL_AUDIT_2026-08-07.md` §3 before
+>   interpreting any t_ic in this file.
+
 ## Why this exists
 
 Murat's directive (2026-07-22): "test everything — hundreds of simple, stupid

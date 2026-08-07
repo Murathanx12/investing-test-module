@@ -1,10 +1,33 @@
 # Aegis Investor Brain — Status Snapshot
 
-**As of:** 2026-07-21 (post-v1.0) · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Tests:** 243 green · **Cumulative candidate count:** 178 (see TRIALS/registry.jsonl)
+**As of:** 2026-08-07 (RECAL-1) · **Repo:** https://github.com/Murathanx12/investing-test-module
+**Cumulative candidate count:** 179 — search phase CLOSED (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
+
+**2026-08-06/07 (GATE-M1 → RECAL-1) — THE GATES WERE MEASURED, AND THE LADDER
+WAS RECALIBRATED.** The factory's decision ladder was run against synthetic
+panels with known injected edges (DGP-A v6, F1–F8 certified). Headline: the
+ratified ladder (BRAIN-008 *and* the seed BRAIN-009 variant) has a **measured
+0% probability of adopting even a true α=0.6 constant edge** — the 0-for-179
+search record was inevitable and carries almost no information about the pool.
+The recalibrated **BRAIN-009** (explore t_ic ≥ 1.5, confirm t_ic ≥ 0.5 + sign,
+DSR/PBO inert-by-measurement, production book) adopts 44% of a true α=0.4 edge
+at a **measured FDR of 1.6%**, validated on a held-out rep half. Design sweep:
+decaying-edge explore kill fixed (A4 PASS 56.4%); small segment measured as
+**totally structurally blind** (I3 = null rate at every α). Two guard failures
+in two runs (silent wave-2 no-op; then a NameError inside the fix) — both now
+under unit test; the house failure mode remains the house failure mode.
+**Kill audit** (`docs/KILL_AUDIT_2026-08-07.md`): receipt-based kills stand;
+threshold-only kills are unmeasured and go to a ONE-SHOT replay under the
+frozen ladder — amended with a binding **family-null veto** (σ/liquidity-family
+signals show t_ic ≈ 1.8 on pure noise, ~70% false-pass; veto table frozen in
+`docs/family_null_tic_r1_frozen.json`). **PENDING:** wave 3 (1000 fresh nulls)
+lands tonight → A6/S3 re-confirmation + n=1250 FDR; then Murat's attended
+ladder decision (freeze vs both-seg/top-10 sensitivity winner); then the
+one-shot 179 replay. Receipts: `docs/RECAL1_VERDICT_RUN1_2026-08-07.md`,
+`docs/RECAL1_RUN2_DESIGN_SWEEP_2026-08-07.md`, `docs/RECAL1_SPEC_2026-08-06.md`.
 
 **2026-08-02 (harvest stage) — THE PLACEBO GATE FIRED. NO CONCLUSION, AND THE
 REAL NUMBER WAS NEVER COMPUTED. Candidates 178, nothing registered.**
