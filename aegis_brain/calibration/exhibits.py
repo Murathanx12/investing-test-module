@@ -133,8 +133,9 @@ def exhibit_b(post: dict, out_name: str = "exhibit_B_posterior_heatmap") -> None
     mat = np.full((4, len(cd_pairs)), np.nan)
     counts = np.zeros_like(mat)
     for k in keys:
-        e, c, d = eval(k)
-        j = cd_pairs.index((c, d))
+        key = eval(k)
+        e, rest = key[0], tuple(key[1:])
+        j = cd_pairs.index(rest)
         mat[e, j] = buckets[k]["headline"]
         counts[e, j] = sum(buckets[k]["counts"].values())
 
