@@ -1,0 +1,187 @@
+{
+  "utc": "2026-08-07T15:27:17+00:00",
+  "tag": "r1",
+  "q": 0.1,
+  "ladder": "BRAIN-010",
+  "d2_note": "e-BH not evaluable: bank stores summary stats, no monthly IC series; re-scan would exceed the <=half-compute clause -> D1 ships per PREREG_REPLAY_2 \u00a71",
+  "cdf_even__eval_odd": {
+    "a0.0/base": {
+      "n": 625,
+      "d1_adopt": 0.0,
+      "d1_wilson": [
+        0.0,
+        0.0061
+      ],
+      "b10_adopt": 0.0288,
+      "d1_mean_null_qualifiers": 0.16,
+      "b10_mean_null_qualifiers": 9.029
+    },
+    "a0.2/I1": {
+      "n": 125,
+      "d1_adopt": 0.008,
+      "d1_wilson": [
+        0.0014,
+        0.0439
+      ],
+      "b10_adopt": 0.16,
+      "d1_mean_null_qualifiers": 0.216,
+      "b10_mean_null_qualifiers": 9.32
+    },
+    "a0.4/I1": {
+      "n": 125,
+      "d1_adopt": 0.088,
+      "d1_wilson": [
+        0.0498,
+        0.1507
+      ],
+      "b10_adopt": 0.44,
+      "d1_mean_null_qualifiers": 0.248,
+      "b10_mean_null_qualifiers": 9.328
+    },
+    "a0.6/I1": {
+      "n": 125,
+      "d1_adopt": 0.424,
+      "d1_wilson": [
+        0.3409,
+        0.5116
+      ],
+      "b10_adopt": 0.816,
+      "d1_mean_null_qualifiers": 0.312,
+      "b10_mean_null_qualifiers": 9.328
+    },
+    "a0.4/I3": {
+      "n": 125,
+      "d1_adopt": 0.072,
+      "d1_wilson": [
+        0.0383,
+        0.1312
+      ],
+      "b10_adopt": 0.424,
+      "d1_mean_null_qualifiers": 0.256,
+      "b10_mean_null_qualifiers": 9.32
+    },
+    "a0.6/I3": {
+      "n": 125,
+      "d1_adopt": 0.312,
+      "d1_wilson": [
+        0.2374,
+        0.3978
+      ],
+      "b10_adopt": 0.768,
+      "d1_mean_null_qualifiers": 0.32,
+      "b10_mean_null_qualifiers": 9.36
+    },
+    "a0.4/I4": {
+      "n": 125,
+      "d1_adopt": 0.088,
+      "d1_wilson": [
+        0.0498,
+        0.1507
+      ],
+      "b10_adopt": 0.528,
+      "d1_mean_null_qualifiers": 0.256,
+      "b10_mean_null_qualifiers": 9.472
+    },
+    "a0.6/I4": {
+      "n": 125,
+      "d1_adopt": 0.472,
+      "d1_wilson": [
+        0.3866,
+        0.559
+      ],
+      "b10_adopt": 0.784,
+      "d1_mean_null_qualifiers": 0.4,
+      "b10_mean_null_qualifiers": 9.568
+    }
+  },
+  "cdf_odd__eval_even": {
+    "a0.0/base": {
+      "n": 625,
+      "d1_adopt": 0.0016,
+      "d1_wilson": [
+        0.0003,
+        0.009
+      ],
+      "b10_adopt": 0.0272,
+      "d1_mean_null_qualifiers": 0.101,
+      "b10_mean_null_qualifiers": 8.962
+    },
+    "a0.2/I1": {
+      "n": 125,
+      "d1_adopt": 0.024,
+      "d1_wilson": [
+        0.0082,
+        0.0682
+      ],
+      "b10_adopt": 0.16,
+      "d1_mean_null_qualifiers": 0.04,
+      "b10_mean_null_qualifiers": 8.912
+    },
+    "a0.4/I1": {
+      "n": 125,
+      "d1_adopt": 0.184,
+      "d1_wilson": [
+        0.1259,
+        0.261
+      ],
+      "b10_adopt": 0.424,
+      "d1_mean_null_qualifiers": 0.04,
+      "b10_mean_null_qualifiers": 8.904
+    },
+    "a0.6/I1": {
+      "n": 125,
+      "d1_adopt": 0.448,
+      "d1_wilson": [
+        0.3637,
+        0.5354
+      ],
+      "b10_adopt": 0.752,
+      "d1_mean_null_qualifiers": 0.064,
+      "b10_mean_null_qualifiers": 8.92
+    },
+    "a0.4/I3": {
+      "n": 125,
+      "d1_adopt": 0.024,
+      "d1_wilson": [
+        0.0082,
+        0.0682
+      ],
+      "b10_adopt": 0.424,
+      "d1_mean_null_qualifiers": 0.056,
+      "b10_mean_null_qualifiers": 8.96
+    },
+    "a0.6/I3": {
+      "n": 125,
+      "d1_adopt": 0.168,
+      "d1_wilson": [
+        0.1126,
+        0.2432
+      ],
+      "b10_adopt": 0.8,
+      "d1_mean_null_qualifiers": 0.08,
+      "b10_mean_null_qualifiers": 8.968
+    },
+    "a0.4/I4": {
+      "n": 125,
+      "d1_adopt": 0.168,
+      "d1_wilson": [
+        0.1126,
+        0.2432
+      ],
+      "b10_adopt": 0.56,
+      "d1_mean_null_qualifiers": 0.056,
+      "b10_mean_null_qualifiers": 9.04
+    },
+    "a0.6/I4": {
+      "n": 125,
+      "d1_adopt": 0.416,
+      "d1_wilson": [
+        0.3334,
+        0.5036
+      ],
+      "b10_adopt": 0.864,
+      "d1_mean_null_qualifiers": 0.128,
+      "b10_mean_null_qualifiers": 9.112
+    }
+  }
+}
