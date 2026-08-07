@@ -1,10 +1,34 @@
 # Aegis Investor Brain — Status Snapshot
 
-**As of:** 2026-08-07 (RECAL-1) · **Repo:** https://github.com/Murathanx12/investing-test-module
+**As of:** 2026-08-08 (RECAL-1 closed; REPLAY-2 draft) · **Repo:** https://github.com/Murathanx12/investing-test-module
 **Tests:** 307 green · **Cumulative candidate count:** 179 — search phase CLOSED (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
-per-session detail in docs/SESSION_*.md.
+current plan in **docs/ROADMAP_2026-08.md**; per-session detail in docs/SESSION_*.md.
+
+**2026-08-07/08 (RECAL-1 CLOSED + external anchor) — BRAIN-010 PASSED ITS BLIND
+TEST; THE REPLAY IS BLOCKED PENDING REPLAY-2.** Chain complete 22:00: A1
+tightened (fresh-null FPR 1.5% [0.91, 2.46], n=1000); **BRAIN-010 E1/E2/E3 all
+PASS, pre-registered prediction band hit at 2.90%** (third consecutive
+registered prediction to land; buys small-segment power 0.016 → 0.424 at
++1.4pp FPR); S3 sizing re-confirmed with the middle band DEMOTED 0.25× → 0×
+by the fresh nulls (p_real 0.601-on-7 → 0.477-on-61). Recommendation on
+record: ratify BRAIN-010 (`docs/RECAL1_VERDICT_RUN2_FINAL_2026-08-07.md`).
+In parallel, an execution-access review session landed the **external anchor**:
+OSAP (Chen-Zimmermann) cached locally (5.4M rows, 209 predictor signals,
+adapter `aegis_brain/factory/osap.py`); EXT-NULL-1 placebo arm killed by its
+own clause (0/114 placebos at firm level); **REAL-NULL-1: the simulator's
+generic null is ~2.3× optimistic for persistent candidates** (real-panel
+P(t_ic≥1.5) = 0.082 [0.0735, 0.0905] vs 0.036; confirm-pass-given-grad
+0.360); osap_GP small independently reproduces gp-small (cross-validation
+receipt). Review round 4 (GPT) verified: delist-stamp attack CLOSED by the
+v1→v2 history; WORLD-8 two-point construction verified and adopted; repair
+jurisdiction + SUPPORT-INADEQUATE + max(semantic, empirical) veto folded into
+`TRIALS/PREREG_REPLAY_2_DRAFT.md` (DRAFT — freeze is attended). EXT-POWER-1
+(209 predictors, explore-only) resumed and running. **PENDING (Murat):**
+ratify ladder; freeze REPLAY-2; decide OSAP predictor entry. Then: R²
+diagnostic → one-shot replay with real-data expected-false-adoption
+accounting printed first.
 
 **2026-08-06/07 (GATE-M1 → RECAL-1) — THE GATES WERE MEASURED, AND THE LADDER
 WAS RECALIBRATED.** The factory's decision ladder was run against synthetic
