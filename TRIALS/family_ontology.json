@@ -1,0 +1,309 @@
+{
+ "schema": "family-ontology-v1",
+ "written": "2026-08-07T16:07:07+00:00",
+ "mandate": "KILL_AUDIT Amendment 2 sec2; required before the replay reads any statistic",
+ "discipline": "STATISTICS-BLIND: built from construction code (factory batch modules) and signal names only; no explore/confirm statistic of any candidate was read. Small-segment rows remain unexamined.",
+ "bar_rule": "replay bar per candidate = BH(flat floor) AND t_ic >= max(family p95, generic p95) in its segment, from docs/family_null_tic_r1_frozen.json; generic = injected_edge. The conservative reading of PREREG_REPLAY_2 sec3 (semantic component survives the failed correlation surface).",
+ "signals": {
+  "amihud_3m": {
+   "family": "amihud_3m",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "consistency_12m": {
+   "family": "consistency_12m",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "dd_from_12m_high": {
+   "family": "dd_from_12m_high",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "dip_3m": {
+   "family": "dip_3m",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "high_52wk_prox": {
+   "family": "high_52wk_prox",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "illiq": {
+   "family": "illiq",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "ltr_36_13": {
+   "family": "ltr_36_13",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "max_ret_low": {
+   "family": "max_ret_low",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "mom_12_1": {
+   "family": "mom_12_1",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "mom_6_1": {
+   "family": "mom_6_1",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "price_level": {
+   "family": "price_level",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "seasonality": {
+   "family": "seasonality",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "sharpe_12m": {
+   "family": "sharpe_12m",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "skew_low": {
+   "family": "skew_low",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "st_reversal": {
+   "family": "st_reversal",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "trend_ma10": {
+   "family": "trend_ma10",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "vol_12m_low": {
+   "family": "vol_12m_low",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "vol_6m_low": {
+   "family": "vol_6m_low",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "vol_calm": {
+   "family": "vol_calm",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "volume_trend": {
+   "family": "volume_trend",
+   "basis": "measured directly (batch-1 null table)"
+  },
+  "ivol_low_D": {
+   "family": "vol_12m_low",
+   "basis": "construction: daily idiosyncratic-vol low = vol construction"
+  },
+  "max_dret_low_D": {
+   "family": "max_ret_low",
+   "basis": "construction: daily MAX-return low = lottery construction"
+  },
+  "amihud_D": {
+   "family": "amihud_3m",
+   "basis": "construction: daily Amihud = price-impact construction"
+  },
+  "defensive": {
+   "family": "vol_12m_low",
+   "basis": "construction: low-MAX + low-vol composite = sigma construction"
+  },
+  "dtc_low": {
+   "family": "amihud_3m",
+   "basis": "construction: SI/ADV: dollar-volume denominator"
+  },
+  "dtc_high": {
+   "family": "amihud_3m",
+   "basis": "construction: SI/ADV: dollar-volume denominator"
+  },
+  "dtc_qual": {
+   "family": "amihud_3m",
+   "basis": "construction: SI/ADV: dollar-volume denominator"
+  },
+  "cg_overhang": {
+   "family": "high_52wk_prox",
+   "basis": "construction: reference-price anchor on own price path"
+  },
+  "qual_mom": {
+   "family": "mom_12_1",
+   "basis": "construction: 12-1 momentum restricted by profitability"
+  },
+  "conn_mom": {
+   "family": "mom_12_1",
+   "basis": "construction: connected-firm price momentum"
+  },
+  "industry_mom": {
+   "family": "mom_12_1",
+   "basis": "construction: industry price momentum"
+  },
+  "cust_mom": {
+   "family": "mom_12_1",
+   "basis": "construction: customer price momentum"
+  },
+  "accruals_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "asset_growth_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "best_ideas": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "best_ideas_frac": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "breadth_chg": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "btm": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "capx_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "cash_prof": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "comp_issue_5y": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "conc_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "congress_buys": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "cust_conc": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "dnoa_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "ea_shift": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "earn_accel": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "earn_stab": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "fscore_lite": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "gemini_score": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "gp_mom": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "gross_prof": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "insider_cluster": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "insider_si": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "inst_persist_high": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "inst_persist_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "inv_div": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "net_issuance_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "oper_prof": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "own_dur_t10": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "payout_yield": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "pead_agree": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "rd_gp": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "re_me": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "rec_mom": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "rect_div": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "rev_conf": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "roa_mom": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "roe": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "si_chg_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "si_trend": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "sue_streak": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "tgt_ld": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "tgt_upside": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  },
+  "tgt_upside_low": {
+   "family": "generic",
+   "basis": "no sigma/price/liquidity construction channel; accounting/analyst/ownership/event input"
+  }
+ }
+}

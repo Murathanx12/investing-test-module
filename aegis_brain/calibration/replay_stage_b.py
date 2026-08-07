@@ -121,11 +121,14 @@ def sha256(path: Path) -> str:
 
 
 def verify_freeze(stage_a: dict) -> None:
+    search_dirs = (FACTORY_DIR, MOD / "runs" / "REPLAY-2",
+                   MOD / "TRIALS", MOD / "docs")
     for fname, want in stage_a["inputs_sha256"].items():
-        p = (FACTORY_DIR / fname) if fname.endswith(".csv") else (
-            MOD / "runs" / "REPLAY-2" / fname)
-        got = sha256(p)
-        if got != want:
+        hits = [d / fname for d in search_dirs if (d / fname).exists()]
+        if not hits:
+            raise SystemExit(f"FREEZE VIOLATION: {fname} is gone since "
+                             "Stage A — Stage B may not run (REPLAY-2 §6).")
+        if sha256(hits[0]) != want:
             raise SystemExit(f"FREEZE VIOLATION: {fname} hash changed since "
                              "Stage A — Stage B may not run (REPLAY-2 §6).")
 
