@@ -311,6 +311,40 @@ def resolve_ruleset(spec: str) -> Ruleset:
 
 # ------------------------------------------------------------------- main
 
+def assert_coverage(tag: str, reps: list[int], cells: tuple,
+                    label: str = "wave") -> int:
+    """A wave that ran green must have left its cells on disk.
+
+    Run 1 lost wave 2 to a silent skip that exited 0, so this exists to make
+    that class of failure loud. It is a FUNCTION rather than a block inside
+    main() because run 2 then shipped it with a NameError that a real 6.8h
+    grid was the first thing ever to execute — an assertion nothing can call
+    on its own is an assertion nobody has tested.
+
+    Returns the number of rep files checked; raises SystemExit on any gap.
+    """
+    want = {f"a{a}/{d}" for d, a in cells}
+    missing: dict[str, int] = {}
+    checked = 0
+    for rep in reps:
+        path = GRID_DIR / f"bank_{tag}_{rep:04d}.json"
+        if not path.exists():
+            missing["<no file>"] = missing.get("<no file>", 0) + 1
+            continue
+        have = set(json.loads(path.read_text(encoding="utf-8"))["cells"])
+        checked += 1
+        for k in want - have:
+            missing[k] = missing.get(k, 0) + 1
+    if missing:
+        raise SystemExit(
+            f"COVERAGE FAILURE [{label}]: {checked}/{len(reps)} rep files "
+            f"checked and these cells are still absent: {missing}. The wave "
+            "did NOT do its work — do not aggregate.")
+    print(f"coverage OK [{label}]: {checked} rep files each hold all "
+          f"{len(want)} cells", flush=True)
+    return checked
+
+
 def main(argv: list[str] | None = None) -> None:
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -358,28 +392,7 @@ def main(argv: list[str] | None = None) -> None:
                   f"{fut.result()}", flush=True)
     print(f"bank grid complete in {round((time.time() - t0) / 3600, 2)}h")
 
-    # Coverage assertion — a wave that ran green must have left its cells on
-    # disk. Run 1 lost wave 2 to a silent skip that exited 0; this makes that
-    # class of failure loud instead of invisible.
-    want = {f"a{a}/{d}" for d, a in cells}
-    missing: dict[str, int] = {}
-    checked = 0
-    for rep in todo:
-        path = GRID_DIR / f"bank_{tag}_{rep:04d}.json"
-        if not path.exists():
-            missing["<no file>"] = missing.get("<no file>", 0) + 1
-            continue
-        have = set(json.loads(path.read_text(encoding="utf-8"))["cells"])
-        checked += 1
-        for k in want - have:
-            missing[k] = missing.get(k, 0) + 1
-    if missing:
-        raise SystemExit(
-            f"COVERAGE FAILURE: {checked}/{len(todo)} rep files checked and "
-            f"these cells are still absent: {missing}. The wave did NOT do "
-            "its work — do not aggregate.")
-    print(f"coverage OK: {checked} rep files each hold all {len(want)} "
-          f"cells of wave {args.wave}", flush=True)
+    assert_coverage(args.tag, todo, cells, label=f"wave {args.wave}")
 
 
 if __name__ == "__main__":

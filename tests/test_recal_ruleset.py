@@ -243,3 +243,33 @@ def test_bank_merge_is_cell_aware(tmp_path, monkeypatch):
     # compute, which without a worker panel raises rather than silently pass
     with pytest.raises((KeyError, RuntimeError, TypeError, AttributeError)):
         bank.run_rep_bank(0, 0.5, (("I2", 0.4),), "t")
+
+
+def test_coverage_assertion_passes_and_fails(tmp_path, monkeypatch):
+    """The guard against the run-1 silent no-op must itself be executable.
+
+    Run 2 shipped it as an inline block containing a NameError, so a 6.8h
+    grid was the first thing ever to run it. Both branches are now exercised
+    without paying for a single scan.
+    """
+    from aegis_brain.calibration import bank
+
+    monkeypatch.setattr(bank, "GRID_DIR", tmp_path)
+    cells = (("base", 0.0), ("I2", 0.4))
+    for rep in (0, 1):
+        (tmp_path / f"bank_t_{rep:04d}.json").write_text(
+            json.dumps({"rep": rep, "schema": "bank-v1",
+                        "cells": {"a0.0/base": {}, "a0.4/I2": {}}}),
+            encoding="utf-8")
+    assert bank.assert_coverage("t", [0, 1], cells) == 2
+
+    # a rep missing one cell -> loud
+    (tmp_path / "bank_t_0002.json").write_text(
+        json.dumps({"rep": 2, "schema": "bank-v1",
+                    "cells": {"a0.0/base": {}}}), encoding="utf-8")
+    with pytest.raises(SystemExit, match="COVERAGE FAILURE"):
+        bank.assert_coverage("t", [0, 1, 2], cells)
+
+    # a rep with no file at all -> loud
+    with pytest.raises(SystemExit, match="no file"):
+        bank.assert_coverage("t", [0, 1, 9], cells)
