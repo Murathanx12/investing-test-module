@@ -1,7 +1,7 @@
 # Aegis Investor Brain — Status Snapshot
 
 **As of:** 2026-08-07 (RECAL-1) · **Repo:** https://github.com/Murathanx12/investing-test-module
-**Cumulative candidate count:** 179 — search phase CLOSED (see TRIALS/registry.jsonl)
+**Tests:** 307 green · **Cumulative candidate count:** 179 — search phase CLOSED (see TRIALS/registry.jsonl)
 
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 per-session detail in docs/SESSION_*.md.
