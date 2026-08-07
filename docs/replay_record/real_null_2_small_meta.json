@@ -1,0 +1,31 @@
+{
+  "guard": {
+    "vol_12m_low": {
+      "measured": 1.89,
+      "banked": 1.89,
+      "match": true
+    },
+    "price_level": {
+      "measured": 2.12,
+      "banked": 2.12,
+      "match": true
+    }
+  },
+  "status": "OK",
+  "segment": "small",
+  "K_per_phi": 5000,
+  "phis": [
+    0.97,
+    0.99,
+    0.995,
+    0.999
+  ],
+  "seed": 20260808,
+  "n_pooled": 20000,
+  "pooled_p_ge_1.5": 0.1092,
+  "pooled_p95": 2.001,
+  "pooled_p99": 2.883,
+  "p_confirm_given_grad": 0.4325,
+  "explore_months": 180,
+  "confirm_months": 72
+}

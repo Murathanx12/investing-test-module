@@ -1,0 +1,348 @@
+{
+  "utc": "2026-08-07T17:11:29+00:00",
+  "frozen": {
+    "confirm_t_ic": 0.5,
+    "size_band_t_ic": 1.5,
+    "min_confirm_months": 36,
+    "confirm_window": [
+      "2019-01-31",
+      "2024-12-31"
+    ]
+  },
+  "stage_a_utc": "2026-08-07T16:21:38+00:00",
+  "accounting_echo": {
+    "m_candidates_rows": 134,
+    "denominator_note": "a candidate is a (signal, segment) row; reconciliation to the historical 179 printed in universe_reconciliation",
+    "bh_q": 0.1,
+    "top_n": 10,
+    "n_bh_survivors": 48,
+    "n_killed_by_family_floor": 6,
+    "n_graduates": 10,
+    "explore_false_pass_basis": {
+      "real_persistent_floor": ">= 0.082 (lower bound: real candidates are more persistent than any tested arm)",
+      "simulator_generic": "0.036 (2.3x narrower; disagreement is the fidelity finding)"
+    },
+    "worst_case_all_null": {
+      "note": "upper-bound accounting assuming EVERY graduate is null; confirm rates conditioned on each segment's realized graduate bar from REAL-NULL-2 saved pairs, falling back to the >=0.36 marginal when conditioning support < 50",
+      "conditional_by_segment": {
+        "small": {
+          "bar": 6.18,
+          "rate": null,
+          "n_conditioning": 0
+        }
+      },
+      "E_false_adoptions_real_basis": ">= 3.6",
+      "P_at_least_one_false_adoption_real_basis": ">= 0.988",
+      "E_false_adoptions_sim_basis": [
+        0.0,
+        0.02
+      ]
+    },
+    "dependence_caveat": "BH at q=0.10 controls FDR under PRDS; this batch contains negatively dependent mirror constructions, so the formal worst-case guarantee is Benjamini-Yekutieli q*sum(1/i) ~= 0.54. The operative evidence that realized FDR sits far below worst case is the measured CRN evaluation (E[null qualifiers] 0.10-0.16, D1 FPR 0.000-0.002), not the theorem. False adoptions are positively dependent within construction lineages; P(>=1) is optimistic in the tail.",
+    "cap_ordering_note": "the global cap ranks raw t_ic across segments; at equal evidence the small segment prints larger t (wider floor), so the cap systematically favors small \u2014 per-candidate within-segment p_floor is printed for exactly this reason."
+  },
+  "results": [
+    {
+      "signal": "cash_prof",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 7.9,
+        "t_net": 1.26
+      },
+      "provenance": "batch2",
+      "explore_reproduced": {
+        "t_ic": 7.9,
+        "t_net": 1.26,
+        "match": true
+      },
+      "confirm": {
+        "signal": "cash_prof",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 30.3,
+        "t_excess_net": 1.1,
+        "t_excess_gross": 1.27,
+        "ic_mean": 0.0894,
+        "t_ic": 5.9,
+        "turnover_1way": 0.093,
+        "cagr_net": 0.1234,
+        "max_dd": -0.358
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "max_dret_low_D",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 7.71,
+        "t_net": 0.0
+      },
+      "provenance": "batch3a",
+      "explore_reproduced": {
+        "t_ic": 7.71,
+        "t_net": 0.0,
+        "match": true
+      },
+      "confirm": {
+        "signal": "max_dret_low_D",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 0.3,
+        "t_excess_net": 0.01,
+        "t_excess_gross": 0.37,
+        "ic_mean": 0.0977,
+        "t_ic": 5.4,
+        "turnover_1way": 0.375,
+        "cagr_net": 0.086,
+        "max_dd": -0.223
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "conc_low",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 7.41,
+        "t_net": 2.31
+      },
+      "provenance": "batch7",
+      "explore_reproduced": {
+        "t_ic": 7.41,
+        "t_net": 2.31,
+        "match": true
+      },
+      "confirm": {
+        "signal": "conc_low",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 43.7,
+        "t_excess_net": 1.34,
+        "t_excess_gross": 1.48,
+        "ic_mean": 0.0534,
+        "t_ic": 5.53,
+        "turnover_1way": 0.089,
+        "cagr_net": 0.1502,
+        "max_dd": -0.383
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "defensive",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 7.1,
+        "t_net": 0.77
+      },
+      "provenance": "batch5",
+      "explore_reproduced": {
+        "t_ic": 7.1,
+        "t_net": 0.77,
+        "match": true
+      },
+      "confirm": {
+        "signal": "defensive",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 17.2,
+        "t_excess_net": 0.37,
+        "t_excess_gross": 0.51,
+        "ic_mean": 0.1134,
+        "t_ic": 5.53,
+        "turnover_1way": 0.125,
+        "cagr_net": 0.1017,
+        "max_dd": -0.243
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "ivol_low_D",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.93,
+        "t_net": 0.29
+      },
+      "provenance": "batch3a",
+      "explore_reproduced": {
+        "t_ic": 6.93,
+        "t_net": 0.29,
+        "match": true
+      },
+      "confirm": {
+        "signal": "ivol_low_D",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": -4.5,
+        "t_excess_net": -0.08,
+        "t_excess_gross": 0.16,
+        "ic_mean": 0.1113,
+        "t_ic": 5.31,
+        "turnover_1way": 0.273,
+        "cagr_net": 0.0812,
+        "max_dd": -0.222
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "price_level",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.63,
+        "t_net": 0.37
+      },
+      "provenance": "batch1",
+      "explore_reproduced": {
+        "t_ic": 6.63,
+        "t_net": 0.37,
+        "match": true
+      },
+      "confirm": {
+        "signal": "price_level",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 38.8,
+        "t_excess_net": 1.01,
+        "t_excess_gross": 1.13,
+        "ic_mean": 0.0942,
+        "t_ic": 5.47,
+        "turnover_1way": 0.091,
+        "cagr_net": 0.1258,
+        "max_dd": -0.255
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "fscore_lite",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.63,
+        "t_net": 1.46
+      },
+      "provenance": "batch2",
+      "explore_reproduced": {
+        "t_ic": 6.63,
+        "t_net": 1.46,
+        "match": true
+      },
+      "confirm": {
+        "signal": "fscore_lite",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 1.7,
+        "t_excess_net": 0.05,
+        "t_excess_gross": 0.25,
+        "ic_mean": 0.0529,
+        "t_ic": 4.4,
+        "turnover_1way": 0.127,
+        "cagr_net": 0.1063,
+        "max_dd": -0.386
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "oper_prof",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.62,
+        "t_net": 0.77
+      },
+      "provenance": "batch2",
+      "explore_reproduced": {
+        "t_ic": 6.62,
+        "t_net": 0.77,
+        "match": true
+      },
+      "confirm": {
+        "signal": "oper_prof",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 30.5,
+        "t_excess_net": 0.91,
+        "t_excess_gross": 1.05,
+        "ic_mean": 0.094,
+        "t_ic": 5.54,
+        "turnover_1way": 0.095,
+        "cagr_net": 0.1073,
+        "max_dd": -0.482
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "roe",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.27,
+        "t_net": -0.24
+      },
+      "provenance": "batch2",
+      "explore_reproduced": {
+        "t_ic": 6.27,
+        "t_net": -0.24,
+        "match": true
+      },
+      "confirm": {
+        "signal": "roe",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 30.4,
+        "t_excess_net": 1.28,
+        "t_excess_gross": 1.51,
+        "ic_mean": 0.0921,
+        "t_ic": 5.71,
+        "turnover_1way": 0.111,
+        "cagr_net": 0.131,
+        "max_dd": -0.37
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    },
+    {
+      "signal": "dtc_high",
+      "segment": "small",
+      "explore_banked": {
+        "t_ic": 6.18,
+        "t_net": 0.68
+      },
+      "provenance": "batch6",
+      "explore_reproduced": {
+        "t_ic": 6.18,
+        "t_net": 0.68,
+        "match": true
+      },
+      "confirm": {
+        "signal": "dtc_high",
+        "segment": "small",
+        "contaminated": false,
+        "months": 72,
+        "mean_excess_net_bps": 10.7,
+        "t_excess_net": 0.53,
+        "t_excess_gross": 0.78,
+        "ic_mean": 0.0505,
+        "t_ic": 7.71,
+        "turnover_1way": 0.1,
+        "cagr_net": 0.0768,
+        "max_dd": -0.387
+      },
+      "terminal": "ADOPT_075",
+      "size": 0.75
+    }
+  ],
+  "n_adopted": 10,
+  "n_funded": 10
+}
