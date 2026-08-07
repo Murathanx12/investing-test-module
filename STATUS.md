@@ -6,6 +6,26 @@
 The one-screen picture of where the module is. Full architecture in ROADMAP.md;
 current plan in **docs/ROADMAP_2026-08.md**; per-session detail in docs/SESSION_*.md.
 
+**2026-08-08 pre-dawn — THE ONE-SHOT REPLAY FIRED: 10 SMALL-SEGMENT ADOPTIONS,
+ALL AT THE 0.75× BAND.** After two adversarial agent reviews returned
+DO-NOT-FIRE and every blocking finding was fixed with receipts
+(`docs/REPLAY2_PREFIRE_ADDENDUM_2026-08-08.md`; statistics-blind
+`TRIALS/family_ontology.json`; BH + family-floor bar; certified REAL-NULL-2
+floors, largemid 0.0839 / small 0.1092, both in their pre-registered bands,
+n=20k each): Stage A selected 10 graduates from 134 rows (48 BH survivors,
+6 σ-artifacts killed by the family floor, cap cut at t_ic 6.18 — all small
+segment); Stage B reproduced every explore line exactly and **all 10 passed
+the held-out confirm at t_ic 4.40-7.71** — beyond every measured null.
+NEGATIVE_RESULTS §34 is now an out-of-sample fact: the small segment held
+the information pool the 0-for-179 gates could not see. **Tradability is
+NOT established** (no confirm money leg ≥ 1.5 individually; σ-family caveat
+stands for 4 of 10) — adjudicated by the pre-registered
+TRIAL-REPLAY-BOOK-1 (EW 10-signal small book, KO-half + stress arms,
+persistent-null placebo books; PASS required before any attended seeding).
+Also tonight: EXT-POWER-1 M4 scored (prior MISSED: 15.3% largemid);
+EXT-BANK-1 five trials + era instrument registered pre-M4; verdicts in
+`docs/REPLAY_VERDICT_2026-08-08.md`, `docs/EXT_POWER_1_VERDICT_2026-08-08.md`.
+
 **2026-08-07/08 (RECAL-1 CLOSED + external anchor) — BRAIN-010 PASSED ITS BLIND
 TEST; THE REPLAY IS BLOCKED PENDING REPLAY-2.** Chain complete 22:00: A1
 tightened (fresh-null FPR 1.5% [0.91, 2.46], n=1000); **BRAIN-010 E1/E2/E3 all
