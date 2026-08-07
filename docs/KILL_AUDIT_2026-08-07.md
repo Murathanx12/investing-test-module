@@ -162,3 +162,39 @@ defense is the ledger receipts, disclosed as such.
 - No treating "passes BRAIN-009 explore" as "was true" — survivors of the
   replay enter confirm like any candidate, and the 24-month no-skill-claims
   clock (CANON §1) is untouched.
+
+## 6. Amendment 2 (2026-08-07 evening, post external review — before any replay)
+
+Adopted from the verified external-review panel (synthesis:
+`aegis-finance/docs/AI_REVIEWS_SYNTHESIS_2026-08-07.md`), binding on the
+one-shot replay in addition to §4:
+
+1. **Resurrection status taxonomy.** Every one of the 179 gets exactly one:
+   `DEAD` (receipt survives) · `UNMEASURED` (threshold-only kill) ·
+   `UNDERPOWERED` (tested where simulator power is known low, e.g. small) ·
+   `MIS-SPECIFIED` (test did not match the registered mechanism) ·
+   `TEMPORALLY-MISMATCHED` (registered as a decaying/short-horizon effect
+   but adjudicated on a confirm window past its half-life — "does the
+   effect exist" was conflated with "does it still exist in 2019-24").
+   The last category is new (GPT §14) and genuinely changes verdicts: a
+   decay-registered candidate killed at confirm may be a real effect asked
+   the wrong temporal question.
+2. **Frozen family ontology file.** Before the replay reads any statistic,
+   `TRIALS/family_ontology.json` is written mapping every candidate ->
+   simulator family BY CONSTRUCTION (what the signal is computed from),
+   deterministic, no per-candidate discretion afterward. Two null levels
+   for now (generic + sigma-family, segment-matched); deeper hierarchies
+   need more simulator signals and are future work.
+3. **Resurrection tax.** First adjudication: normal bar. First
+   resurrection of a previously-killed candidate: must clear the family
+   bar AND carry a money-leg receipt. Any second resurrection: requires a
+   new pre-registered trial with its own control. Repeated reopening is
+   p-hacking with version control; the tax prices it.
+4. **Independent recomputation.** The replay's gate verdicts are
+   recomputed by a second, independently written implementation from the
+   same frozen CSVs; verdicts ship only where both agree (disagreements
+   are defects to resolve, not choices).
+5. **Conditional language.** All FDR/power claims are stated as
+   "under DGP-A v6 and the registered selection rule" — properties of
+   simulator × pipeline × rule, not of markets. The sizing ladder is
+   "evidence-conditioned sizing", not "posterior sizing".
