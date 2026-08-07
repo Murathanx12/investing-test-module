@@ -198,3 +198,79 @@ one-shot replay in addition to §4:
    "under DGP-A v6 and the registered selection rule" — properties of
    simulator × pipeline × rule, not of markets. The sizing ladder is
    "evidence-conditioned sizing", not "posterior sizing".
+
+## 7. Amendment 3 (2026-08-07 night) — REPLAY BLOCKED pending REPLAY-2 registration
+
+External review round 3 (Opus with repo access; verification in
+`aegis-finance/docs/AI_REVIEWS_SYNTHESIS_2026-08-07_R3.md`) found five
+defects in the replay design. Each was verified against artifacts before
+this amendment was written. **The one-shot replay is BLOCKED until a
+REPLAY-2 protocol resolving all five is pre-registered.**
+
+**F1 — the "FDR" is a per-candidate false-positive rate, not an FDR.**
+`select.py` defines it as P(adopt | α=0) for the single injected candidate;
+`evaluate()` tracks only that candidate. A per-candidate FPR is invariant
+to batch size — the one property multiple-testing control must break. At
+the replay's 179-candidate geometry, even at the simulator's own rate:
+E[false adoptions] = 179 × 0.016 ≈ 2.9, P(≥1) ≈ 94%. All documents
+relabel the quantity as **per-candidate FPR**; batch-level expected-false-
+adoption accounting becomes mandatory in every replay output.
+
+**F2 — the top-5 cap was calibrated where it never bound.** Simulator null
+E[qualifiers/rep] = 4.54 (sum of p_ge_1.5, 21 signals) vs cap 5;
+`p_cap_crowded_out = 0.000` in the null cell. The real bank has 21 of 70
+distinct fresh largemid candidates clearing 1.5 — the cap binds ~4:1 in
+replay geometry, a regime with zero measured operating characteristics.
+The registration also never defined cap semantics (global across 179 vs
+per original batch) — an undisclosed degree of freedom, now to be fixed
+in REPLAY-2.
+
+**F3 — the family-null veto is inert in the actual replay geometry**
+(verified this session): the top five by t_ic — conc_low 4.46,
+tgt_upside_low 3.67, inst_persist_low 3.35, si_chg_low 3.11,
+comp_issue_5y 2.86 — contain no σ-family member; σ-family ranks 11/13/17,
+below the cap. The veto as registered removes nothing the cap advances,
+while the §26/§28 rank-without-money classes (ownership, short-interest)
+sail through carrying non-σ passports. The veto's index must move from
+construction lineage to **measured correlation with (size, price, σ)** —
+subject to the R² ≥ 0.7 diagnostic on the 21 banked signals — or the
+money leg returns as a calibrated axis (gross-t, per §22/§25's zero-cost
+bound logic), or both.
+
+**F4 — the simulator's generic null is optimistic ~2.3× for persistent
+candidates.** REAL-NULL-1 (independent Opus session, pre-registered with
+guard; artifacts verified): provably information-free AR(1) signals on the
+REAL panel clear t_ic ≥ 1.5 at 0.082 [0.0735, 0.0905] pooled φ≥0.97,
+vs the simulator's 0.036 [0.013, 0.059]. Guard reproduced banked
+vol_12m_low 1.89 and price_level 2.12 exactly. iid control arm 0.054 (not
+inflated → the mechanism is persistence-linked heteroskedasticity, not
+implementation error; the pre-registered mechanism claim (IC
+autocorrelation) was WRONG and reported as such — measured lag-1 IC
+autocorr ≈ −0.01). Consequence: the replay's generic explore floor must be
+re-based on the real-data placebo distribution, and real candidates are
+MORE persistent than the tested arms (price_level churn 0.028 vs arm
+minimum 0.113), so 0.082 is a lower bound.
+
+**F5 — the confirm stage's null pass rate was estimated on 4 events.**
+Frozen record: 2 adoptions of 4 null graduates (n=125 half). REAL-NULL-1
+measures it at 0.30–0.39 across arms (K=1000 each) on real data — call it
+~0.36. End-to-end replay arithmetic under a binding cap:
+E[false adoptions] ≈ 5 × 0.36 = 1.8, P(≥1) ≈ 0.89. This number goes next
+to any resurrection list, whatever protocol ships.
+
+**F6 (DeepSeek, verified) — presentation and sizing defects.** The brief
+quoted "FDR 1.6% [Wilson 0.4–5.7%]": the interval is the n=125 half-sample
+bound; the n=250 full-sample Wilson is [0.62%, 4.04%]. Corrected. And the
+sizing ladder's thresholds (0×/0.25×/0.75× at confirm t_ic 1.5) were never
+jointly calibrated with adoption — REPLAY-2 registers ladder + sizing as
+one decision rule.
+
+**REPLAY-2 must pre-register:** batch-level error control (candidate BH
+step-up on empirical p-values from real-data placebo CDFs, vs an absolute
+floor at the real-null persistent-arm p95, evaluated on the EXISTING bank,
+even-rep selection / odd-rep validation, same discipline as RECAL-1);
+cap semantics; the veto index (correlation-based, pending the R²
+diagnostic); the confirm-stage FPR from real data in the accounting; and
+joint ladder+sizing calibration. Until then, nothing is replayed.
+BRAIN-010's E1–E3 stand as registered (they are simulator-null statements)
+but inherit F4's conditional language.
