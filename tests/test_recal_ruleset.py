@@ -8,6 +8,8 @@ recalibration is comparing against the wrong control arm.
 
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pytest
 
@@ -214,11 +216,30 @@ def test_wilson_bounds_are_sane():
 def test_posterior_bank_buckets_are_monotone_coordinates():
     from aegis_brain.calibration.posterior import bucket_of_bank
     lo = bucket_of_bank({"inj_t_ic": 1.0})
-    mid = bucket_of_bank({"inj_t_ic": 2.1,
-                          "confirm": {"t_ic": 1.0},
+    mid = bucket_of_bank({"inj_t_ic": 2.1, "confirm": {"t_ic": 1.0},
                           "gate": {"dsr": 0.3}})
-    hi = bucket_of_bank({"inj_t_ic": 3.0,
-                         "confirm": {"t_ic": 2.0},
+    hi = bucket_of_bank({"inj_t_ic": 3.0, "confirm": {"t_ic": 2.0},
                          "gate": {"dsr": 0.9}})
-    assert lo == (0, 0, 0) and mid == (2, 2, 2) and hi == (3, 3, 3)
+    # DSR axis dropped (spec S12); the DSR value in the row must be ignored
+    assert lo == (0, 0) and mid == (2, 2) and hi == (3, 3)
     assert all(np.array(hi) >= np.array(mid))
+
+
+def test_bank_merge_is_cell_aware(tmp_path, monkeypatch):
+    """The run-1 defect: a wave whose rep file already existed skipped every
+    rep and exited 0. The skip must key on CELLS, not on the filename."""
+    from aegis_brain.calibration import bank
+
+    monkeypatch.setattr(bank, "GRID_DIR", tmp_path)
+    p = tmp_path / "bank_t_0000.json"
+    p.write_text(json.dumps({"rep": 0, "schema": "bank-v1",
+                             "cells": {"a0.0/base": {}}}), encoding="utf-8")
+
+    # cells already present -> genuine skip
+    msg = bank.run_rep_bank(0, 0.5, (("base", 0.0),), "t")
+    assert "skipped" in msg
+
+    # a cell that is absent must NOT be reported as present; it has to try to
+    # compute, which without a worker panel raises rather than silently pass
+    with pytest.raises((KeyError, RuntimeError, TypeError, AttributeError)):
+        bank.run_rep_bank(0, 0.5, (("I2", 0.4),), "t")

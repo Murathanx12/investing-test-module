@@ -155,8 +155,11 @@ def exhibit_b(post: dict, out_name: str = "exhibit_B_posterior_heatmap") -> None
             ax.text(j, i + 0.18, f"{mult:g}×  (n={int(counts[i, j])})",
                     ha="center", fontsize=7.5, color=ink)
     ax.set_xticks(range(len(cd_pairs)))
-    ax.set_xticklabels([f"conf {c_lab[c]}\nDSR {d_lab[d]}"
-                        for c, d in cd_pairs], fontsize=8, color=INK2)
+    # RECAL-1 run 2 dropped the DSR axis (spec S12), so a bucket key may be
+    # (e, c) rather than (e, c, d) — label whichever shape arrived.
+    ax.set_xticklabels(
+        [f"conf {c_lab[p[0]]}" + (f"\nDSR {d_lab[p[1]]}" if len(p) > 1 else "")
+         for p in cd_pairs], fontsize=8, color=INK2)
     ax.set_yticks(range(4))
     ax.set_yticklabels(e_labels, fontsize=9, color=INK2)
     ax.set_ylabel("explore t(rank IC) bucket" if bank

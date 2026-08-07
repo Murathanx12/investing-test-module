@@ -101,6 +101,14 @@ WAVES = {
     1: (("base", 0.0), ("I1", 0.2), ("I1", 0.4), ("I1", 0.6)),
     2: (("I2", 0.2), ("I2", 0.4), ("I2", 0.6),
         ("I3", 0.4), ("I3", 0.6), ("I4", 0.4), ("I4", 0.6)),
+    # Wave 3 = NULL EXTENSION (run 2, spec delta S12). One cell per rep, so
+    # extra null reps cost a quarter of a wave-1 rep. Run 1 measured FDR
+    # 1.6% at n=250 with a Wilson upper of 5.65%: the posterior map's
+    # non-monotonicity was driven by 0-vs-1 counts in the alpha=0 cell, and
+    # the highest-power ladder was rejected on its Wilson bound alone.
+    # Both are sample-size problems in exactly this one cell.
+    #   --wave 3 --start 250 --reps 1000  ->  n = 1250 at alpha = 0
+    3: (("base", 0.0),),
 }
 WAVES[0] = WAVES[1] + WAVES[2]
 
@@ -156,9 +164,26 @@ def bank_cell(panel: Panel, signals: list[FactorySignal],
 
 
 def run_rep_bank(rep: int, rho: float, cells: tuple, tag: str) -> str:
+    """Compute the cells of `cells` that this rep does not already hold, and
+    merge them into its bank file.
+
+    Idempotency is CELL-aware, not file-aware. The first RECAL-1 run lost a
+    whole wave to the file-aware version: wave 2 saw the wave-1 file, reported
+    "exists, skipped" for all 250 reps in 24 seconds, and exited 0 — green,
+    silent, and empty. The M1 grid dodged this only by putting the wave in the
+    filename. Merging is strictly better: it is idempotent AND it reuses the
+    scans a previous wave already paid for.
+    """
     out_path = GRID_DIR / f"bank_{tag}_{rep:04d}.json"
+    existing: dict[str, dict] = {}
     if out_path.exists():
-        return f"rep {rep} [{tag}]: exists, skipped"
+        prev = json.loads(out_path.read_text(encoding="utf-8"))
+        if prev.get("schema") != "bank-v1":
+            raise RuntimeError(f"{out_path.name}: schema {prev.get('schema')!r}")
+        existing = prev["cells"]
+    todo = [(d, a) for d, a in cells if f"a{a}/{d}" not in existing]
+    if not todo:
+        return (f"rep {rep} [{tag}]: all {len(cells)} cells present, skipped")
 
     t0 = time.time()
     inputs = _W["inputs"]
@@ -168,7 +193,7 @@ def run_rep_bank(rep: int, rho: float, cells: tuple, tag: str) -> str:
         np.random.default_rng(SEED_BASE + INJECT_SEED_OFFSET + rep))
 
     out: dict[str, dict] = {}
-    for design, alpha in cells:
+    for design, alpha in todo:
         sigs = memoized_signals(BATCH1 + [injected_signal(inj)])
         if len(sigs) != 21:
             raise RuntimeError("candidate list must be 21 signals")
@@ -178,19 +203,21 @@ def run_rep_bank(rep: int, rho: float, cells: tuple, tag: str) -> str:
         sm = scan_segment(pnl, sigs, "small")
         out[f"a{alpha}/{design}"] = bank_cell(pnl, sigs, lm, sm)
 
+    merged = {**existing, **out}
     report = {
         "rep": rep, "rho": rho, "tag": tag,
         "seed_panel": SEED_BASE + rep,
         "seed_inject": SEED_BASE + INJECT_SEED_OFFSET + rep,
         "schema": "bank-v1",
-        "cells": out,
+        "cells": merged,
         "wall_seconds": round(time.time() - t0, 1),
     }
     GRID_DIR.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".tmp")
     tmp.write_text(json.dumps(report, default=str), encoding="utf-8")
     tmp.replace(out_path)
-    return f"rep {rep} [{tag}]: {round(time.time() - t0)}s {len(out)} cells"
+    return (f"rep {rep} [{tag}]: {round(time.time() - t0)}s "
+            f"+{len(out)} cells ({len(merged)} total)")
 
 
 # ------------------------------------------------------------- aggregate
@@ -292,7 +319,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--rho", type=float, default=RHO_SIG_HEADLINE)
-    ap.add_argument("--wave", type=int, default=0, choices=(0, 1, 2))
+    ap.add_argument("--wave", type=int, default=0, choices=(0, 1, 2, 3))
     ap.add_argument("--tag", default="r1")
     ap.add_argument("--ruleset", default="BRAIN-009-seed")
     ap.add_argument("--subset", default="all", choices=("all", "even", "odd"))
@@ -330,6 +357,29 @@ def main(argv: list[str] | None = None) -> None:
             print(f"[{done}/{len(todo)} {round(time.time() - t0)}s] "
                   f"{fut.result()}", flush=True)
     print(f"bank grid complete in {round((time.time() - t0) / 3600, 2)}h")
+
+    # Coverage assertion — a wave that ran green must have left its cells on
+    # disk. Run 1 lost wave 2 to a silent skip that exited 0; this makes that
+    # class of failure loud instead of invisible.
+    want = {f"a{a}/{d}" for d, a in cells}
+    missing: dict[str, int] = {}
+    checked = 0
+    for rep in todo:
+        path = GRID_DIR / f"bank_{tag}_{rep:04d}.json"
+        if not path.exists():
+            missing["<no file>"] = missing.get("<no file>", 0) + 1
+            continue
+        have = set(json.loads(path.read_text(encoding="utf-8"))["cells"])
+        checked += 1
+        for k in want - have:
+            missing[k] = missing.get(k, 0) + 1
+    if missing:
+        raise SystemExit(
+            f"COVERAGE FAILURE: {checked}/{len(todo)} rep files checked and "
+            f"these cells are still absent: {missing}. The wave did NOT do "
+            "its work — do not aggregate.")
+    print(f"coverage OK: {checked} rep files each hold all {len(want)} "
+          f"cells of wave {args.wave}", flush=True)
 
 
 if __name__ == "__main__":

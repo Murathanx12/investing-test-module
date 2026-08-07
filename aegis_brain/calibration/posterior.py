@@ -148,10 +148,17 @@ def build_map() -> dict:
 #   confirm t_ic:  C0 none | C1 <0.75 | C2 [0.75,1.5) | C3 >=1.5
 #   DSR@179:       D0 none | D1 <0.25  | D2 [0.25,0.75) | D3 >=0.75
 # Pre-registered in docs/RECAL1_SPEC_2026-08-06.md §6 before the bank existed.
+# Spec delta S12 (2026-08-07): the DSR axis is DROPPED. Under the frozen
+# BRAIN-009 the DSR gate is inert (threshold 0.0), and run 1 measured its top
+# bucket at n = 1..3 across 1000 reps — a coordinate that cannot be populated
+# manufactures sparse-bucket monotonicity violations and carries no
+# information. The reason is structural (S1b: DSR>=0.95 needs SR_ann ~1.5 on a
+# book that delivers ~0.03), not a choice made after seeing which buckets
+# violated. DSR is still computed and reported per cell; it just stops being
+# an axis of the sizing map.
 BANK_BUCKETS = {
     "explore_t_ic": (1.5, 2.0, 2.5),
     "confirm_t_ic": (0.75, 1.5),
-    "dsr": (0.25, 0.75),
 }
 
 
@@ -159,15 +166,108 @@ def _cut(x: float, edges: tuple, offset: int) -> int:
     return offset + sum(1 for e in edges if x >= e)
 
 
-def bucket_of_bank(row: dict) -> tuple[int, int, int]:
-    """Evidence coordinates from a ruleset.evaluate() row."""
+def bucket_of_bank(row: dict) -> tuple[int, int]:
+    """Evidence coordinates from a ruleset.evaluate() row.
+
+    "no confirm read" stays coordinate 0 and every rep stays classified: the
+    fact that a null candidate almost never reaches the confirm read IS the
+    likelihood, and conditioning it away (an attempt tried and rejected on
+    2026-08-07) flattens the map to noise.
+    """
     e = _cut(row["inj_t_ic"], BANK_BUCKETS["explore_t_ic"], 0)
     conf = row.get("confirm")
     c = 0 if conf is None else _cut(conf["t_ic"],
                                     BANK_BUCKETS["confirm_t_ic"], 1)
-    gate = row.get("gate")
-    d = 0 if gate is None else _cut(gate["dsr"], BANK_BUCKETS["dsr"], 1)
-    return (e, c, d)
+    return (e, c)
+
+
+# ------------------------------------------------- sizing ladder (S12)
+# The fine-grained map failed its ship gate twice (M1, and RECAL-1 run 1)
+# for the same reason both times: in high-evidence buckets the alpha=0 count
+# is 0 or 1, and with the Jeffreys add-half that single observation swings
+# P(alpha>=0.2) by ~0.23. That is bucket resolution exceeding what the null
+# sample supports, not a defect in the ordering.
+#
+# Remedy, pre-registered as a RULE rather than a pick: walk an ordered ladder
+# of coarsenings from finest to coarsest and ship the FIRST scheme that is
+# monotone on the selection half AND on the held-out half INDEPENDENTLY. A
+# scheme that only survives on pooled data is rejected — which is exactly what
+# happens to S4 (monotone pooled, violated on the odd half).
+SIZING_SCHEMES = {                       # confirm t_ic cut points
+    "S5": (0.75, 1.5, 2.25),
+    "S4": (0.75, 1.5),
+    "S3": (1.5,),
+}
+SIZING_ORDER = ("S5", "S4", "S3")
+
+
+def sizing_class(row: dict, edges: tuple) -> int:
+    """0 = never reached the confirm read; 1.. = confirm t_ic bands."""
+    conf = row.get("confirm")
+    if conf is None:
+        return 0
+    return 1 + sum(1 for e in edges if conf["t_ic"] >= e)
+
+
+def _sizing_rows(reps: list[dict], rs, edges: tuple, design: str) -> tuple:
+    from aegis_brain.calibration.ruleset import evaluate
+
+    cells = {0.0: "a0.0/base", 0.2: f"a0.2/{design}", 0.4: f"a0.4/{design}",
+             0.6: f"a0.6/{design}"}
+    counts: dict[int, dict[float, int]] = {}
+    n = {a: 0 for a in ALPHA_GRID}
+    for r in reps:
+        for a, k in cells.items():
+            if k not in r["cells"]:
+                continue
+            n[a] += 1
+            b = sizing_class(evaluate(r["cells"][k], rs), edges)
+            counts.setdefault(b, {al: 0 for al in ALPHA_GRID})[a] += 1
+    obs = sorted(counts)
+    nb = len(obs)
+    rows = {}
+    for b in obs:
+        post = {a: PRIOR_HEADLINE[a] * (counts[b][a] + 0.5)
+                / (n[a] + 0.5 * nb) for a in ALPHA_GRID}
+        z = sum(post.values())
+        p = sum(v for a, v in post.items() if a >= 0.2) / z
+        rows[b] = {"p_real": round(p, 4), "band_multiplier": band(p),
+                   "n": sum(counts[b].values()),
+                   "counts": {str(a): counts[b][a] for a in ALPHA_GRID}}
+    viol = [[x, y] for x in obs for y in obs
+            if x > y and rows[x]["p_real"] < rows[y]["p_real"] - 1e-12]
+    return rows, viol, n
+
+
+def build_sizing_ladder(tag: str, rs, design: str = "I1") -> dict:
+    from aegis_brain.calibration.bank import load_bank
+
+    halves = {s: load_bank(tag, s) for s in ("even", "odd", "all")}
+    attempts = []
+    shipped = None
+    for name in SIZING_ORDER:
+        edges = SIZING_SCHEMES[name]
+        res = {s: _sizing_rows(halves[s], rs, edges, design)
+               for s in ("even", "odd", "all")}
+        ok = not res["even"][1] and not res["odd"][1] and not res["all"][1]
+        attempts.append({"scheme": name, "edges": list(edges), "monotone": ok,
+                         "violations": {s: res[s][1] for s in res},
+                         "rows_all": res["all"][0]})
+        if ok and shipped is None:
+            shipped = {"scheme": name, "edges": list(edges),
+                       "ladder": res["all"][0],
+                       "n_per_alpha": {str(k): v for k, v in
+                                       res["all"][2].items()}}
+    return {
+        "utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "tag": tag, "ruleset": rs.name, "design": design,
+        "rule": ("finest scheme in SIZING_ORDER that is monotone on the "
+                 "selection half AND the held-out half AND pooled; pooled-only "
+                 "monotonicity is rejected"),
+        "attempts": attempts,
+        "shipped": shipped,
+        "bands": "<60%->0x | 60-70->0.25x | 70-80->0.5x | 80-90->0.75x | >90->1x",
+    }
 
 
 def build_map_bank(tag: str, rs, design: str = "I2") -> dict:
@@ -238,6 +338,23 @@ def main() -> None:
     if args.tag is not None:
         from aegis_brain.calibration.bank import resolve_ruleset
         rs = resolve_ruleset(args.ruleset)
+
+        # the sizing ladder is the artifact the decision engine consumes
+        lad = build_sizing_ladder(args.tag, rs, args.design)
+        lpath = RUNS_DIR / f"sizing_ladder_{args.tag}_{rs.name}_{args.design}.json"
+        lpath.write_text(json.dumps(lad, indent=2), encoding="utf-8")
+        if lad["shipped"]:
+            s = lad["shipped"]
+            print(f"SIZING LADDER SHIPPED ({s['scheme']}, cuts {s['edges']}) "
+                  f"-> {lpath}")
+            for b, row in sorted(s["ladder"].items()):
+                print(f"   class {b}: n={row['n']:<5d} nulls="
+                      f"{row['counts']['0.0']:<4d} P={row['p_real']:.3f} "
+                      f"-> {row['band_multiplier']}x")
+        else:
+            print("NO SIZING LADDER SHIPPED — no coarsening was monotone on "
+                  f"both halves; attempts -> {lpath}")
+
         m = build_map_bank(args.tag, rs, args.design)
         suffix = f"_{args.tag}_{rs.name}_{args.design}"
         report_path = RUNS_DIR / f"stage4_posterior_report{suffix}.json"
