@@ -1,0 +1,76 @@
+{
+  "trial": "TRIAL-REPLAY-BOOK-1",
+  "prereg_commit": "8340298",
+  "book": {
+    "explore": {
+      "t_ic": 7.65,
+      "ic_mean": 0.0706,
+      "t_net_flat25": 1.45,
+      "t_net_ko_half": 1.71,
+      "t_net_stress50": 1.06,
+      "t_gross": 1.83,
+      "mean_excess_net_bps": 25.9,
+      "turnover_1way": 0.137,
+      "months": 180,
+      "cagr_net": 0.1161,
+      "max_dd": -0.412,
+      "legs": {
+        "months": 180,
+        "mean_spread_bps": 169.2,
+        "mean_long_leg_bps": 32.1,
+        "long_leg_share": 0.19
+      }
+    },
+    "confirm": {
+      "t_ic": 6.1,
+      "ic_mean": 0.1204,
+      "t_net_flat25": 1.07,
+      "t_net_ko_half": 1.18,
+      "t_net_stress50": 0.91,
+      "t_gross": 1.23,
+      "mean_excess_net_bps": 42.7,
+      "turnover_1way": 0.127,
+      "months": 72,
+      "cagr_net": 0.1325,
+      "max_dd": -0.273,
+      "legs": {
+        "months": 72,
+        "mean_spread_bps": 289.5,
+        "mean_long_leg_bps": 51.9,
+        "long_leg_share": 0.179
+      }
+    }
+  },
+  "placebos": [
+    {
+      "seed": 1,
+      "confirm_t_net": 1.32,
+      "confirm_t_ic": -0.94
+    },
+    {
+      "seed": 2,
+      "confirm_t_net": 0.59,
+      "confirm_t_ic": 0.09
+    },
+    {
+      "seed": 3,
+      "confirm_t_net": 0.78,
+      "confirm_t_ic": 1.95
+    },
+    {
+      "seed": 4,
+      "confirm_t_net": -1.28,
+      "confirm_t_ic": -1.87
+    },
+    {
+      "seed": 5,
+      "confirm_t_net": 0.02,
+      "confirm_t_ic": 2.02
+    }
+  ],
+  "verdict": {
+    "verdict": "FAIL",
+    "beats_all_placebos": false,
+    "long_leg_ok": false
+  }
+}
