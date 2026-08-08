@@ -107,8 +107,15 @@ class SignalLibrary:
 
     # ── OSAP ────────────────────────────────────────────────────────────────
     def _ensure_osap(self, acronyms: list[str]) -> None:
-        if self._gridder is not None:
-            return
+        """Build the (month x permno) mapping ONCE from the key columns.
+
+        Signal columns are then read one at a time from the same file, which
+        preserves row order, so any acronym can be added later in a campaign
+        without rebuilding the gridder. (The first version keyed the gridder to
+        the first strategy's column list, which made every later strategy that
+        needed a new characteristic fail — it failed loudly, which is how it
+        was caught, but it was still a defect.)
+        """
         import pyarrow.parquet as pq
 
         avail = {f.name for f in pq.ParquetFile(OSAP_PARQUET).schema_arrow}
@@ -116,9 +123,10 @@ class SignalLibrary:
         if missing:
             raise KeyError(f"OSAP parquet lacks {missing} — refusing to run a "
                            "silently reduced signal set")
-        cols = ["permno", "yyyymm"] + list(dict.fromkeys(acronyms))
-        self._osap_long = pd.read_parquet(OSAP_PARQUET, columns=cols)
-        self._gridder = ScoreGridder(self._osap_long, self.panel)
+        if self._gridder is None:
+            keys = pd.read_parquet(OSAP_PARQUET, columns=["permno", "yyyymm"])
+            self._osap_rows = len(keys)
+            self._gridder = ScoreGridder(keys, self.panel)
 
     def get(self, key: str) -> pd.DataFrame:
         if key in self._cache:
@@ -126,10 +134,13 @@ class SignalLibrary:
         if key.startswith("osap:"):
             acr = key.split(":", 1)[1]
             self._ensure_osap([acr])
-            if acr not in self._osap_long.columns:  # second signal, new column
-                raise KeyError(f"{acr} not preloaded; call preload() with the "
-                               "full signal list before get()")
-            frame = self._gridder.grid(self._osap_long[acr])
+            col = pd.read_parquet(OSAP_PARQUET, columns=[acr])[acr]
+            if len(col) != self._osap_rows:
+                raise RuntimeError(
+                    f"OSAP column {acr} has {len(col)} rows but the key columns "
+                    f"have {self._osap_rows} — the row-order assumption behind "
+                    "the shared gridder is broken; refusing to grid it")
+            frame = self._gridder.grid(col)
         elif key.startswith("native:"):
             frame = _native(self.panel, key)
         elif key == "insider:cluster12m":
