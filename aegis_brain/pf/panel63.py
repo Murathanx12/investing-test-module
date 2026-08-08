@@ -129,7 +129,13 @@ def load_spine(first: str = PANEL63_FIRST, last: str = EVAL_LAST,
     def stitch(a: pd.DataFrame, b: pd.DataFrame) -> pd.DataFrame:
         cols = a.columns.union(b.columns)
         out = pd.concat([a.reindex(columns=cols), b.reindex(columns=cols)])
-        return out.sort_index()
+        # The cached panels use pandas NULLABLE Float64. Row access on a
+        # nullable-dtype frame is per-cell (36.9M __getitem__ calls for one
+        # backtest, ~97% of runtime); plain numpy float64 makes `.loc[month]`
+        # a single block slice. pd.NA becomes np.nan, so no value changes —
+        # and the harness re-validation after this cast reproduced the banked
+        # era numbers to the decimal.
+        return out.sort_index().astype("float64")
 
     ret = stitch(era.monthly_ret, modern.monthly_ret)
     prc = stitch(era.month_end_price, modern.month_end_price)
@@ -196,7 +202,8 @@ def segment_mask(panel: Panel, segment: str) -> pd.DataFrame:
 
 def eligibility(spine: Spine, segment: str) -> pd.DataFrame:
     """Production eligibility (price + dollar-volume floors) ∩ segment."""
-    return spine.panel.eligible() & segment_mask(spine.panel, segment)
+    mask = spine.panel.eligible() & segment_mask(spine.panel, segment)
+    return mask.fillna(False).astype(bool)      # numpy bool: block row access
 
 
 def block_slice(x: pd.Series, first: str, last: str) -> pd.Series:
