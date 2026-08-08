@@ -1,0 +1,63 @@
+{
+  "instrument": "INSTR-COST-LM-1",
+  "spread_distribution": {
+    "n_obs": 179923,
+    "mean_bps": 4.28,
+    "median_bps": 3.73,
+    "p25_bps": 2.59,
+    "p75_bps": 5.32,
+    "p95_bps": 8.83,
+    "flat_arm_bps": 25.0
+  },
+  "probes": [
+    {
+      "signal": "price_level",
+      "t_net_flat25": -0.15,
+      "t_net_ko": -0.04,
+      "t_gross": -0.01,
+      "lift": 0.11,
+      "turnover": 0.028
+    },
+    {
+      "signal": "vol_12m_low",
+      "t_net_flat25": 0.21,
+      "t_net_ko": 0.3,
+      "t_gross": 0.32,
+      "lift": 0.09,
+      "turnover": 0.048
+    },
+    {
+      "signal": "mom_12_1",
+      "t_net_flat25": -1.17,
+      "t_net_ko": -0.91,
+      "t_gross": -0.82,
+      "lift": 0.26,
+      "turnover": 0.17
+    },
+    {
+      "signal": "st_reversal",
+      "t_net_flat25": -2.61,
+      "t_net_ko": -1.58,
+      "t_gross": -1.28,
+      "lift": 1.03,
+      "turnover": 0.674
+    },
+    {
+      "signal": "sharpe_12m",
+      "t_net_flat25": -0.69,
+      "t_net_ko": -0.39,
+      "t_gross": -0.32,
+      "lift": 0.3,
+      "turnover": 0.146
+    },
+    {
+      "signal": "high_52wk_prox",
+      "t_net_flat25": -0.84,
+      "t_net_ko": -0.02,
+      "t_gross": 0.15,
+      "lift": 0.82,
+      "turnover": 0.391
+    }
+  ],
+  "note": "diagnostic only; a replay-class re-adjudication of largemid kills under KO costs would be a NEW registered trial with its own error control"
+}
