@@ -153,11 +153,16 @@ def load_spine(first: str = PANEL63_FIRST, last: str = EVAL_LAST,
     ff = load_ff_factors(MODULE_ROOT / "data")
     mkt = (ff["mktrf"] + ff["rf"]).reindex(ret.index)
     rf = ff["rf"].reindex(ret.index)
-    missing = int(mkt.isna().sum())
+    # The leading formation month sits one month before the first TEST month and
+    # is never scored, so it may predate the benchmark series. Any hole inside
+    # the scored window is fatal.
+    scored = mkt.index >= lo
+    missing = int(mkt[scored].isna().sum())
     if missing:
-        raise RuntimeError(f"benchmark missing for {missing} panel months "
-                           f"({ret.index[mkt.isna()].min()} ...) — refusing to "
-                           "score excess return against a hole")
+        holes = mkt.index[scored][mkt[scored].isna()]
+        raise RuntimeError(f"benchmark missing for {missing} scored months "
+                           f"({holes.min()} ...) — refusing to score excess "
+                           "return against a hole")
 
     prov = {
         "panels": [str(ERA_DIR.name), str(MODERN_DIR.name)],
