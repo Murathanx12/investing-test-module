@@ -1,0 +1,51 @@
+{
+  "trial": "TRIAL-EXT-EXCLUDE-1",
+  "base": "EW-universe (fallback)",
+  "months": 180,
+  "dt_net_screen_minus_base": -1.98,
+  "mean_improvement_bps_mo": -8.95,
+  "incremental_turnover_1way": 0.0683,
+  "base_net_t": 1.567,
+  "screened_net_t": 1.259,
+  "random_exclusion_placebos": [
+    {
+      "seed": 1,
+      "dt_net": -5.507,
+      "mean_bps": -6.39
+    },
+    {
+      "seed": 2,
+      "dt_net": -7.074,
+      "mean_bps": -9.07
+    },
+    {
+      "seed": 3,
+      "dt_net": -7.299,
+      "mean_bps": -8.05
+    },
+    {
+      "seed": 4,
+      "dt_net": -7.618,
+      "mean_bps": -10.14
+    },
+    {
+      "seed": 5,
+      "dt_net": -5.512,
+      "mean_bps": -7.01
+    }
+  ],
+  "screen_vs_random_t_by_seed": [
+    -0.57,
+    0.026,
+    -0.19,
+    0.246,
+    -0.411
+  ],
+  "screen_vs_random_pooled_t": -0.18,
+  "verdict": "KILLED",
+  "kill_reasons": {
+    "dt_net_le_0": true,
+    "indistinguishable_from_random": true,
+    "turnover_gt_005": true
+  }
+}
