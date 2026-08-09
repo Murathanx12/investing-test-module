@@ -66,8 +66,14 @@ def main() -> int:
           f"{len(holdings)} holdings snapshots", flush=True)
 
     # target books effective on the first trading day AFTER the formation close
+    # ONLY the months on which the harness actually traded. `holdings_out`
+    # records every month (the drifted weights are what the book held), and
+    # treating all of them as trade instructions converts the annual clock into
+    # a monthly one — G7's first run did that and lost 5.5%/yr to churn.
     targets = []
     for h in holdings:
+        if not h.get("rebalanced"):
+            continue
         eff = pd.Timestamp(h["test"])
         if eff < pd.Timestamp(FIRST) or eff > pd.Timestamp(LAST):
             continue

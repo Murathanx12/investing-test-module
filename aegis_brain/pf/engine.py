@@ -138,6 +138,7 @@ def run_book(
         # ── rebalance decision ──────────────────────────────────────────────
         since_rebal += 1
         want_rebal = since_rebal >= spec.rebalance_months
+        did_rebal = False            # read by G7; see holdings_out below
         risk_on = True if regime_on is None else bool(
             regime_on.get(formation_m, True))
 
@@ -160,6 +161,7 @@ def run_book(
                 w = target
                 since_rebal = 0
                 n_rebal += 1
+                did_rebal = True
 
         # ── realize the month ───────────────────────────────────────────────
         held_in = w.copy()          # weights entering the month, pre-drift
@@ -192,8 +194,13 @@ def run_book(
             "risk_on": risk_on,
         })
         if holdings_out is not None:
+            # `rebalanced` marks the months on which a TRADE actually happened.
+            # Every month is recorded because the drifted weights are what the
+            # book held, but a consumer that treats all of them as trade
+            # instructions turns an annual clock into a monthly one — which is
+            # exactly what G7 did on its first run.
             holdings_out.append({"formation": formation_m, "test": test_m,
-                                 "weights": held_in})
+                                 "weights": held_in, "rebalanced": did_rebal})
 
     if not records:
         raise RuntimeError(

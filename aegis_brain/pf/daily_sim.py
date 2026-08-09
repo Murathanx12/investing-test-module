@@ -108,10 +108,8 @@ def load_daily(first: str, last: str, permnos: set[int] | None = None,
     d["openprc"] = d["openprc"].abs()
     d["dv"] = d["prc"] * d["vol"]
 
-    mid = (d.askhi + d.bidlo) / 2.0
-    hs = ((d.askhi - d.bidlo) / 2.0 / mid * 1e4)
-    d["hs"] = hs.where(np.isfinite(hs) & (hs > 0)).clip(
-        upper=cfg.max_half_spread_bps)
+    d["hi"] = d["askhi"].abs()
+    d["lo"] = d["bidlo"].abs()
 
     def piv(col: str) -> pd.DataFrame:
         # float64, not the nullable dtypes the parquet carries: pd.NA raises
@@ -137,9 +135,54 @@ def load_daily(first: str, last: str, permnos: set[int] | None = None,
                  if int(r.dlstcd) in PERF_DELIST else 0.0)
         dmap[int(r.permno)] = (pd.Timestamp(r.dlstdt), float(v))
 
-    return DailyData(ret=piv("ret"), prc=piv("prc"), opn=piv("openprc"),
-                     dvol=piv("dv"), half_spread=piv("hs"),
+    prc = piv("prc")
+    hs = corwin_schultz_half_spread_bps(piv("hi"), piv("lo"), cfg)
+    # Corwin-Schultz is known to UNDERSTATE, and a bench check against a
+    # synthetic 25 bps half-spread returned 5.8 bps (the naive high-low version
+    # returned 128). A trade can never cross for less than half a tick, so the
+    # mechanical floor is applied on top: post-decimalisation that is $0.005,
+    # which is 5 bps on a $10 stock and 17 bps on a $3 one.
+    floor = (0.005 / prc.where(prc > 0)) * 1e4
+    hs = pd.concat([hs, floor]).groupby(level=0).max()
+    return DailyData(ret=piv("ret"), prc=prc, opn=piv("openprc"),
+                     dvol=piv("dv"), half_spread=hs,
                      rf=ff.astype("float64").fillna(0.0), delist_ret=dmap)
+
+
+def corwin_schultz_half_spread_bps(hi: pd.DataFrame, lo: pd.DataFrame,
+                                   cfg: SimConfig | None = None) -> pd.DataFrame:
+    """Corwin & Schultz (2012) high-low spread estimator, in bps of half-spread.
+
+    The obvious thing to do with CRSP `askhi`/`bidlo` is to call (high-low)/2 a
+    half-spread. That is wrong and expensively so: for a stock that traded, those
+    fields are the day's high and low TRADE prices, i.e. the intraday RANGE.
+    Doing it that way charged this book ~200 bps per trade and made a +13.7%/yr
+    strategy look like +7.7%.
+
+    Corwin-Schultz separates the two: over two consecutive days the range grows
+    with the square root of time but the spread component does not, so the two
+    can be identified. Negative estimates — common and expected on quiet days —
+    are floored at zero, and the series is smoothed with a 21-day rolling median
+    because the daily estimator is far too noisy to charge a single day's trade.
+    """
+    cfg = cfg or SimConfig()
+    k = 3.0 - 2.0 * np.sqrt(2.0)
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        h = np.log(hi / lo) ** 2
+        beta = h + h.shift(1)
+        hi2 = pd.concat([hi, hi.shift(1)]).groupby(level=0).max()
+        lo2 = pd.concat([lo, lo.shift(1)]).groupby(level=0).min()
+        gamma = np.log(hi2 / lo2) ** 2
+        alpha = ((np.sqrt(2.0 * beta) - np.sqrt(beta)) / k
+                 - np.sqrt(gamma / k))
+        s = 2.0 * (np.exp(alpha) - 1.0) / (1.0 + np.exp(alpha))
+
+    s = s.where(np.isfinite(s)).clip(lower=0.0)
+    half_bps = (s / 2.0) * 1e4
+    half_bps = (half_bps.rolling(21, min_periods=5).median()
+                .clip(upper=cfg.max_half_spread_bps))
+    return half_bps.astype("float64")
 
 
 def simulate(targets: list[dict], data: DailyData,
@@ -147,168 +190,165 @@ def simulate(targets: list[dict], data: DailyData,
     """Run the book day by day.
 
     `targets` is a list of {"effective": Timestamp, "weights": Series} — the
-    monthly harness's own holdings. Feeding G7 the SAME target book the monthly
-    scorecard used is the point: any difference in the result is attributable to
-    daily reality, not to a different strategy.
+    monthly harness's own holdings, restricted to the months it actually traded.
+    Feeding G7 the SAME target book the monthly scorecard used is the point: any
+    difference in the result is attributable to daily reality, not to a
+    different strategy having been simulated.
+
+    ACCOUNTING: positions are carried as VALUE, grown by the daily TOTAL return.
+    The first version held share counts and marked them at the raw CRSP close,
+    which is wrong in a way that is invisible until it is not — `prc` in the
+    daily file is unadjusted while `ret` is adjusted, so on a split the implied
+    "dividend" (ret minus price return) explodes. It surfaced as a NEGATIVE
+    $49m dividend accrual on the $100m rung. Total-return value accounting is
+    split-safe and dividend-inclusive by construction.
+
+    The one thing value accounting gives up is the open-to-close drift on the
+    day a trade is worked, since that needs a share count. It is added back
+    explicitly as a one-off adjustment on the traded notional, using the
+    same-day open/close ratio — which is split-safe because both prices carry
+    the same factor.
     """
     cfg = cfg or SimConfig()
     days = data.ret.index.sort_values()
     tgt = sorted(targets, key=lambda t: t["effective"])
     ti = 0
-    want: pd.Series = pd.Series(dtype=float)     # target weights, current
-    shares: dict[int, float] = {}
+    want: pd.Series = pd.Series(dtype=float)
+    val: dict[int, float] = {}
     cash = cfg.start_nav
     nav_hist, rows = [], []
-    pending: pd.Series = pd.Series(dtype=float)  # unfilled dollar orders
+    pending: pd.Series = pd.Series(dtype=float)
     gone: set[int] = set()
     traded_total = 0.0
     cost_total = 0.0
+    exec_drift_total = 0.0
     capped_days = 0
+    stale_liquidations = 0
 
     prc_ff = data.prc.ffill(limit=cfg.stale_days)
-    prev_px: pd.Series | None = None
-    div_cash_total = 0.0
+    last_seen: dict[int, pd.Timestamp] = {}
 
     for day in days:
+        r_row = data.ret.loc[day]
         px = prc_ff.loc[day]
 
-        # ── dividends ─────────────────────────────────────────────────────
-        # Positions are marked at PRICE, but `ret` is a TOTAL return. The
-        # difference is the distribution, and dropping it would understate the
-        # book by roughly the dividend yield every year — a slow, invisible
-        # leak that would show up only as an unexplained gap against the
-        # monthly harness. Accrued to cash on the day it is earned.
-        if prev_px is not None and shares:
-            held = list(shares)
-            r_t = data.ret.loc[day].reindex(held)
-            p0 = prev_px.reindex(held)
-            p1 = px.reindex(held)
-            price_ret = (p1 / p0 - 1.0)
-            div_yield = (r_t - price_ret)
-            base = pd.Series({p: shares[p] for p in held}, dtype=float) * p0
-            dcash = float((base * div_yield).replace(
-                [np.inf, -np.inf], np.nan).fillna(0.0).sum())
-            cash += dcash
-            div_cash_total += dcash
+        # ── carry positions by the daily TOTAL return ─────────────────────
+        for p in list(val):
+            rv = r_row.get(p)
+            if rv is not None and np.isfinite(rv):
+                val[p] *= 1.0 + float(rv)
+                last_seen[p] = day
 
-        # ── mark to market ────────────────────────────────────────────────
-        pos_val = {p: s * px.get(p, np.nan) for p, s in shares.items()}
-        # delistings effective today
-        for p in list(shares):
+        # ── delistings effective today ────────────────────────────────────
+        for p in list(val):
             if p in data.delist_ret and data.delist_ret[p][0] <= day \
                     and p not in gone:
-                dt, dr = data.delist_ret[p]
-                base = pos_val.get(p)
-                if base is None or not np.isfinite(base):
-                    last = prc_ff[p].loc[:day].dropna()
-                    base = shares[p] * (last.iloc[-1] if len(last) else 0.0)
-                cash += base * (1.0 + dr)
-                shares.pop(p, None)
-                pos_val.pop(p, None)
+                _, dr = data.delist_ret[p]
+                cash += val.pop(p) * (1.0 + dr)
                 gone.add(p)
-        # names with no price for too long: liquidate at last known
-        for p in list(shares):
-            v = pos_val.get(p)
-            if v is None or not np.isfinite(v):
-                last = prc_ff[p].loc[:day].dropna()
-                cash += shares[p] * (last.iloc[-1] if len(last) else 0.0)
-                shares.pop(p, None)
-                pos_val.pop(p, None)
 
-        equity = float(np.nansum(list(pos_val.values())))
+        # ── names that have gone quiet: liquidate at last known value ─────
+        for p in list(val):
+            seen = last_seen.get(p)
+            if seen is not None and (day - seen).days > cfg.stale_days * 2:
+                cash += val.pop(p)
+                stale_liquidations += 1
+
         cash *= 1.0 + float(data.rf.get(day, 0.0))
+        equity = float(sum(val.values()))
         nav = equity + cash
 
-        # ── new target book effective today ───────────────────────────────
-        # (`while ... else` would run the else clause on every normal exit and
-        # reset the flag it had just set; the flag is kept explicitly instead.)
+        # ── a new target book effective today ─────────────────────────────
         newbook = False
         while ti < len(tgt) and tgt[ti]["effective"] <= day:
             want = tgt[ti]["weights"].astype(float)
             want = want[want > 0]
-            pending = pd.Series(dtype=float)     # a new book replaces the old
+            pending = pd.Series(dtype=float)
             ti += 1
             newbook = True
 
-        # Orders are created ONLY when a new target book arrives, and the
-        # unfilled residual is worked down on later days. Re-deriving the gap
-        # every day against a drifting NAV would silently convert an annual
-        # rebalance into a daily one — the first version did exactly that, and
-        # the churn cost turned a +13.7%/yr book into -13.4%/yr. Between
-        # rebalances the weights are supposed to DRIFT, which is what the
-        # monthly harness does and therefore what this must reproduce.
+        # Orders are created ONLY when a new book arrives; the residual is
+        # worked down on later days. Re-deriving the gap daily against a
+        # drifting NAV converts an annual clock into a daily one — the first
+        # version did that and lost 5.5%/yr to churn.
         if newbook and len(want):
-            cur = pd.Series({p: pos_val.get(p, 0.0)
-                             for p in set(want.index) | set(shares)},
-                            dtype=float).fillna(0.0)
-            pending = (want * nav).reindex(cur.index).fillna(0.0) - cur
+            idx = sorted(set(want.index) | set(val))
+            cur = pd.Series({p: val.get(p, 0.0) for p in idx}, dtype=float)
+            pending = (want * nav).reindex(idx).fillna(0.0) - cur
 
         if len(pending):
-            # ── participation-capped fills, residual carried to tomorrow ──
             adv = data.dvol.loc[day].reindex(pending.index)
             cap = (adv * cfg.participation).fillna(0.0)
             fill = pending.clip(lower=-cap, upper=cap)
-            # A sell order is sized in dollars on rebalance day. If the name
-            # falls hard before the order is worked off, that dollar amount can
-            # exceed what is left of the position, and filling it would open a
-            # short this book is not allowed to hold. Sells are capped at the
-            # current market value of the position.
-            held_val = pd.Series({p: float(pos_val.get(p, 0.0))
-                                  for p in fill.index}, dtype=float)
-            fill = fill.clip(lower=-held_val.clip(lower=0.0))
+            # a sell sized in dollars on rebalance day can exceed what is left
+            # of a position that has since fallen; never go short
+            held = pd.Series({p: float(val.get(p, 0.0)) for p in fill.index},
+                             dtype=float)
+            fill = fill.clip(lower=-held.clip(lower=0.0))
             fill = fill[fill.abs() > 1.0]
             if len(fill):
-                blocked = (pending.abs() - cap).clip(lower=0)
-                if float(blocked.sum()) > 0.01 * nav:
+                if float((pending.abs() - cap).clip(lower=0).sum()) > 0.01 * nav:
                     capped_days += 1
                 op = data.opn.loc[day].reindex(fill.index)
-                op = op.where(op > 0, px.reindex(fill.index))
+                cl = px.reindex(fill.index)
+                ratio = (cl / op).replace([np.inf, -np.inf], np.nan)
+                ratio = ratio.where((ratio > 0.5) & (ratio < 2.0)).fillna(1.0)
+
                 hs = data.half_spread.loc[day].reindex(fill.index).fillna(50.0)
                 bps = hs + cfg.slippage_bps + cfg.commission_bps
-                val = fill.abs()
-                cost = float((val * bps / 1e4).sum())
-                dsh = (fill / op).replace([np.inf, -np.inf], np.nan).fillna(0.0)
-                for p, s in dsh.items():
-                    if s:
-                        shares[p] = shares.get(p, 0.0) + float(s)
-                cash -= float(fill.sum()) + cost
-                traded_total += float(val.sum())
-                cost_total += cost
-                pending = (pending - fill).where(lambda s: s.abs() > 1.0).dropna()
+                notional = fill.abs()
+                cost = float((notional * bps / 1e4).sum())
+                # traded at the open, marked at the close: the traded notional
+                # earns (close/open - 1) on the buy side and forgoes it on the
+                # sell side
+                drift = float((fill * (ratio - 1.0)).sum())
 
-        # Positions carry to tomorrow as SHARES; the price path marks them and
-        # the dividend block above accrues the rest of the total return. There
-        # is deliberately no per-name return loop here.
-        prev_px = px
+                for p, v in fill.items():
+                    val[p] = val.get(p, 0.0) + float(v)
+                    if abs(val[p]) < 1e-9:
+                        val.pop(p, None)
+                cash -= float(fill.sum()) + cost
+                cash += drift
+                traded_total += float(notional.sum())
+                cost_total += cost
+                exec_drift_total += drift
+                pending = (pending - fill).where(
+                    lambda s: s.abs() > 1.0).dropna()
+                equity = float(sum(val.values()))
+                nav = equity + cash
+
         nav_hist.append((day, nav))
         rows.append({"date": day, "nav": nav, "equity": equity, "cash": cash,
-                     "names": len(shares), "pending_abs": float(
-                         pending.abs().sum()) if len(pending) else 0.0})
+                     "names": len(val),
+                     "pending_abs": float(pending.abs().sum())
+                     if len(pending) else 0.0})
 
-    nav = pd.Series({d: v for d, v in nav_hist}).sort_index()
+    nav = pd.Series(dict(nav_hist)).sort_index()
     ret = nav.pct_change().dropna()
     dd = nav / nav.cummax() - 1.0
     years = (nav.index[-1] - nav.index[0]).days / 365.25
+    me = nav.resample("ME").last()
     return {
         "nav": nav,
         "daily": pd.DataFrame(rows).set_index("date"),
         "diag": {
             "days": int(len(nav)),
             "years": round(years, 2),
-            "cagr": round(float((nav.iloc[-1] / nav.iloc[0]) ** (1 / years) - 1), 4),
+            "cagr": round(float((nav.iloc[-1] / nav.iloc[0]) ** (1 / years) - 1),
+                          4),
             "vol_annualized": round(float(ret.std() * np.sqrt(252)), 4),
             "max_drawdown_daily": round(float(dd.min()), 4),
-            "max_drawdown_monthend": round(float(
-                (lambda m: (m / m.cummax() - 1).min())(nav.resample("ME").last())),
-                4),
+            "max_drawdown_monthend": round(float((me / me.cummax() - 1).min()), 4),
             "turnover_dollars": round(traded_total, 0),
             "cost_dollars": round(cost_total, 0),
             "cost_bps_of_traded": round(cost_total / traded_total * 1e4, 1)
             if traded_total else None,
+            "execution_drift_dollars": round(exec_drift_total, 0),
             "days_with_capped_orders": capped_days,
-            "dividend_cash_accrued": round(div_cash_total, 0),
+            "stale_liquidations": stale_liquidations,
             "delistings_handled": len(gone),
             "participation_cap": cfg.participation,
             "start_nav": cfg.start_nav,
+            "final_nav": round(float(nav.iloc[-1]), 0),
         },
     }
