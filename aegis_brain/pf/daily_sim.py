@@ -230,18 +230,32 @@ def simulate(targets: list[dict], data: DailyData,
             ti += 1
             newbook = True
 
-        if len(want):
+        # Orders are created ONLY when a new target book arrives, and the
+        # unfilled residual is worked down on later days. Re-deriving the gap
+        # every day against a drifting NAV would silently convert an annual
+        # rebalance into a daily one — the first version did exactly that, and
+        # the churn cost turned a +13.7%/yr book into -13.4%/yr. Between
+        # rebalances the weights are supposed to DRIFT, which is what the
+        # monthly harness does and therefore what this must reproduce.
+        if newbook and len(want):
             cur = pd.Series({p: pos_val.get(p, 0.0)
                              for p in set(want.index) | set(shares)},
                             dtype=float).fillna(0.0)
-            desired = (want * nav).reindex(cur.index).fillna(0.0)
-            gap = desired - cur
-            if newbook or not len(pending):
-                pending = gap
+            pending = (want * nav).reindex(cur.index).fillna(0.0) - cur
+
+        if len(pending):
             # ── participation-capped fills, residual carried to tomorrow ──
             adv = data.dvol.loc[day].reindex(pending.index)
             cap = (adv * cfg.participation).fillna(0.0)
             fill = pending.clip(lower=-cap, upper=cap)
+            # A sell order is sized in dollars on rebalance day. If the name
+            # falls hard before the order is worked off, that dollar amount can
+            # exceed what is left of the position, and filling it would open a
+            # short this book is not allowed to hold. Sells are capped at the
+            # current market value of the position.
+            held_val = pd.Series({p: float(pos_val.get(p, 0.0))
+                                  for p in fill.index}, dtype=float)
+            fill = fill.clip(lower=-held_val.clip(lower=0.0))
             fill = fill[fill.abs() > 1.0]
             if len(fill):
                 blocked = (pending.abs() - cap).clip(lower=0)
