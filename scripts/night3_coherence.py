@@ -33,6 +33,9 @@ def main() -> int:
     ap.add_argument("--scenarios", type=int, default=60)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--cap-usd", type=float, default=25.0)
+    ap.add_argument("--format", choices=("decimal", "bps"), default="decimal",
+                    help="'bps' runs DIAG-COHERENCE-RESOLUTION-1, a diagnostic "
+                         "that cannot overturn the registered gate")
     args = ap.parse_args()
 
     RUN_DIR.mkdir(parents=True, exist_ok=True)
@@ -48,14 +51,16 @@ def main() -> int:
     def run(job):
         s, dim, side = job
         p = coh.perturb(s, dim, side)
-        system, user = coh.prompt(p)
+        system, user = coh.prompt(p, args.format)
         rec = cache.call(system, user, temperature=0.0, max_tokens=200,
-                         tag=f"coh|{s.scenario_id}|{dim}|{side}")
+                         tag=f"coh{args.format}|{s.scenario_id}|{dim}|{side}")
         val = None
         if rec.get("ok"):
             try:
                 d = parse_json(rec["raw"])
-                val = float(d["expected_excess_return"])
+                val = (float(d["expected_excess_return_bps"]) / 1e4
+                       if args.format == "bps"
+                       else float(d["expected_excess_return"]))
             except (ValueError, KeyError, TypeError) as exc:
                 log.warning("unparseable %s %s %s: %s", s.scenario_id, dim, side, exc)
         return {"scenario_id": s.scenario_id, "dimension": dim, "side": side,
@@ -76,8 +81,12 @@ def main() -> int:
                           "low": lo["value"] if lo else None,
                           "high": hi["value"] if hi else None, "ok": ok})
 
+    is_diag = args.format == "bps"
     result = {
-        "trial": "TRIAL-COHERENCE-BATTERY-1",
+        "trial": ("DIAG-COHERENCE-RESOLUTION-1" if is_diag
+                  else "TRIAL-COHERENCE-BATTERY-1"),
+        "is_gate": not is_diag,
+        "response_format": args.format,
         "prereg": "TRIALS/PREREG_NIGHT3_DECISION_REPLAY.md §5 (N3)",
         "model_id": MODEL, "temperature": 0.0,
         "n_scenarios": len(bases), "n_calls": len(jobs),
@@ -85,9 +94,10 @@ def main() -> int:
         "grades": coh.grade(pairs),
         "cache": cache.stats(), "spend": guard.as_dict(),
     }
-    (RUN_DIR / "COHERENCE_BATTERY.json").write_text(
+    (RUN_DIR / ("COHERENCE_RESOLUTION_DIAG.json" if is_diag
+                else "COHERENCE_BATTERY.json")).write_text(
         json.dumps(result, indent=2, default=str), encoding="utf-8")
-    (RUN_DIR / "coherence_pairs.json").write_text(
+    (RUN_DIR / (f"coherence_pairs_{args.format}.json")).write_text(
         json.dumps(pairs, indent=1, default=str), encoding="utf-8")
     print(json.dumps({"grades": result["grades"], "spend": result["spend"],
                       "cache": result["cache"]}, indent=2, default=str))

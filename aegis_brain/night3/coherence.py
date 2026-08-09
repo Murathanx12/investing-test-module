@@ -165,8 +165,20 @@ def perturb(s: Scenario, dimension: str, side: str) -> Scenario:
     return replace(s, **{spec["field"]: spec[side]})
 
 
-def prompt(s: Scenario) -> tuple[str, str]:
-    return SYSTEM, s.render() + "\n" + ASK
+# DIAG-COHERENCE-RESOLUTION-1 only. Identical scenarios, finer output units.
+# Registered as a diagnostic that CANNOT overturn the gate: the battery was
+# pre-registered with ASK above, and its verdict stands on that format.
+ASK_BPS = ('Return JSON exactly: {"expected_excess_return_bps": <integer, '
+           'basis points, e.g. 300 means you expect this stock to beat the '
+           'broad market by 3.00% over the next 12 months; negative means you '
+           'expect it to lag>, "conviction": <0.0-1.0>}\n'
+           'Answer in basis points and use the full resolution available to '
+           'you: differences of 25 basis points are meaningful here. Do not '
+           'round to the nearest whole percent.')
+
+
+def prompt(s: Scenario, fmt: str = "decimal") -> tuple[str, str]:
+    return SYSTEM, s.render() + "\n" + (ASK_BPS if fmt == "bps" else ASK)
 
 
 def grade(pairs: list[dict]) -> dict:

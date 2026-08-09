@@ -231,6 +231,110 @@ def build_slates(spine, lib, score: pd.DataFrame, elig: pd.DataFrame, *,
     return slates
 
 
+def build_slates_stratified(spine, lib, score: pd.DataFrame, elig: pd.DataFrame,
+                            *, first: str, last: str, slate_n: int = 40,
+                            seed: int = 20260809) -> list[Slate]:
+    """A slate that SPANS the composite distribution instead of sitting at its top.
+
+    Added after the NIGHT-3 power check found that the engine's ordering *within*
+    its own top-40 is worth +1.46 %/yr at t = 0.43 — i.e. nothing. A ranking task
+    whose control cannot rank is not a ranking task, so this variant draws an
+    equal number of names from each composite quintile. The control's ordering
+    now has real content, and a decider can be measured against it.
+
+    Same masking, same timing, same grading. Only the sampling frame differs.
+    """
+    from aegis_brain.pf.regimes import trailing_12m_risk_on
+
+    panel = spine.panel
+    ret = panel.monthly_ret
+    months = ret.index
+    risk_on = trailing_12m_risk_on(spine.mkt)
+    feats = {
+        "pct_ret_12m": np.log1p(ret.clip(lower=-0.99)).rolling(12, min_periods=12).sum(),
+        "pct_vol_12m": lib.get("native:vol_12m_low"),
+        "pct_gross_profit": lib.get("osap:GP"),
+        "pct_book_to_market": lib.get("osap:BM"),
+        "pct_mom_12_1": lib.get("native:mom_12_1"),
+        "pct_size": panel.monthly_dollar_vol,
+    }
+    names = pd.read_parquet(STOCKNAMES,
+                            columns=["permno", "namedt", "nameenddt", "siccd"])
+    names["permno"] = names["permno"].astype("int64").astype(str)
+    lo, hi = pd.Timestamp(first), pd.Timestamp(last)
+    form_months = [m for m in months if lo <= m <= hi]
+    rng = np.random.default_rng(seed)
+    labels = _labels(slate_n)
+    per_bucket, n_buckets = slate_n // 5, 5
+
+    slates: list[Slate] = []
+    prev_permnos: set[str] = set()
+    skipped: dict[str, int] = {}
+    for m in form_months:
+        pos = months.get_loc(m)
+        if pos + 1 >= len(months):
+            skipped["no_forward_month"] = skipped.get("no_forward_month", 0) + 1
+            continue
+        nxt = months[pos + 1]
+        e = elig.loc[m]
+        s = score.loc[m].where(e).dropna()
+        if len(s) < slate_n * 10:
+            skipped["thin_universe"] = skipped.get("thin_universe", 0) + 1
+            continue
+        pctiles = {k: _pct_rank(f.loc[m], e) for k, f in feats.items()}
+        ranked = s.sort_values(ascending=False).index.tolist()
+        chunks = np.array_split(np.array(ranked), n_buckets)
+        rows: list[Candidate] = []
+        for ch in chunks:
+            got = 0
+            for sym in rng.permutation(ch):
+                if got >= per_bucket:
+                    break
+                vals = {k: pctiles[k].get(sym) for k in feats}
+                if any(v is None or not np.isfinite(v) for v in vals.values()):
+                    continue
+                fwd = ret.at[nxt, sym] if sym in ret.columns else np.nan
+                if not np.isfinite(fwd):
+                    fwd = float(spine.mkt.at[nxt])
+                nm = names[(names.permno == sym) & (names.namedt <= m)
+                           & (names.nameenddt >= m)]
+                sector = (sic_division(nm.iloc[-1]["siccd"]) if len(nm)
+                          else "an unidentified industry")
+                rows.append(Candidate(
+                    label="", permno=str(sym), sector=sector, engine_rank=0,
+                    pct_ret_12m=int(vals["pct_ret_12m"]),
+                    pct_vol_12m=int(100 - vals["pct_vol_12m"]),
+                    pct_gross_profit=int(vals["pct_gross_profit"]),
+                    pct_book_to_market=int(vals["pct_book_to_market"]),
+                    pct_mom_12_1=int(vals["pct_mom_12_1"]),
+                    pct_size=int(vals["pct_size"]),
+                    fwd_ret=float(fwd), prev_seen=str(sym) in prev_permnos))
+                got += 1
+        if len(rows) < slate_n:
+            skipped["incomplete_facts"] = skipped.get("incomplete_facts", 0) + 1
+            continue
+        rows = rows[:slate_n]
+        # engine_rank by composite score among the drawn names (1 = best)
+        order_by_score = sorted(range(len(rows)),
+                                key=lambda i: -float(s[rows[i].permno]))
+        ranked_c = list(rows)
+        for r, i in enumerate(order_by_score):
+            ranked_c[i] = Candidate(**{**asdict(rows[i]), "engine_rank": r + 1})
+        perm = rng.permutation(slate_n)
+        final = tuple(Candidate(**{**asdict(ranked_c[j]), "label": labels[i]})
+                      for i, j in enumerate(perm))
+        slates.append(Slate(
+            formation_month=str(m.date()), realized_month=str(nxt.date()),
+            candidates=final, benchmark_fwd=float(spine.mkt.at[nxt]),
+            regime="risk_on" if bool(risk_on.get(m, True)) else "risk_off"))
+        prev_permnos = {c.permno for c in final}
+    if skipped:
+        logger.info("stratified slates skipped: %s", skipped)
+    logger.info("built %d STRATIFIED slates (%d per quintile)", len(slates),
+                per_bucket)
+    return slates
+
+
 # ── rendering: what the model actually reads ────────────────────────────────
 def render_candidate(c: Candidate) -> str:
     return (f"{c.label}. {c.sector}\n"
