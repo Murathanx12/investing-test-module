@@ -86,9 +86,10 @@ the LLM, and it says nothing detectable. Substituting the standalone number for
 the registered metric is precisely the metric substitution the registry exists
 to prevent.
 
-### The control that can only undercut arm E — registered, running, incomplete
+### The control that can only undercut arm E
 
-`DIAG-NIGHT3-MEMORY-PLACEBO-1`, registered before compute at 09:18 UTC. Arm
+`DIAG-NIGHT3-MEMORY-PLACEBO-1`, registered before compute at 09:18 UTC, run over
+the full 204 months. Arm
 **E-SHUFFLED** sees memory of identical shape, volume and marginal outcome
 distribution, with **only the situation→outcome mapping destroyed** by a seeded
 permutation — in the kNN neighbours *and* in the persistence block. If
