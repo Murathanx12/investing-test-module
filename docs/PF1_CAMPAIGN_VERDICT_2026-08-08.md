@@ -123,3 +123,37 @@ The two survivors of substance go to **PF-2** as registered successors:
 ENGINE-ALPHA with a factor-neutral gate and a regime-breadth question, and
 PROF-COMPOSITE at breadth (N=150) where its ruin number is inside tolerance.
 G7 (the full daily simulator) still sits between any of them and a paper lane.
+
+---
+
+## 7. ADDENDUM 2026-08-09 — the last two placebo bands landed, and one
+## pre-registered prediction flips from MISS to HIT
+
+The `PF-INSIDER-TILT` and `PF-RISK-SAT-1` bands were still computing when §1-§6
+were written; both completed afterwards. **No verdict changed** (both strategies
+had already failed on negative excess), but two facts in this document are now
+superseded and are corrected here rather than edited in place:
+
+1. **The multiple-testing denominator is 648, not 448** — 48 strategy runs +
+   **600** placebo books (6 × 100). `runs/PF/CAMPAIGN_PF1_FINAL.json`.
+2. **Prediction #2 — "at least one strategy fails its placebo gate" — is a
+   HIT, not a MISS.** Two did:
+
+   | Strategy | strategy excess | placebo p95 | placebo max | gate |
+   |---|---|---|---|---|
+   | PF-INSIDER-TILT | −5.48 %/yr | +0.23 %/yr | +2.28 %/yr | **FAIL** |
+   | PF-RISK-SAT-1 | −2.25 %/yr | +0.25 %/yr | +1.99 %/yr | **FAIL** |
+
+   **The scored total is therefore 2 of 5, not 1 of 5.** The reason-class for
+   both strategies is now `placebo_gate` rather than the returns-based list.
+
+This also *sharpens* lesson §5.1 instead of contradicting it. The placebo gate
+did fire — but only against strategies that were already losing money, which is
+exactly the complaint: it caught nothing that positive net excess had not
+already caught. Note too that the random books for the concentrated and
+insider-window specs have **positive** p95 (+0.23%, +0.25%) where the
+broad-universe specs have negative p95 (−0.30% to −0.66%): with fewer names and
+shorter windows, random selection has enough dispersion to beat the benchmark by
+luck, so the band widens exactly where the strategies are most fragile. The
+gate's power is real but concentrated on construction artifacts, which is the
+PF-2 amendment's premise, unchanged.
