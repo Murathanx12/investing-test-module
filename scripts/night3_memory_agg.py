@@ -83,6 +83,8 @@ def main() -> int:
             "p95": round(float(np.percentile(ex, 95)), 4),
             "single_seed_used_by_the_old_control": old["arm_Eshuffled"][
                 "excess_cagr_net"],
+            "old_seed_percentile_in_this_distribution": round(float(
+                (ex < old["arm_Eshuffled"]["excess_cagr_net"]).mean()), 3),
             "draws": [round(float(v), 5) for v in np.sort(ex)]}
         beat = int((ex < e_excess).sum())
         res["E_vs_shuffled_distribution"] = {
@@ -163,9 +165,10 @@ def _read(a: float, s: float, shufmean: float | None, e: float) -> str:
                 "right one is 'distribution, not mapping'.")
     if e > shufmean + tol and e > s + tol:
         return ("REOPENED — real memory beats BOTH controls on standalone "
-                "excess, and NIGHT-3's single shuffled seed sits above the "
-                "whole new seed distribution, so that control was an outlier "
-                "draw. This does NOT establish content: the deciding statistic "
+                "excess, and NIGHT-3's single shuffled seed sits near the top of "
+                "the new seed distribution (see its percentile below), so that "
+                "control was a high draw. This does NOT establish content: the "
+                "deciding statistic "
                 "is the month-level paired difference (see "
                 "E_minus_pooled_shuffled_monthly), because seed-to-seed spread "
                 "measures permutation noise, not sampling noise. Read that "
