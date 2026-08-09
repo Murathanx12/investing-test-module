@@ -22,6 +22,7 @@ import argparse
 import json
 import sys
 from collections import defaultdict
+import pathlib
 from pathlib import Path
 
 import numpy as np
@@ -36,8 +37,8 @@ from aegis_brain.abn.posterior import PosteriorStore
 from aegis_brain.config import MODULE_ROOT
 
 RUN_DIR = MODULE_ROOT / "runs" / "NIGHT3"
-LEDGER = MODULE_ROOT / "ledger" / "abn_claims_night3.jsonl"
-OUT = MODULE_ROOT / "runs" / "ABN" / "abn_night3.json"
+LEDGER_BASE = MODULE_ROOT / "ledger" / "abn_claims_night3"
+OUT_BASE = MODULE_ROOT / "runs" / "ABN" / "abn_night3"
 
 
 def conviction_to_probability(direction: str, conviction: float) -> float | None:
@@ -59,10 +60,17 @@ def conviction_to_probability(direction: str, conviction: float) -> float | None
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--arms", default="A,E")
+    ap.add_argument("--suffix", default="",
+                    help="read experiences_<arm><suffix>.jsonl; use '_smoke' to "
+                         "dry-run without touching the campaign stores")
     args = ap.parse_args()
     arms = [a.strip() for a in args.arms.split(",") if a.strip()]
+    suffix = args.suffix
 
+    LEDGER = pathlib.Path(f"{LEDGER_BASE}{suffix}.jsonl")
+    OUT = pathlib.Path(f"{OUT_BASE}{suffix}.json")
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    LEDGER.parent.mkdir(parents=True, exist_ok=True)
     if LEDGER.exists():
         LEDGER.unlink()                 # rebuilt from the append-only stores
     led = ClaimLedger(LEDGER)
@@ -74,7 +82,7 @@ def main() -> int:
     missing = []
 
     for arm in arms:
-        path = RUN_DIR / f"experiences_{arm}.jsonl"
+        path = RUN_DIR / f"experiences_{arm}{suffix}.jsonl"
         if not path.exists():
             missing.append(str(path.name))
             continue
