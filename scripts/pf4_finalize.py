@@ -10,6 +10,8 @@ import json
 import sys
 from pathlib import Path
 
+from scipy import stats
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from aegis_brain.config import MODULE_ROOT
@@ -72,10 +74,30 @@ def main() -> int:
     banked_alpha = A["banked_headline"] and 0.0501
     marg = {k: v for k, v in A["marginal_rank_windows"].items()
             if not k.startswith("_") and "alpha_ff5_umd" in v}
-    marg_alphas = [v["alpha_ff5_umd"].get("ann_alpha") for v in marg.values()
-                   if v["alpha_ff5_umd"].get("ann_alpha") is not None]
-    marg_flat = (max(marg_alphas) - min(marg_alphas) < 0.03
-                 if len(marg_alphas) >= 5 else None)
+    # R-5 asks whether the marginal-decile alphas are FLAT. Eyeballing a spread
+    # is not a test: each window is a 10-name book with a standard error of a
+    # few percent, so a wide-looking range is exactly what noise produces. This
+    # is a proper inverse-variance homogeneity test (Cochran's Q).
+    marg_alphas, marg_se = [], []
+    for v in marg.values():
+        a, t = v["alpha_ff5_umd"].get("ann_alpha"), v["alpha_ff5_umd"].get("t_alpha")
+        if a is not None and t not in (None, 0):
+            marg_alphas.append(a)
+            marg_se.append(abs(a / t))
+    homog = None
+    if len(marg_alphas) >= 5:
+        w = [1.0 / s ** 2 for s in marg_se]
+        abar = sum(wi * ai for wi, ai in zip(w, marg_alphas)) / sum(w)
+        Q = sum(wi * (ai - abar) ** 2 for wi, ai in zip(w, marg_alphas))
+        dfree = len(marg_alphas) - 1
+        homog = {"k_windows": len(marg_alphas),
+                 "range": round(max(marg_alphas) - min(marg_alphas), 4),
+                 "median_se": round(sorted(marg_se)[len(marg_se) // 2], 4),
+                 "inverse_variance_weighted_alpha": round(abar, 4),
+                 "cochran_Q": round(Q, 2), "df": dfree,
+                 "p_value": round(float(1 - stats.chi2.cdf(Q, dfree)), 4)}
+        homog["flat_not_rejected"] = bool(homog["p_value"] > 0.05)
+    marg_flat = homog["flat_not_rejected"] if homog else None
     bands = A["construction_grids"]["buy_hold_band"]
     b3 = bands.get("mult_3", {}).get("excess_cagr_net")
     b2 = bands.get("mult_2", {}).get("excess_cagr_net")
@@ -140,6 +162,7 @@ def main() -> int:
         "marginal_rank_window_alphas": {k: v["alpha_ff5_umd"].get("ann_alpha")
                                         for k, v in marg.items()},
         "marginal_alphas_flat": marg_flat,
+        "marginal_alpha_homogeneity": homog,
         "pre_1982_block": A2.get("block_1963_1982"),
         "product_benchmark": C.get("french_small_robust"),
         "gate_power": {"G2": G.get("G2", {}).get("binary_gate_pass_probabilities"),

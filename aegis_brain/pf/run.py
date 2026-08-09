@@ -127,6 +127,10 @@ class Factory:
         card["multiple_testing"] = ledger.testing_block(
             card["headline"].get("t_excess_newey_west"),
             (card.get("factor_alpha", {}).get("ff5_umd", {}) or {}).get("t_alpha"))
+        fam = ledger.family_warning(spec.name)
+        if fam:
+            card["multiple_testing"]["family_warning"] = fam
+            logger.warning("%s: %s", spec.name, fam["warning"])
         card["runtime_secs"] = round(time.time() - t0, 1)
 
         if placebo_draws:
@@ -141,6 +145,7 @@ class Factory:
 
         if write:
             write_artifacts(spec, card, out_dir=self.out_dir)
+            ledger.record_run(spec.name, card["spec_hash"], card)
         logger.info("%s: excess CAGR %.2f%% t=%.2f (%.0fs)", spec.name,
                     100 * card["headline"]["excess_cagr_net"],
                     card["headline"]["t_excess_monthly"], card["runtime_secs"])

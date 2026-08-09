@@ -200,6 +200,58 @@ def prior_verdicts(family_or_name: str) -> list[dict]:
     return out
 
 
+RUN_LOG = MODULE_ROOT / "ledger" / "pf_runs.jsonl"
+
+
+def record_run(spec_name: str, spec_hash: str, card: dict) -> None:
+    """Append one line per run, append-only, so the denominator has a history.
+
+    Counting artifacts on disk is durable but says nothing about WHEN or under
+    which commit. This does, and it is the file a future audit reads to check
+    that the denominator was never quietly reduced.
+    """
+    import subprocess
+    from datetime import datetime, timezone
+    try:
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                             cwd=MODULE_ROOT, capture_output=True, text=True,
+                             timeout=10).stdout.strip()
+    except Exception:                                   # noqa: BLE001
+        sha = ""
+    h = card.get("headline", {})
+    row = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+           "commit": sha, "name": spec_name, "spec_hash": spec_hash,
+           "excess_cagr_net": h.get("excess_cagr_net"),
+           "t_excess_nw": h.get("t_excess_newey_west"),
+           "months": card.get("window", {}).get("months"),
+           "denominator_at_run": card.get("multiple_testing", {})
+           .get("denominator", {}).get("total")}
+    RUN_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with RUN_LOG.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row) + "\n")
+
+
+def family_warning(spec_name: str, threshold: int = 5) -> dict | None:
+    """Flag a family that has already been tested many times.
+
+    Not a block — a loud annotation. Re-litigating a family until noise finally
+    hands it a pass is the failure mode this exists to make visible, and it is
+    invisible when each campaign only sees its own artifacts.
+    """
+    root = spec_name.split("__")[0]
+    prior = prior_verdicts(root)
+    if len(prior) < threshold:
+        return None
+    ex = [p["excess_cagr_net"] for p in prior
+          if p.get("excess_cagr_net") is not None]
+    return {"family": root, "prior_variants_on_disk": len(prior),
+            "best_prior_excess_cagr": max(ex) if ex else None,
+            "warning": (f"{len(prior)} variants of {root} already exist. The "
+                        "best of N variants is not evidence at the same bar as "
+                        "one pre-registered variant; the deflated bar in "
+                        "`multiple_testing` is the one that applies.")}
+
+
 def summary() -> dict:
     den = denominator()
     return {"denominator": den.as_dict(),
