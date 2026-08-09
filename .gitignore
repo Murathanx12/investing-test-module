@@ -28,3 +28,4 @@ Thumbs.db
 .DS_Store
 
 docs/sessions/*.jsonl
+ledger/*.jsonl
