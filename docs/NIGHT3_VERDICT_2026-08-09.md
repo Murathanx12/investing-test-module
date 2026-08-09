@@ -86,6 +86,25 @@ the LLM, and it says nothing detectable. Substituting the standalone number for
 the registered metric is precisely the metric substitution the registry exists
 to prevent.
 
+### The control that can only undercut arm E — registered, running, incomplete
+
+`DIAG-NIGHT3-MEMORY-PLACEBO-1`, registered before compute at 09:18 UTC. Arm
+**E-SHUFFLED** sees memory of identical shape, volume and marginal outcome
+distribution, with **only the situation→outcome mapping destroyed** by a seeded
+permutation — in the kNN neighbours *and* in the persistence block. If
+E-SHUFFLED matches E, what helped was the presence of a memory block, not its
+content.
+
+**Status at writeup: running, well short of the 204 months.** DeepSeek latency
+roughly doubled during the evening (~90 s/call against ~44 s during arm E), so
+it will not complete tonight. It is left running rather than truncated, because
+a control run over a short window is a different control, not a faster one.
+
+This changes **no registered verdict** — M2 is already REJECT — and the control
+was never able to promote anything. But until it lands, the honest statement
+about arm E is *"its incremental effect is below the 3.62 %/yr MDE, and we have
+not yet shown that even that much is about memory content."*
+
 ### What the test could ever have detected
 
 | paired difference | monthly SD | **MDE at t = 2** | observed |
