@@ -69,9 +69,23 @@ def main() -> int:
     n_meta = len([k for k in state.get("meta", {})
                   if k in {c["name"] for c in META_GRID}
                   or k in ("META-EW", "META-BEST-SINGLE")])
+    # The multiple-testing denominator is EVERY run this campaign computed —
+    # candidate grids, the product alternatives, and the PF-1 bases re-run to
+    # supply the meta-portfolio's assets. Counting only the candidate grids
+    # would flatter the campaign by hiding the runs that were also looked at.
+    # state["runs"] holds the candidate grids + product alternatives; the PF-1
+    # bases re-run as meta assets are counted by the campaign's own counter,
+    # and Phase V's re-validation book is one more.
+    n_all_runs = max(len(state.get("runs", {})),
+                     state.get("experiment_count", {}).get("strategy_runs", 0)) + 1
     state["summary"] = (state.get("summary") or {}) | {
-        "total_experiments": n_runs + n_placebo + n_meta,
-        "strategy_runs": n_runs, "placebo_books": n_placebo, "meta_runs": n_meta,
+        "total_experiments": n_all_runs + n_placebo + n_meta,
+        "strategy_runs": n_all_runs,
+        "of_which_candidate_grid_configs": n_runs,
+        "run_decomposition": "24 candidate grid configs + 2 product "
+                             "alternatives + 5 PF-1 bases re-run as meta "
+                             "assets + 1 re-validation book",
+        "placebo_books": n_placebo, "meta_runs": n_meta,
         "verdicts": {k: v["verdict"] for k, v in state["verdicts"].items()},
         "meta_verdict": state.get("meta_verdict"),
         "ruin_tolerance": G8_RUIN_MAX,
