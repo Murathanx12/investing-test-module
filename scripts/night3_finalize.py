@@ -127,6 +127,69 @@ def main() -> int:
                      "shown-only summary is used to score N8."),
         }
 
+    # ── 2c. placebo, re-costed symmetrically ────────────────────────────────
+    # SECOND DEFECT, corrected rather than caveated. The replay's placebo calls
+    # book_return without a prev_picks argument, so every random book is billed
+    # 100% turnover every month. Its real turnover is ~50% (two independent
+    # draws of 20 from 40 overlap by 10 in expectation), so the band was charged
+    # roughly 1.5%/yr too much — which biases it DOWN and makes the LLM arms
+    # look better against it. Recomputed here with the same incumbency
+    # accounting the real arms get. No LLM calls involved.
+    placebo_fixed = None
+    try:
+        from aegis_brain.night3.slate import (PROF_SIGNALS, book_return,
+                                              build_slates)
+        from aegis_brain.pf.panel63 import annualize, eligibility, load_spine
+        from aegis_brain.pf.signals import SignalLibrary, composite_score
+
+        spine = load_spine("2003-01-31", "2022-12-31")
+        lib = SignalLibrary(spine.panel)
+        lib.preload(["native:mom_12_1", "native:vol_12m_low", "osap:GP",
+                     "osap:BM", "osap:OperProfRD", "osap:CBOperProf"])
+        elig = eligibility(spine, "small")
+        score, _ = composite_score(lib, PROF_SIGNALS, elig)
+        slates = build_slates(spine, lib, score, elig,
+                              first=rep["window"]["first"],
+                              last=rep["window"]["last"], slate_n=40)
+        idx = [pd.Timestamp(s.realized_month) for s in slates]
+        bench = pd.Series([s.benchmark_fwd for s in slates], index=idx)
+        bcagr = annualize(bench)
+        draws = int(rep["placebo"]["draws"])
+        rng = np.random.default_rng(20260809)
+        band, turn = [], []
+        for _ in range(draws):
+            prev, rets, tr = set(), [], []
+            for s in slates:
+                labs = [c.label for c in s.candidates]
+                pick = list(rng.choice(labs, size=20, replace=False))
+                r, t = book_return(s, pick, COST_BPS, prev or None)
+                by = s.by_label()
+                prev = {by[p].permno for p in pick}
+                rets.append(r)
+                tr.append(t)
+            band.append(annualize(pd.Series(rets, index=idx)) - bcagr)
+            turn.append(float(np.mean(tr)))
+        band = np.array(band)
+        obs = {a: rep["arms"][a]["excess_cagr_net"] for a in ("ENGINE", "A", "E")
+               if a in rep["arms"]}
+        placebo_fixed = {
+            "draws": draws,
+            "mean_placebo_turnover_1way_annual": round(float(np.mean(turn)) * 12, 3),
+            "as_run_mean_excess": rep["placebo"]["mean_excess_cagr"],
+            "recosted_mean_excess": round(float(band.mean()), 4),
+            "recosted_p95_excess": round(float(np.percentile(band, 95)), 4),
+            "recosted_max_excess": round(float(band.max()), 4),
+            "p_values_recosted": {a: round(float(np.mean(band >= v)), 4)
+                                  for a, v in obs.items()},
+            "p_values_as_run": {"ENGINE": rep["placebo"]["p_engine"],
+                                "A": rep["placebo"]["p_armA"],
+                                "E": rep["placebo"]["p_armE"]},
+        }
+    except Exception as exc:                  # noqa: BLE001 — loud, never silent
+        placebo_fixed = {"error": f"{type(exc).__name__}: {exc}",
+                         "note": "recosting FAILED — the as-run placebo stands "
+                                 "and is known to be biased against the band"}
+
     # ── 3. the eight registered predictions ─────────────────────────────────
     def g(d, *keys, default=None):
         for k in keys:
@@ -228,6 +291,7 @@ def main() -> int:
             "threshold is not reachable independently. Reported so a null is "
             "read as 'smaller than the MDE', never as 'zero'."),
         "cost_sensitivity": cost,
+        "placebo_recosted": placebo_fixed,
         "persistence_shown_only": persist_shown,
         "persistence_all_recorded": persist_all,
         "persistence_reconstruction": shown_diag,
