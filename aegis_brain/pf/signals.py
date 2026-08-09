@@ -96,6 +96,64 @@ def _insider_cluster(panel: Panel) -> pd.DataFrame:
     return rolled
 
 
+def _insider_tieaware(panel: Panel, halflife_months: float = 6.0,
+                      value_cap: float = 5e7) -> pd.DataFrame:
+    """Insider buying INTENSITY — continuous, so the cross-section can rank it.
+
+    PF-1's `insider:cluster12m` counts distinct opportunistic buyers over 12
+    months. That count is a small integer: in most months a large share of the
+    universe sits at 1 or 2, so a top-25 selection is decided by whatever
+    arbitrary order the tie-break happens to impose, not by the signal. The
+    PF-1 verdict recorded this as a construction defect and required a
+    successor rather than a re-run.
+
+    This construction fixes the ties three ways, all PIT:
+      * DOLLAR VALUE instead of head-count — a $2M purchase and a $20k
+        purchase stop being the same observation;
+      * RECENCY decay (exponential, `halflife_months`) — last month's buying
+        outranks buying from eleven months ago;
+      * SCALED by the name's own dollar volume — $1M of insider buying means
+        something different in a microcap than in a mega-cap, and the raw
+        dollar version would simply re-rank the universe by size.
+
+    Winsorized at `value_cap` per transaction: the archive carries a handful of
+    absurd values (max ≈ 4.9e16, i.e. a filing error) that would otherwise
+    single-handedly select a name. Capping is a stated choice, not a cleanup —
+    the count of capped rows is logged.
+    """
+    cols = ["filing_date", "permno", "shares", "price", "value",
+            "is_classifiable", "is_routine"]
+    df = pd.read_parquet(INSIDER_PARQUET, columns=cols)
+    df = df[df["is_classifiable"].fillna(False).astype(bool)
+            & ~df["is_routine"].fillna(False).astype(bool)]
+    df = df.dropna(subset=["permno"])
+
+    val = df["value"].astype(float)
+    val = val.fillna(df["shares"].astype(float) * df["price"].astype(float))
+    val = val.fillna(0.0).clip(lower=0.0)
+    n_capped = int((val > value_cap).sum())
+    val = val.clip(upper=value_cap)
+    df = df.assign(_v=val)
+
+    df["sym"] = df["permno"].astype("int64").astype(str)
+    df["m"] = (pd.to_datetime(df["filing_date"]).dt.to_period("M")
+               .dt.to_timestamp("M"))
+    per_month = df.groupby(["m", "sym"])["_v"].sum().unstack()
+    first_m = per_month.index.min()
+    wide = (per_month.reindex(index=panel.monthly_ret.index,
+                              columns=panel.monthly_ret.columns).fillna(0.0))
+
+    decayed = sum(wide.shift(k) * (0.5 ** (k / halflife_months))
+                  for k in range(12))
+    # scale by traded dollars (the same PIT size proxy the segments use)
+    scale = (panel.monthly_dollar_vol * 21.0).replace(0.0, np.nan)
+    out = decayed / scale
+    out.loc[out.index < first_m + pd.DateOffset(months=11)] = np.nan
+    logger.info("insider tie-aware: %d transactions capped at $%.0fM",
+                n_capped, value_cap / 1e6)
+    return out
+
+
 class SignalLibrary:
     """Materializes score frames once per panel; OSAP rows are read once."""
 
@@ -145,6 +203,8 @@ class SignalLibrary:
             frame = _native(self.panel, key)
         elif key == "insider:cluster12m":
             frame = _insider_cluster(self.panel)
+        elif key == "insider:tieaware12m":
+            frame = _insider_tieaware(self.panel)
         else:
             raise KeyError(f"unknown signal key {key!r}")
         frame = frame.astype(np.float32)

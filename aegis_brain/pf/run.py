@@ -22,6 +22,7 @@ import pandas as pd
 from aegis_brain.config import MODULE_ROOT
 from aegis_brain.harness.benchmark import load_ff_factors
 from aegis_brain.pf import controls as ctrl
+from aegis_brain.pf.blend import blend_monthly
 from aegis_brain.pf.engine import buy_and_hold_universe, run_book
 from aegis_brain.pf.panel63 import Spine, eligibility, load_spine
 from aegis_brain.pf.regimes import trailing_12m_risk_on
@@ -37,8 +38,10 @@ class Factory:
     """Shared context for a campaign of strategy runs."""
 
     def __init__(self, first: str = "1963-07-31", last: str = "2022-12-31",
-                 *, allow_holdout: bool = False) -> None:
+                 *, allow_holdout: bool = False,
+                 out_dir: Path | None = None) -> None:
         t0 = time.time()
+        self.out_dir = out_dir or OUT_DIR
         self.spine: Spine = load_spine(first, last, allow_holdout=allow_holdout)
         self.lib = SignalLibrary(self.spine.panel)
         self.factors = load_ff_factors(MODULE_ROOT / "data")
@@ -47,6 +50,9 @@ class Factory:
         self._score: dict[tuple, tuple[pd.DataFrame, dict]] = {}
         self._cost_frame: pd.DataFrame | None = None
         self._cost_tried = False
+        # monthly books kept in memory so a meta-portfolio can treat the
+        # strategies as assets without re-running or re-reading them
+        self._monthly: dict[str, pd.DataFrame] = {}
         self.risk_on = trailing_12m_risk_on(self.spine.mkt)
         logger.info("factory ready in %.1fs — %s", time.time() - t0,
                     self.spine.provenance)
@@ -94,6 +100,16 @@ class Factory:
                      "regime_rule": spec.regime_rule or "none",
                      "risk_on_frac": (round(float(monthly["risk_on"].mean()), 3)
                                       if regime_on is not None else 1.0)})
+        if spec.blend_market > 0:
+            monthly, bdiag = blend_monthly(monthly, self.spine.mkt,
+                                           spec.blend_market,
+                                           spec.blend_fee_bps)
+            diag.update(bdiag)
+            diag["turnover_1way_annual"] = round(
+                float(monthly["traded"].sum()) / 2 / (len(monthly) / 12), 3)
+            diag["cost_drag_annual_bps"] = round(
+                float(monthly["cost"].sum()) / (len(monthly) / 12) * 1e4, 1)
+        self._monthly[spec.name] = monthly
 
         key = f"{spec.segment}|{spec.first_month}|{spec.last_month}|{spec.min_names}"
         if key not in self._ew:
@@ -117,22 +133,24 @@ class Factory:
             card["runtime_secs"] = round(time.time() - t0, 1)
 
         if write:
-            write_artifacts(spec, card)
+            write_artifacts(spec, card, out_dir=self.out_dir)
         logger.info("%s: excess CAGR %.2f%% t=%.2f (%.0fs)", spec.name,
                     100 * card["headline"]["excess_cagr_net"],
                     card["headline"]["t_excess_monthly"], card["runtime_secs"])
         return card
 
 
-def write_artifacts(spec: StrategySpec, card: dict) -> Path:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+def write_artifacts(spec: StrategySpec, card: dict,
+                    out_dir: Path | None = None) -> Path:
+    d = out_dir or OUT_DIR
+    d.mkdir(parents=True, exist_ok=True)
     stem = f"{spec.name}__{spec.spec_hash()}"
-    j = OUT_DIR / f"{stem}.json"
+    j = d / f"{stem}.json"
     if j.exists():
         logger.warning("%s exists — write-once; not overwriting", j.name)
         return j
     j.write_text(json.dumps(card, indent=2, default=str), encoding="utf-8")
-    (OUT_DIR / f"{stem}.md").write_text(render_markdown(card), encoding="utf-8")
+    (d / f"{stem}.md").write_text(render_markdown(card), encoding="utf-8")
     return j
 
 
