@@ -1,0 +1,37 @@
+{
+  "what": "third-party anchor of the Aegis trial registry",
+  "file": "TRIALS/registry.jsonl",
+  "sha256": "4a71ab837e5444a9f00151897b0c2b948f36a815578dbf6441bba1392751742f",
+  "bytes": 77713,
+  "registered_trials": 83,
+  "submitted_utc": "20260809T112615Z",
+  "calendars": [
+    {
+      "calendar": "https://a.pool.opentimestamps.org",
+      "status": 200,
+      "proof_bytes": 207,
+      "ok": true
+    },
+    {
+      "calendar": "https://b.pool.opentimestamps.org",
+      "status": 200,
+      "proof_bytes": 170,
+      "ok": true
+    },
+    {
+      "calendar": "https://alice.btc.calendar.opentimestamps.org",
+      "status": 200,
+      "proof_bytes": 172,
+      "ok": true
+    },
+    {
+      "calendar": "https://bob.btc.calendar.opentimestamps.org",
+      "status": 200,
+      "proof_bytes": 135,
+      "ok": true
+    }
+  ],
+  "anchored": true,
+  "how_to_verify": "the .otsproof files are OpenTimestamps calendar commitments to the sha256 above. Once the calendars aggregate into a Bitcoin block (hours), `ots upgrade` and `ots verify` on a machine with a working client will show the block time. Until then the proofs are pending commitments, which is still more than a git timestamp.",
+  "what_it_does_not_prove": "that this registry contains every trial we ever ran. It proves this CONTENT existed at this time, so a trial cannot be back-dated INTO it and a row cannot be silently removed FROM it later. Completeness remains self-attested and should be described that way."
+}

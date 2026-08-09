@@ -550,9 +550,84 @@ def stage_c(f: Factory, banked: dict) -> dict:
     return res
 
 
+# ── stage D: the configurations a person could actually hold ────────────────
+def stage_d(f: Factory, banked: dict) -> dict:
+    """Combinations of arms already registered as reported-never-deciding.
+
+    Nothing new is introduced here: era-appropriate costs (5.3), the rebalance
+    grid (5.7) and the liquidity shift (5.2) are each registered, and this stage
+    only runs them TOGETHER, because the product question is what survives all
+    of them at once rather than one at a time. Still reported, still never
+    deciding — the primary metric is unaffected by anything in this function.
+    """
+    t0 = time.time()
+    base = spec_of(banked)
+    panel, rf, mkt = f.spine.panel, f.spine.rf, f.spine.mkt
+    elig = f.eligible(base.segment)
+    score, _ = composite_score(f.lib, base.signals, elig)
+    ko = f.cost_frame()
+    era = D.era_cost_frame(panel, 25.0, ko)
+
+    dv = panel.monthly_dollar_vol.where(elig)
+    elig_liq = (elig & (dv.rank(axis=1, pct=True) > 0.30).fillna(False)).astype(bool)
+    score_liq, _ = composite_score(f.lib, base.signals, elig_liq)
+
+    configs = {
+        "as_registered_monthly_flat25": (base, score, elig, None),
+        "annual_rebalance_era_costs": (
+            spec_of(banked, rebalance_months=12, cost_model="ko",
+                    name=f"{base.name}__ann_era"), score, elig, era),
+        "quarterly_rebalance_era_costs": (
+            spec_of(banked, rebalance_months=3, cost_model="ko",
+                    name=f"{base.name}__q_era"), score, elig, era),
+        "annual_era_costs_liquid_two_thirds": (
+            spec_of(banked, rebalance_months=12, cost_model="ko", min_names=70,
+                    name=f"{base.name}__ann_era_liq"), score_liq, elig_liq, era),
+        "annual_era_costs_no_incumbency_band": (
+            spec_of(banked, rebalance_months=12, cost_model="ko",
+                    hold_band_mult=1.0, name=f"{base.name}__ann_era_nb"),
+            score, elig, era),
+    }
+    out: dict = {"trial": "TRIAL-PF4-DECOMPOSITION-1",
+                 "arm": "product configurations",
+                 "status": "REPORTED-NEVER-DECIDING",
+                 "why": "combinations of already-registered reported arms; the "
+                        "primary metric and the verdict do not depend on any of "
+                        "these"}
+    for label, (sp, sc, el, cf) in configs.items():
+        o = run_book(panel, sc, el, sp, rf, cf)
+        net = o["monthly"]["net"].dropna()
+        b = mkt.reindex(net.index)
+        ew = buy_and_hold_universe(panel, el, sp, rf).reindex(net.index)
+        post = net.index > "2001-03-31"
+        row = {
+            "months": len(net),
+            "excess_cagr_net": round(annualize(net) - annualize(b), 4),
+            "t_excess_nw": D.nw_t(net - b),
+            "turnover_1way_annual": o["diag"]["turnover_1way_annual"],
+            "cost_drag_annual_bps": o["diag"]["cost_drag_annual_bps"],
+            "max_drawdown": round(max_drawdown(net), 4),
+            "excess_pre_2001": round(annualize(net[~post])
+                                     - annualize(b[~post]), 4),
+            "excess_post_2001": round(annualize(net[post])
+                                      - annualize(b[post]), 4),
+            "t_excess_post_2001_nw": D.nw_t((net - b)[post]),
+            "incremental_alpha_ff5_umd": D.alpha_report(
+                (net - ew).dropna(), f.factors, D.FF6),
+        }
+        out[label] = row
+        log.info("stage D %s -> excess %.4f (post-2001 %.4f) turnover %.2f",
+                 label, row["excess_cagr_net"], row["excess_post_2001"],
+                 row["turnover_1way_annual"])
+    out["runtime_secs"] = round(time.time() - t0, 1)
+    dump("STAGE_D_PRODUCT_CONFIGS.json", out)
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", default="A", choices=["A", "A2", "B", "C", "all"])
+    ap.add_argument("--stage", default="A",
+                    choices=["A", "A2", "B", "C", "D", "all"])
     ap.add_argument("--draws", type=int, default=100)
     args = ap.parse_args()
     banked = json.loads(BANKED.read_text(encoding="utf-8"))
@@ -565,6 +640,8 @@ def main() -> int:
         stage_b(f, banked, args.draws)
     if args.stage in ("C", "all"):
         stage_c(f, banked)
+    if args.stage in ("D", "all"):
+        stage_d(f, banked)
     return 0
 
 

@@ -22,6 +22,7 @@ import pandas as pd
 from aegis_brain.config import MODULE_ROOT
 from aegis_brain.harness.benchmark import load_ff_factors
 from aegis_brain.pf import controls as ctrl
+from aegis_brain.pf import ledger
 from aegis_brain.pf.blend import blend_monthly
 from aegis_brain.pf.engine import buy_and_hold_universe, run_book
 from aegis_brain.pf.panel63 import Spine, eligibility, load_spine
@@ -120,6 +121,12 @@ class Factory:
                          factors=self.factors, rf=self.spine.rf, seed=spec.seed)
         card["spec_hash"] = spec.spec_hash()
         card["provenance"] = dict(self.spine.provenance)
+        # Programme-wide multiple testing, attached automatically so it cannot
+        # be forgotten. PF-1 and PF-2 were judged against a t-bar calibrated as
+        # though each were the first test on this data; they were not.
+        card["multiple_testing"] = ledger.testing_block(
+            card["headline"].get("t_excess_newey_west"),
+            (card.get("factor_alpha", {}).get("ff5_umd", {}) or {}).get("t_alpha"))
         card["runtime_secs"] = round(time.time() - t0, 1)
 
         if placebo_draws:
