@@ -15,6 +15,14 @@ observation. A held name whose return goes NaN is force-liquidated to cash at
 that month's open at its last value (return 0 for the stub, cost charged), and
 the count is reported. Dropping such names silently would re-import
 survivorship bias through the back door.
+
+CAVEAT, and the reason `delist_stub` exists (PF-4, external review 2026-08-09):
+assigning 0 % to that stub is itself a mild upward bias. CRSP's DLRET is missing
+for roughly a third of delisting events, and it is missing disproportionately
+for the performance-related ones (Shumway 1997), which is exactly the population
+whose true return is large and negative. Pass `delist_stub` — a month × permno
+frame of stub returns — to charge those names something other than zero. The
+default stays 0.0 so every banked scorecard reproduces to the decimal.
 """
 
 from __future__ import annotations
@@ -63,11 +71,21 @@ def run_book(
     rf: pd.Series,
     cost_frame: pd.DataFrame | None = None,
     regime_on: pd.Series | None = None,
+    delist_stub: pd.DataFrame | None = None,
+    holdings_out: list | None = None,
 ) -> dict:
     """Run one strategy. Returns {'monthly': DataFrame, 'diag': dict}.
 
     regime_on: optional boolean Series indexed by FORMATION month. False months
     hold cash instead of the book (walk-forward labels only — see regimes.py).
+
+    delist_stub: optional month × permno frame of returns to charge a held name
+    in the month its return goes missing, instead of 0. See the module docstring.
+
+    holdings_out: optional list; if given, one dict per test month recording the
+    invested weights AFTER rebalancing. Costs nothing when omitted, and lets the
+    characteristic-matched placebo and the event-time membership profile replay
+    the book's actual positions without re-deriving the incumbency-band logic.
     """
     ret = panel.monthly_ret
     months = ret.index
@@ -100,11 +118,17 @@ def run_book(
         # ── forced liquidation of names with no return this month ───────────
         traded = 0.0
         cost = 0.0
+        stub_pnl = 0.0
         if len(w):
             dead = w.index[realized.reindex(w.index).isna()]
             if len(dead):
-                dead_w = float(w.loc[dead].sum())
-                traded += dead_w
+                stub = pd.Series(0.0, index=dead)
+                if delist_stub is not None and test_m in delist_stub.index:
+                    stub = (delist_stub.loc[test_m].reindex(dead)
+                            .fillna(0.0).astype(float))
+                stub_pnl = float((w.loc[dead] * stub).sum())
+                dead_w = float(w.loc[dead].sum()) + stub_pnl
+                traded += float(w.loc[dead].sum())
                 cost += _cost_of(w.loc[dead], formation_m, spec, flat_bps,
                                  cost_frame)
                 cash += dead_w
@@ -138,10 +162,11 @@ def run_book(
                 n_rebal += 1
 
         # ── realize the month ───────────────────────────────────────────────
+        held_in = w.copy()          # weights entering the month, pre-drift
         r = realized.reindex(w.index).fillna(0.0) if len(w) else pd.Series(dtype=float)
         equity_ret = float((w * r).sum())
         rf_m = float(rf.get(test_m, 0.0))
-        gross = equity_ret + cash * rf_m
+        gross = equity_ret + cash * rf_m + stub_pnl
         net = gross - cost
 
         # ── drift weights into next month ───────────────────────────────────
@@ -166,6 +191,9 @@ def run_book(
             "traded": traded, "n_held": int(len(w)), "cash_w": cash,
             "risk_on": risk_on,
         })
+        if holdings_out is not None:
+            holdings_out.append({"formation": formation_m, "test": test_m,
+                                 "weights": held_in})
 
     if not records:
         raise RuntimeError(

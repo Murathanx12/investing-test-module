@@ -84,19 +84,35 @@ def engine_decide(slate: Slate, top_n: int = 20) -> dict[str, Decision]:
     return out
 
 
-def _memory_block(store, slate: Slate, k: int, model_id: str) -> tuple[str, dict]:
-    """Per-candidate kNN summaries + the decider's own running record."""
+def _memory_block(store, slate: Slate, k: int, model_id: str,
+                  mode: str = "full") -> tuple[str, dict]:
+    """Per-candidate kNN summaries + the decider's own running record.
+
+    `mode="situations_only"` is the arm the NIGHT-3 control was missing. It
+    shows that similar past situations exist and how many, and withholds every
+    outcome. It exists because preserving the marginal distribution of outcomes
+    — which a permutation does by construction — also preserves the BASE RATE,
+    so a scrambled-mapping control still hands the model calibration
+    information. If what memory actually contributes is base-rate calibration
+    rather than situation-specific recall, the scrambled arm receives the whole
+    benefit and "block, not content" is an over-control. This arm separates them.
+    """
     ts = slate.formation_month
     pool = store.available_at(ts)
-    lines, diag = [], {"pool": len(pool), "with_neighbours": 0}
+    lines, diag = [], {"pool": len(pool), "with_neighbours": 0, "mode": mode}
     if not pool:
         return "", diag
+    hide = mode == "situations_only"
     for c in slate.candidates:
         nb = store.retrieve(c.fingerprint, ts, k=k, event_class="monthly_slate")
         if not nb:
             continue
         s = store.summarize_neighbours(nb)
         diag["with_neighbours"] += 1
+        if hide:
+            lines.append(f"   {c.label}: {s['n']} similar past situations are in "
+                         "your record (what happened in them is withheld).")
+            continue
         lines.append(
             f"   {c.label}: {s['n']} similar past situations — "
             f"{s['frac_beat_benchmark']:.0%} beat the market, "
@@ -107,7 +123,11 @@ def _memory_block(store, slate: Slate, k: int, model_id: str) -> tuple[str, dict
                if s.get("n_buy") else ""))
     buys = [r for r in pool if r["direction"] == "BUY"]
     rec = ""
-    if buys:
+    if buys and hide:
+        rec = (f"\nYOUR OWN TRACK RECORD SO FAR: n={len(buys)} resolved BUY "
+               "decisions (how they turned out is withheld).\n")
+        diag["track_record_n"] = len(buys)
+    elif buys:
         ab = np.array([float(r["abnormal_return"]) for r in buys])
         err = np.array([float(r["error"]) for r in buys])
         att: dict[str, int] = {}
@@ -128,10 +148,15 @@ def _memory_block(store, slate: Slate, k: int, model_id: str) -> tuple[str, dict
             "computed from decisions whose outcomes were already known before "
             "today; none of it contains information about the future. Sample "
             "sizes are given so you can judge how much weight they deserve.\n")
+    if hide:
+        head = ("\nEXPERIENCE FROM YOUR OWN PAST DECISIONS. You are told which "
+                "situations you have seen before and how many, but NOT what "
+                "happened in them.\n")
     return head + rec + ("\n".join(lines) + "\n" if lines else ""), diag
 
 
-def _persistence_block(prior: dict[str, dict], slate: Slate) -> tuple[str, list[str]]:
+def _persistence_block(prior: dict[str, dict], slate: Slate,
+                       mode: str = "full") -> tuple[str, list[str]]:
     """What you previously said about names still on the slate, and what happened.
 
     `prior` holds only judgements whose outcome resolved STRICTLY BEFORE this
@@ -149,16 +174,21 @@ def _persistence_block(prior: dict[str, dict], slate: Slate) -> tuple[str, list[
     carried = carried[:MAX_PRIOR_NAMES]
     if not carried:
         return "", []
+    hide = mode == "situations_only"
     rows = []
     for c in carried:
         p = prior[c.permno]
+        tail = ("" if hide else
+                " Over the month that followed it actually returned "
+                f"{p['abnormal_return']:+.2%} versus the market.")
         rows.append(f"   {c.label}: {p['months_ago']} months ago you said "
                     f"{p['direction']} with conviction {p['conviction']:.2f} and "
-                    f"expected {p['expected_excess']:+.2%} versus the market. Over "
-                    f"the month that followed it actually returned "
-                    f"{p['abnormal_return']:+.2%} versus the market.")
-    block = ("\nNAMES YOU HAVE ALREADY JUDGED (your own prior belief and how it "
-             "turned out):\n" + "\n".join(rows) +
+                    f"expected {p['expected_excess']:+.2%} versus the market."
+                    + tail)
+    block = (("\nNAMES YOU HAVE ALREADY JUDGED (your own prior belief; what "
+              "happened is withheld):\n" if hide else
+              "\nNAMES YOU HAVE ALREADY JUDGED (your own prior belief and how it "
+              "turned out):\n") + "\n".join(rows) +
              "\nFor each of these, your JSON entry must ALSO carry "
              '"old_belief": "<BUY|HOLD|SELL>" and "belief_update": '
              '"<STRENGTHEN|MAINTAIN|WEAKEN|REVERSE>" — state the belief you '
@@ -167,16 +197,24 @@ def _persistence_block(prior: dict[str, dict], slate: Slate) -> tuple[str, list[
 
 
 def build_prompt(slate: Slate, *, arm: str, store=None, prior=None, k: int = 8,
-                 model_id: str = "") -> tuple[str, str, dict]:
-    """(system, user, diag). Arm A and arm E differ ONLY by the memory blocks."""
+                 model_id: str = "", memory_mode: str = "full"
+                 ) -> tuple[str, str, dict]:
+    """(system, user, diag). Arm A and arm E differ ONLY by the memory blocks.
+
+    `memory_mode="situations_only"` withholds every outcome from both memory
+    blocks; the default reproduces the banked NIGHT-3 prompts byte for byte,
+    which the cache would catch if it did not.
+    """
+    if memory_mode not in ("full", "situations_only"):
+        raise ValueError(f"unknown memory_mode {memory_mode!r}")
     body = render_slate(slate)
-    diag: dict = {"arm": arm}
+    diag: dict = {"arm": arm, "memory_mode": memory_mode}
     extra = ""
     if arm == "E":
         if store is None:
             raise ValueError("arm E requires an experience store")
-        mem, mdiag = _memory_block(store, slate, k, model_id)
-        pers, carried = _persistence_block(prior or {}, slate)
+        mem, mdiag = _memory_block(store, slate, k, model_id, memory_mode)
+        pers, carried = _persistence_block(prior or {}, slate, memory_mode)
         extra = mem + pers
         diag.update({"memory": mdiag, "carried_labels": carried})
     elif arm != "A":
