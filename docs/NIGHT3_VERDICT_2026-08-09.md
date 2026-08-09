@@ -8,7 +8,7 @@
 `scripts/night3_verify_holdout.py`: max decision 2021-12-31, max resolution
 2022-01-31, and 0 of 2,728 cached prompts contain a real 2023+ date.
 **Model:** `deepseek-chat`, temperature 0, every response cached immutably by
-`(model_id, sha256(system+user))`. **Spend $1.51 of a $25 cap.**
+`(model_id, sha256(system+user))`. **Spend $2.33 of a $25 cap.**
 **Denominator:** 406 graded LLM calls in the replay (2,728 cached prompts across
 the whole night), 4 arm books, 100 placebo books, **16,320 graded decisions**.
 
@@ -95,15 +95,10 @@ permutation — in the kNN neighbours *and* in the persistence block. If
 E-SHUFFLED matches E, what helped was the presence of a memory block, not its
 content.
 
-**Status at writeup: running, well short of the 204 months.** DeepSeek latency
-roughly doubled during the evening (~90 s/call against ~44 s during arm E), so
-it will not complete tonight. It is left running rather than truncated, because
-a control run over a short window is a different control, not a faster one.
-
-This changes **no registered verdict** — M2 is already REJECT — and the control
-was never able to promote anything. But until it lands, the honest statement
-about arm E is *"its incremental effect is below the 3.62 %/yr MDE, and we have
-not yet shown that even that much is about memory content."*
+**Result: see §5b.** It changes no registered verdict — M2 is already REJECT,
+and the control was never able to promote anything. Its job is to say whether
+the little that arm E does have is about memory *content* or merely about a
+memory *block* being present.
 
 ### What the test could ever have detected
 
@@ -223,6 +218,37 @@ cache — not a "please be consistent" instruction — is the mechanism.
 reading is that the model over- and under-reacts about equally, and swings hard
 against its own evidence 11 % of the time.
 
+## 5b. The control: arm E's memory does not work because of its content
+
+`DIAG-NIGHT3-MEMORY-PLACEBO-1`, registered before compute, run over the full
+204 months. **Arm E-SHUFFLED** received memory of identical shape, volume and
+marginal outcome distribution, with **only the situation→outcome mapping
+destroyed** by a seeded permutation — in the kNN neighbours *and* in the
+persistence block.
+
+| arm | net excess CAGR | NW t |
+|---|---|---|
+| A — no memory | +4.67 % | 2.30 |
+| **E-SHUFFLED — scrambled memory** | **+5.07 %** | 1.87 |
+| E — real memory | +6.21 % | 2.58 |
+
+**E − E-SHUFFLED = +1.13 %/yr, NW t = 0.43**, against a 4.52 %/yr MDE.
+
+> **Verdict: MEMORY CONTENT NOT DEMONSTRATED.** Scrambled memory still beats no
+> memory (+5.07 % vs +4.67 %), and real memory is not distinguishable from
+> scrambled memory. Most of arm E's apparent advantage survives destroying
+> everything the memory was supposed to *know* — so what helped was the memory
+> **block**, not its **content**.
+
+Stated with the same discipline applied everywhere else tonight: this is *"not
+demonstrated at this sample size"*, not *"zero"*. The MDE is 4.52 %/yr and the
+observed gap is 1.13 %/yr; a real content effect smaller than that would be
+invisible here.
+
+This is why the control was worth $0.82 and 50 minutes. Without it, arm E's
++6.21 % at t 2.58 — the best number in the campaign, beating 99 of 100 recosted
+random books — would have been sitting in this document looking like learning.
+
 **The number that matters most here:** the model's *stated* update
 ("STRENGTHEN"/"WEAKEN"/"MAINTAIN"/"REVERSE") matches its own *measured*
 conviction change only **63.3 %** of the time. It restates the prior belief we
@@ -289,6 +315,8 @@ something else entirely, and that something else is not detectably better.
   remains the single untested channel** where the LLM could still add value —
   and the standing AMNESIA warning says digested numbers are exactly where it
   loses. This is the top NIGHT-4 candidate.
+- **`DIAG-NIGHT3-MEMORY-PLACEBO-1` DID complete** (§5b) — it was still running
+  when §2 was first drafted, and that paragraph has been replaced by the result.
 - **Arm C (structured event memory) not run**; arm D (semantic/ABN) was ingested
   but not run as a decision arm.
 - **The stratified environment was built and deliberately not run** (§1).
@@ -298,6 +326,8 @@ something else entirely, and that something else is not detectably better.
 ## 9. Verdict
 
 **`TRIAL-NIGHT3-DECISION-REPLAY-1`: M1 REJECT, M2 REJECT.**
+**`DIAG-NIGHT3-MEMORY-PLACEBO-1`: memory content not demonstrated** — scrambled
+memory is indistinguishable from real memory (t 0.43) and still beats no memory.
 
 The LLM layer does not earn a role in stock selection on this evidence. Per the
 registration, that routes LLM attention to **narration and event triage**, not
