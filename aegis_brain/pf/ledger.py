@@ -252,6 +252,25 @@ def family_warning(spec_name: str, threshold: int = 5) -> dict | None:
                         "`multiple_testing` is the one that applies.")}
 
 
+FAMILY_DEAD_AT = 20
+PROGRAMME_EXHAUSTED_AT = 3
+
+
+def programme_health(consecutive_non_clearing: int = 0) -> dict:
+    """The stopping rule's public counter (AMENDMENT_STOPPING_RULE.md)."""
+    den = denominator()
+    bars = deflated_bars(den.total)
+    return {
+        "denominator": den.total,
+        "bonferroni_bar": bars["bonferroni_t"],
+        "consecutive_campaigns_not_clearing": consecutive_non_clearing,
+        "exhausted_at": PROGRAMME_EXHAUSTED_AT,
+        "family_dead_at_variants": FAMILY_DEAD_AT,
+        "exhausted": consecutive_non_clearing >= PROGRAMME_EXHAUSTED_AT,
+        "noise_reference": noise_expectation(den.total, hits=1),
+    }
+
+
 def summary() -> dict:
     den = denominator()
     return {"denominator": den.as_dict(),
