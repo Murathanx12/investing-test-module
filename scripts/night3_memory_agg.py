@@ -94,6 +94,35 @@ def main() -> int:
                 round((e_excess - float(ex.mean())) / float(ex.std(ddof=1)), 2)
                 if len(ex) > 1 and ex.std(ddof=1) > 0 else None)}
 
+    # THE DECIDING STATISTIC, and the one the seed distribution cannot give.
+    # Seed-to-seed spread measures PERMUTATION noise only: every seed shares the
+    # same months and the same slates, so its sd is tiny and a z-score against it
+    # answers "is E outside the permutation cloud" — not "would this hold on new
+    # data". The month-level paired difference answers the second question, which
+    # is the one that matters, and it is the statistic NIGHT-3's M2 used.
+    arm_e = pd.read_csv(NIGHT3 / "arm_monthly_returns.csv", index_col=0,
+                        parse_dates=True)["E"]
+    series = []
+    for p in sorted(MEM.glob("arm_shuf*_monthly.csv")):
+        s = pd.read_csv(p, index_col=0, parse_dates=True).iloc[:, 0]
+        series.append(s)
+    if series:
+        pooled = pd.concat(series, axis=1).mean(axis=1)
+        d = (arm_e - pooled).dropna()
+        sd = float(d.std(ddof=1))
+        res["E_minus_pooled_shuffled_monthly"] = {
+            "n_months": len(d), "n_seeds_pooled": len(series),
+            "cagr_difference": round(annualize(arm_e.dropna())
+                                     - annualize(pooled.dropna()), 4),
+            "mean_monthly": round(float(d.mean()), 5),
+            "t_nw": nw(d),
+            "mde_at_t2_annualized": round(2 * sd / np.sqrt(len(d)) * 12, 4),
+            "why_this_and_not_the_z": (
+                "the seed z-score is against permutation noise, which shares "
+                "every month and every slate and is therefore far too tight to "
+                "support an out-of-sample claim. This is the same estimator as "
+                "the registered M2 metric."),
+        }
     if sit:
         s = sit[0]["excess_cagr_net"]
         res["reading"] = _read(a_excess, s, float(ex.mean()) if len(ex) else None,
@@ -133,8 +162,14 @@ def _read(a: float, s: float, shufmean: float | None, e: float) -> str:
                 "benefit. 'Block, not content' was the wrong conclusion; the "
                 "right one is 'distribution, not mapping'.")
     if e > shufmean + tol and e > s + tol:
-        return ("CONTENT — real memory beats both controls. NIGHT-3's null was "
-                "a one-seed artifact and a registered successor is warranted.")
+        return ("REOPENED — real memory beats BOTH controls on standalone "
+                "excess, and NIGHT-3's single shuffled seed sits above the "
+                "whole new seed distribution, so that control was an outlier "
+                "draw. This does NOT establish content: the deciding statistic "
+                "is the month-level paired difference (see "
+                "E_minus_pooled_shuffled_monthly), because seed-to-seed spread "
+                "measures permutation noise, not sampling noise. Read that "
+                "number, then claim only what it supports.")
     return ("MIXED — the ladder does not fall into a clean pattern; report the "
             "numbers and claim nothing.")
 
