@@ -269,8 +269,10 @@ def run_synthetic(man: dict, *, worlds: tuple[str, ...] = SY.WORLDS) -> dict:
 # ───────────────────────────── real ─────────────────────────────────────────
 
 def run_real(man: dict) -> dict:
+    from aegis_brain.pf.engine import buy_and_hold_universe
     from aegis_brain.pf.panel63 import Spine, eligibility, load_spine
     from aegis_brain.pf.signals import SignalLibrary
+    from aegis_brain.pf.spec import StrategySpec
 
     reg, _ = _registry()
     genomes = _genomes_from(man)
@@ -290,8 +292,31 @@ def run_real(man: dict) -> dict:
     for i, g in enumerate(genomes, 1):
         if g.segment not in elig_cache:
             elig_cache[g.segment] = eligibility(spine, g.segment)
-            e = elig_cache[g.segment].reindex(index=ret.index, columns=ret.columns)
-            bench_cache[g.segment] = ret.where(e.fillna(False)).mean(axis=1)
+            e = elig_cache[g.segment].reindex(index=ret.index,
+                                              columns=ret.columns).fillna(False)
+            # BUY-AND-HOLD the eligible universe, which is what pf.run.Factory
+            # scores against.
+            #
+            # CORRECTION (2026-08-11, scoring pass 1 VOIDED). The first pass
+            # used `ret.where(eligible).mean(axis=1)` -- a MONTHLY-REBALANCED
+            # equal-weight portfolio of every eligible name. That object earns
+            # 17.97%/yr in small and 25.69%/yr in largemid, against 7.71% and
+            # 7.97% for buy-and-hold, because monthly-rebalancing 1,926
+            # microcaps harvests bid-ask bounce that nobody can trade. All 384
+            # genomes came out negative against it, including the control,
+            # which is what exposed it.
+            #
+            # This is an instrument defect, not a result nobody liked: the
+            # correction is justified by an argument that does not mention any
+            # genome's rank, and it makes the Arena comparable to the
+            # adjudicator. CANON 16 -- the denominator must not be the
+            # winner's, and it must not be un-investable either.
+            bench_spec = StrategySpec(
+                name=f"arena_bench_{g.segment}",
+                signals=(("native:price_level", 1.0),), segment=g.segment,
+                first_month=FIRST, last_month=LAST)
+            bench_cache[g.segment] = buy_and_hold_universe(
+                spine.panel, e, bench_spec, spine.rf)
         elig = elig_cache[g.segment].reindex(index=ret.index,
                                              columns=ret.columns).fillna(False)
 
@@ -299,8 +324,16 @@ def run_real(man: dict) -> dict:
         if key not in score_cache:
             try:
                 if g.signals == (("control:ew", 1.0),):
+                    # A CONSTANT score is not a control: argpartition then
+                    # returns the same arbitrary prefix of the column order
+                    # every month, which is one specific book that happens to
+                    # be sorted by permno. Use a deterministic per-name
+                    # pseudo-random score instead, so the control is an
+                    # arbitrary but UNBIASED sample of the eligible set.
+                    rs = np.random.default_rng(SEED).random(len(ret.columns))
                     score_cache[key] = pd.DataFrame(
-                        0.5, index=ret.index, columns=ret.columns)
+                        np.tile(rs, (len(ret.index), 1)),
+                        index=ret.index, columns=ret.columns)
                 else:
                     frames = [(lib.get(bindings.panel_key(sid, reg)), w)
                               for sid, w in g.signals]
@@ -332,6 +365,10 @@ def run_real(man: dict) -> dict:
             "provenance": dict(spine.provenance),
             "n_genomes": len(genomes),
             "runtime_secs": round(time.time() - t0, 1),
+            "benchmark": ("buy-and-hold the eligible universe, matching "
+                          "pf.run.Factory. Scoring pass 1 used a monthly-"
+                          "rebalanced equal-weight universe and is VOID; see "
+                          "the comment in run_real()."),
             "caveat": (
                 "SCREEN, NOT VERDICT. No placebo band, no factor alpha, no "
                 "multiple-testing deflation, no market impact and no delisting "
