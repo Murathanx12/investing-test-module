@@ -150,3 +150,27 @@ def test_a_known_corpse_is_still_caught_by_the_real_corpus():
     res = lint(dead.text, corpus=[c for c in corp if c is not dead])
     assert res["verdict"] in ("BLOCKED", "DUPLICATE", "RESURRECTION"), (
         dead.ident, res["verdict"], res["matches"][:2])
+
+
+def test_a_decision_rule_table_is_not_a_verdict():
+    """An unrun prereg lists REJECTED as a possible future, not as its result.
+
+    Reading the first verdict token anywhere labelled every unrun prereg
+    REJECTED, and the linter then BLOCKED new work against trials that had not
+    happened. Caught when the IMAGE-RANK backlog item was blocked against N1's
+    own preregistration.
+    """
+    from aegis_brain.discipline.prereg_lint import _verdict_in
+    prereg = ("## 7. Decision rule (frozen)\n\n"
+              "| outcome | state |\n|---|---|\n"
+              "| effect >= +3%/yr | `CONFIRMED` |\n"
+              "| effect <= -3%/yr | `REJECTED` |\n")
+    assert _verdict_in(prereg, attributed_only=True) == "REGISTERED"
+
+
+def test_a_recorded_result_still_reads_as_a_verdict():
+    from aegis_brain.discipline.prereg_lint import _verdict_in
+    ran = ("## Result (filled AFTER the run — never edited afterwards)\n"
+           "Arm B net excess = -56 bps/mo, t = -2.80.\n\n"
+           "### Verdict: **REJECT** (kill condition 2 triggered).\n")
+    assert _verdict_in(ran, attributed_only=True) == "REJECTED"

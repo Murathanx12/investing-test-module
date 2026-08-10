@@ -114,7 +114,40 @@ _VERDICT_RE = re.compile(
     r"DATA_FAILED|FACTOR_EXPLAINED|PLACEBO_FAILED|LEAKAGE_FAILED|REJECT)\b")
 
 
-def _verdict_in(text: str, fallback: str = "REGISTERED") -> str:
+#: A verdict must be ATTRIBUTED to count. Every preregistration lists REJECTED
+#: and CONFIRMED in its decision-rule table as possible futures; reading the
+#: first token anywhere in the document labels an unrun prereg REJECTED, and the
+#: linter then blocks new work against a trial that never happened. Caught when
+#: the IMAGE-RANK backlog item was blocked against N1's prereg, which had not run.
+#: Two forms only, both of which mean a result was RECORDED rather than
+#: anticipated: "Verdict: REJECT" (colon) and a "## Result"-style heading. A
+#: decision-rule table headed "| outcome | state |" matches neither, which is
+#: the point -- that table lists futures, not findings.
+_STATES = (r"(REJECTED|UNRESOLVED|CONFIRMED|POWER_FAILED|"
+           r"IMPLEMENTATION_FAILED|DATA_FAILED|FACTOR_EXPLAINED|"
+           r"PLACEBO_FAILED|LEAKAGE_FAILED|REJECT)")
+_ATTRIBUTED = re.compile(
+    rf"\b(?:verdict|result|outcome|conclusion)\b\s*\**\s*[:—-]\s*\**\s*"
+    rf"{_STATES}\b", re.IGNORECASE)
+_RESULT_SECTION = re.compile(
+    rf"(?:^|\n)#{{1,6}}\s*(?:\d+\.?\s*)?(?:verdict|result|outcome)\b[^\n]*\n"
+    rf"(?:[^\n]*\n){{0,25}}?[^\n]*?\b{_STATES}\b", re.IGNORECASE)
+
+
+def _verdict_in(text: str, fallback: str = "REGISTERED",
+                *, attributed_only: bool = False) -> str:
+    """The document's verdict, or `fallback` if it does not carry one.
+
+    `attributed_only` is for long-form documents (preregs) where an unattributed
+    token is almost always a decision rule rather than a result. Registry rows
+    are one-liners written after the fact, so a bare token there IS the verdict.
+    """
+    m = _ATTRIBUTED.search(text) or _RESULT_SECTION.search(text)
+    if m:
+        v = m.group(1).upper()
+        return "REJECTED" if v == "REJECT" else v
+    if attributed_only:
+        return fallback
     m = _VERDICT_RE.search(text)
     if not m:
         return fallback
@@ -152,7 +185,8 @@ def _load_preregs(d: Path, exclude: Path | None = None) -> list[Corpse]:
             continue
         body = p.read_text(encoding="utf-8", errors="ignore")
         out.append(Corpse(ident=p.stem, source="prereg",
-                          verdict=_verdict_in(body), text=body))
+                          verdict=_verdict_in(body, attributed_only=True),
+                          text=body))
     return out
 
 
