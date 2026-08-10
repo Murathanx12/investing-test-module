@@ -1,19 +1,42 @@
-# STATUS — handoff after NIGHT-9 (2026-08-10)
+# STATUS — handoff after BUILD-1.1 (2026-08-10)
 
-**The project pivoted mid-session and the pivot is binding.** Read
-`docs/HANDOFF_BUILD1.md` first — it says what is already built so BUILD-1 does
-not rebuild it.
+**The project pivoted at NIGHT-9 and the pivot is binding.** The PM now exists
+and has been made decision-grade. Read
+**`aegis-finance/docs/HANDOFF_BUILD1_1.md` first** — it says what BUILD-1.1
+fixed, what Murat must enter, and the next three product tasks.
+`docs/HANDOFF_BUILD1.md` (this repo) is the prior handoff and is still the map
+of what B1–B7 were.
 
 ## Where the code is
 
 * `factory/night-9` (Aegis module) — N1B, G8, typed stats, the N2 corrigendum.
-* `aegis-finance` `main` `0c3f170` — **Optimus Portfolio Manager v1**, live.
-  CANON §16 amended (it claimed G7 prices impact; it does not) and **§17 added**
-  (an execution number carries the model that produced it).
+  **Untouched by BUILD-1.1.**
+* `aegis-finance` `main` `d54723f` — **Optimus Portfolio Manager v1.1**.
+  Six review defects fixed plus eight found on the way. The book now marks to
+  market off `shares`; a missing feed can no longer become a SELL; volatility
+  no longer manufactures expected return (median $64.5k → ~$48.5k,
+  P($100k) 19.8% → ~1.7% — the old numbers were the convexity of an unvalidated
+  assumption); holdings and candidates are solved as ONE portfolio; every wealth
+  answer prints conservative/base/optimistic; an unconfirmed book returns
+  `actionable: false`.
+* **B1 is answered with printed status codes**
+  (`aegis-finance/docs/BUILD1/ANALYST_SOURCE_COVERAGE.md`): per-analyst target
+  history is 402/403 on every tier we hold, so the PIT ledger we write ourselves
+  is the only route to ΔTarget. **B5 v0 exists** (earnings from Finnhub, free,
+  and loud about the seven event types it cannot see).
 * Holdout unread. No lane seeded, no flag flipped, no `paper_nav` touched, no
   keys changed. **LLM spend: $0.**
-* Tests: **3,100 passed / 3 skipped** (aegis-finance, +26); module suite green
+* Tests: **3,165 passed / 3 skipped** (aegis-finance, +65); module suite green
   (+22: 15 G8 invariants, 7 typed-stats invariants).
+
+## The one thing blocking the product
+
+**Murat must enter shares, cost basis (per share) and cash** in
+`backend/data/murat_book.yaml`, then set `confirmed: true`. Until then every
+dollar figure prints as `SIMULATED TICKETS — DO NOT EXECUTE`. A confirmed book
+missing a share count is rejected at load, because `dollars` cannot mark to
+market. Dry-run first with
+`python scripts/morning_brief.py --book docs/BUILD1/example_confirmed_book.yaml`.
 
 ## The mandate changed
 
