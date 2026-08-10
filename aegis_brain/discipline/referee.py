@@ -35,7 +35,12 @@ NEEDS_MDE = {"UNRESOLVED", "POWER_FAILED"}
 _STATE = re.compile(
     r"\b(CONFIRMED|UNRESOLVED|FACTOR_EXPLAINED|IMPLEMENTATION_FAILED|"
     r"DATA_FAILED|POWER_FAILED|PLACEBO_FAILED|LEAKAGE_FAILED|REJECTED)\b")
-_MDE = re.compile(r"\bMDE\b", re.IGNORECASE)
+#: "MDEs came in at 0.24-0.92%/yr" satisfies the rule, and `\bMDE\b` does not
+#: match it — the boundary after MDE fails on the plural. Prose that states the
+#: size in words rather than by acronym counts too.
+_MDE = re.compile(
+    r"\bMDEs?\b|minimum\s+detectable|could\s+not\s+have\s+(?:seen|detected)",
+    re.IGNORECASE)
 _CITATION_ID = re.compile(r"`([A-Z][A-Z0-9-]{6,})`")
 #: Phrases that assert a cost/return comparison. CANON 16: these need a
 #: denominator that is not the winner's.
@@ -51,6 +56,9 @@ _NORMALISED = re.compile(
     r"cost per dollar)", re.IGNORECASE)
 #: Lines either side that count as "beside the claim". Tight on purpose.
 _WINDOW = 2
+#: Wider for the MDE check: a section heading that names a state sits
+#: above the table carrying the number, not inside it.
+_MDE_WINDOW = 6
 
 
 @dataclass
@@ -67,6 +75,37 @@ class Finding:
 
 def _lines(doc: str) -> list[tuple[int, str]]:
     return list(enumerate(doc.splitlines(), 1))
+
+
+def _context(doc: str, line_no: int, window: int) -> str:
+    """The text a reader would take as accompanying the claim on `line_no`.
+
+    For a markdown TABLE ROW that means the whole table, not a fixed number of
+    lines: an MDE column header sits above every row of a long table and a
+    three-line window never reaches it. Nine of the first eleven findings this
+    module produced on its own night's write-up were that false positive.
+    """
+    rows = doc.splitlines()
+    i = line_no - 1
+    if 0 <= i < len(rows) and rows[i].lstrip().startswith("|"):
+        lo = hi = i
+        while lo > 0 and rows[lo - 1].lstrip().startswith("|"):
+            lo -= 1
+        while hi + 1 < len(rows) and rows[hi + 1].lstrip().startswith("|"):
+            hi += 1
+        return "\n".join(rows[lo:hi + 1])
+    return "\n".join(rows[max(0, i - window):i + window + 1])
+
+
+#: A claim inside quotation marks is being REPORTED, not asserted. Without this
+#: the module blocks any document that quotes a sentence it is criticising —
+#: including this programme's own write-up of what the checks caught.
+_QUOTED = re.compile(r"[\"“'`].{0,200}?[\"”'`]")
+
+
+def _is_quotation(line: str, span: tuple[int, int]) -> bool:
+    return any(m.start() <= span[0] and m.end() >= span[1]
+               for m in _QUOTED.finditer(line))
 
 
 def check_verdict_language(doc: str) -> list[Finding]:
@@ -92,11 +131,10 @@ def check_mde_present(doc: str) -> list[Finding]:
         m = _STATE.search(line)
         if not m or m.group(1) not in NEEDS_MDE:
             continue
-        window = "\n".join(l for j, l in _lines(doc) if abs(j - i) <= 3)
-        if not _MDE.search(window):
+        if not _MDE.search(_context(doc, i, _MDE_WINDOW)):
             out.append(Finding(
                 "mde-missing", "blocker", i,
-                f"{m.group(1)} stated with no MDE within three lines. A null "
+                f"{m.group(1)} stated with no MDE beside it. A null "
                 "without the size it could have detected is the NIGHT-4 error."))
     return out
 
@@ -125,10 +163,10 @@ def check_cost_denominator(doc: str) -> list[Finding]:
     """
     out = []
     for i, line in _lines(doc):
-        if not _DOLLAR_COMPARISON.search(line):
+        m = _DOLLAR_COMPARISON.search(line)
+        if not m or _is_quotation(line, m.span()):
             continue
-        window = "\n".join(l for j, l in _lines(doc) if abs(j - i) <= _WINDOW)
-        if not _NORMALISED.search(window):
+        if not _NORMALISED.search(_context(doc, i, _WINDOW)):
             out.append(Finding(
                 "cost-denominator", "blocker", i,
                 "a cost comparison in DOLLARS with no size-normalised figure "

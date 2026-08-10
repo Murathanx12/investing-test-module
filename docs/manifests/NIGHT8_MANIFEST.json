@@ -1,0 +1,3474 @@
+{
+  "night": "NIGHT8",
+  "code_sha": "1aba424835efda3e5e97ded754a452a7f53bde26-DIRTY",
+  "run_dir": "runs\\NIGHT8",
+  "why_this_exists": "/runs/ is gitignored, so receipts live on one machine. This is the committable half: hashes that bind prose to a specific run, plus the receipts' scalar contents, which are sufficient statistics and contain no vendor data.",
+  "artifact_count": 11,
+  "artifacts": [
+    {
+      "name": "n1.log",
+      "bytes": 8409,
+      "sha256": "7b8a9fd4cf13bcd39697f2fcc5526e87a9167192967cdaf55027705eb27af3b7",
+      "embedded": false
+    },
+    {
+      "name": "N1_RANKER_VS_COMPOSITE.json",
+      "bytes": 3611,
+      "sha256": "b99b4bd2ef0a8f9b86f0ffe9b8cdd41f0a57175c0bf9e5a128252667812cfbda",
+      "embedded": true
+    },
+    {
+      "name": "n2.log",
+      "bytes": 1244,
+      "sha256": "02720a1496d0f2ec024646d96209922e1ff75f11560c131edf496451ab4a6bc7",
+      "embedded": false
+    },
+    {
+      "name": "N2_NEGATIVE_SELECTION.json",
+      "bytes": 4279,
+      "sha256": "c1b1f3814d81ba304ec67d6aab51a3b666d75c4085fba3c24476dd4846a7e3ec",
+      "embedded": true
+    },
+    {
+      "name": "n3.log",
+      "bytes": 804,
+      "sha256": "5cffd6dbb0cb08d38f4912513acf370386d69ceedc0b07c3e8b9decc7c5c4ad7",
+      "embedded": false
+    },
+    {
+      "name": "N3_SEASONING.json",
+      "bytes": 2795,
+      "sha256": "0b0b9f311fe9b510159897c28e66ecc90886d7e5deda2020e715c4176b9e39cf",
+      "embedded": true
+    },
+    {
+      "name": "N6_REFEREE_ON_NIGHT8.json",
+      "bytes": 1271,
+      "sha256": "1cc7bb0c99636a0b282618bfca2e770fda8cf25102135c27427cd3ae75b43d3d",
+      "embedded": true
+    },
+    {
+      "name": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json",
+      "bytes": 6112,
+      "sha256": "6230e6c6806147fa04c29cc74e44574faa37e0f0e6cecc2b158d844b957b274d",
+      "embedded": true
+    },
+    {
+      "name": "pf7b_a3_regen.log",
+      "bytes": 900,
+      "sha256": "c46e877a474abc20aa8d58a4a399f689a6e3fbcc2389850a3ebe604024cbc230",
+      "embedded": false
+    },
+    {
+      "name": "pf7b_regen.log",
+      "bytes": 549,
+      "sha256": "d7b1116b4eb102304e0f4215f9e8db90a4905d5468de6e27786e30759e057218",
+      "embedded": false
+    },
+    {
+      "name": "T1c_ENSEMBLE_COST_NORMALIZED.json",
+      "bytes": 2986,
+      "sha256": "9b62c0f724937a2e098cb0738ae13e68a2ab2c9dcd224ff6be9b66af2c4ac52d",
+      "embedded": true
+    }
+  ],
+  "scalar_count": 380,
+  "receipts": {
+    "N1_RANKER_VS_COMPOSITE.json": {
+      "trial": "TRIAL-N1-RANKER-VS-COMPOSITE-1",
+      "question": "does learning the weights beat writing them?",
+      "status": "REPORTED-NEVER-DECIDING",
+      "prereg": "TRIALS/PREREG_N1_RANKER_VS_COMPOSITE.md",
+      "data_grade": "crsp",
+      "window": {
+        "first_month": "1984-07-31",
+        "last_month": "2022-12-31"
+      },
+      "protocol": {
+        "label": "forward 12m log return, demeaned within month",
+        "purge_months": 13,
+        "min_train_months": 120,
+        "max_train_rows": 300000,
+        "refits": 50,
+        "seed": 20260810,
+        "gbm": {
+          "n_estimators": 400,
+          "max_depth": 3,
+          "learning_rate": 0.03,
+          "min_child_samples": 200,
+          "subsample": 0.7,
+          "subsample_freq": 1,
+          "verbose": -1,
+          "random_state": 20260810
+        }
+      },
+      "bar_pct_yr": 0.03,
+      "diagnostics": {
+        "R0_composite": {
+          "months": 462,
+          "rebalances": 39,
+          "months_skipped_thin_universe": 0,
+          "forced_liquidations": 393,
+          "mean_n_held": 144.9,
+          "mean_cash_weight": 0.0378,
+          "turnover_1way_annual": 0.46,
+          "cost_drag_annual_bps": 27.4
+        },
+        "R1_gbm_narrow": {
+          "months": 461,
+          "rebalances": 39,
+          "months_skipped_thin_universe": 1,
+          "forced_liquidations": 342,
+          "mean_n_held": 145.7,
+          "mean_cash_weight": 0.032,
+          "turnover_1way_annual": 0.469,
+          "cost_drag_annual_bps": 23.9
+        },
+        "R2_gbm_wide": {
+          "months": 461,
+          "rebalances": 39,
+          "months_skipped_thin_universe": 1,
+          "forced_liquidations": 287,
+          "mean_n_held": 146.4,
+          "mean_cash_weight": 0.0259,
+          "turnover_1way_annual": 0.401,
+          "cost_drag_annual_bps": 16.5
+        },
+        "R3_mlp_wide": {
+          "months": 461,
+          "rebalances": 39,
+          "months_skipped_thin_universe": 1,
+          "forced_liquidations": 311,
+          "mean_n_held": 146.1,
+          "mean_cash_weight": 0.0279,
+          "turnover_1way_annual": 0.526,
+          "cost_drag_annual_bps": 20.7
+        }
+      },
+      "money": {
+        "R1_gbm_narrow": {
+          "months": 461,
+          "mean_monthly": -0.001208,
+          "annualized_pct": -0.0145,
+          "t_newey_west": -0.98,
+          "mde_annualized": 0.031,
+          "correlation": 0.9026
+        },
+        "R2_gbm_wide": {
+          "months": 461,
+          "mean_monthly": -0.002776,
+          "annualized_pct": -0.0333,
+          "t_newey_west": -1.31,
+          "mde_annualized": 0.0456,
+          "correlation": 0.7479
+        },
+        "R3_mlp_wide": {
+          "months": 461,
+          "mean_monthly": -0.002037,
+          "annualized_pct": -0.0244,
+          "t_newey_west": -1.07,
+          "mde_annualized": 0.0415,
+          "correlation": 0.8095
+        }
+      },
+      "ordering": {
+        "R1_gbm_narrow": {
+          "months": 450,
+          "mean_monthly": 0.033988,
+          "annualized_pct": 0.4079,
+          "t_newey_west": 4.18,
+          "mde_annualized": 0.0789,
+          "correlation": 0.7843
+        },
+        "R2_gbm_wide": {
+          "months": 450,
+          "mean_monthly": 0.067472,
+          "annualized_pct": 0.8097,
+          "t_newey_west": 4.09,
+          "mde_annualized": 0.1478,
+          "correlation": 0.6851
+        },
+        "R3_mlp_wide": {
+          "months": 450,
+          "mean_monthly": 0.055583,
+          "annualized_pct": 0.667,
+          "t_newey_west": 3.46,
+          "mde_annualized": 0.1428,
+          "correlation": 0.659
+        }
+      },
+      "leak_check": {
+        "arms_over_10pct_yr": [],
+        "verdict": "PASS \u2014 no arm posts an implausible paired excess"
+      },
+      "verdicts": {
+        "R1_gbm_narrow": "IMPLEMENTATION_FAILED",
+        "R2_gbm_wide": "IMPLEMENTATION_FAILED",
+        "R3_mlp_wide": "IMPLEMENTATION_FAILED"
+      },
+      "runtime_secs": 452.4
+    },
+    "N2_NEGATIVE_SELECTION.json": {
+      "trial": "TRIAL-N2-NEGATIVE-SELECTION-1",
+      "question": "is refusing the worst worth more than picking the best?",
+      "status": "REPORTED-NEVER-DECIDING",
+      "prereg": "TRIALS/PREREG_N2_NEGATIVE_SELECTION.md",
+      "data_grade": "crsp",
+      "bar_pct_yr": 0.015,
+      "decile": 0.1,
+      "seed": 20260810,
+      "veto_bite": {
+        "V1_accruals": {
+          "vetoed_names_per_month": 134.7,
+          "share_of_held_book_vetoed": 0.0617
+        },
+        "V2_share_issuance": {
+          "vetoed_names_per_month": 142.9,
+          "share_of_held_book_vetoed": 0.031
+        },
+        "V3_distress": {
+          "vetoed_names_per_month": 60.0,
+          "share_of_held_book_vetoed": 0.0085
+        },
+        "V4_union": {
+          "vetoed_names_per_month": 288.0,
+          "share_of_held_book_vetoed": 0.0931
+        },
+        "V5_placebo_random": {
+          "vetoed_names_per_month": 288.0,
+          "share_of_held_book_vetoed": 0.1387
+        }
+      },
+      "diagnostics": {
+        "V0_control": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 397,
+          "mean_n_held": 144.8,
+          "mean_cash_weight": 0.0357,
+          "turnover_1way_annual": 0.478,
+          "cost_drag_annual_bps": 31.3
+        },
+        "V1_accruals": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 397,
+          "mean_n_held": 144.4,
+          "mean_cash_weight": 0.0361,
+          "turnover_1way_annual": 0.5,
+          "cost_drag_annual_bps": 31.7
+        },
+        "V2_share_issuance": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 382,
+          "mean_n_held": 144.6,
+          "mean_cash_weight": 0.0343,
+          "turnover_1way_annual": 0.483,
+          "cost_drag_annual_bps": 31.2
+        },
+        "V3_distress": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 392,
+          "mean_n_held": 144.8,
+          "mean_cash_weight": 0.0352,
+          "turnover_1way_annual": 0.479,
+          "cost_drag_annual_bps": 31.2
+        },
+        "V4_union": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 385,
+          "mean_n_held": 144.3,
+          "mean_cash_weight": 0.0349,
+          "turnover_1way_annual": 0.508,
+          "cost_drag_annual_bps": 31.7
+        },
+        "V5_placebo_random": {
+          "months": 482,
+          "rebalances": 41,
+          "months_skipped_thin_universe": 232,
+          "forced_liquidations": 412,
+          "mean_n_held": 144.0,
+          "mean_cash_weight": 0.0369,
+          "turnover_1way_annual": 0.579,
+          "cost_drag_annual_bps": 35.9
+        }
+      },
+      "paired": {
+        "V1_accruals": {
+          "months": 482,
+          "annualized_pct": 0.0062,
+          "t_newey_west": 1.57,
+          "mde_annualized": 0.0065,
+          "correlation": 0.9952
+        },
+        "V2_share_issuance": {
+          "months": 482,
+          "annualized_pct": 0.0037,
+          "t_newey_west": 1.54,
+          "mde_annualized": 0.0042,
+          "correlation": 0.998
+        },
+        "V3_distress": {
+          "months": 482,
+          "annualized_pct": 0.0002,
+          "t_newey_west": 0.16,
+          "mde_annualized": 0.0024,
+          "correlation": 0.9993
+        },
+        "V4_union": {
+          "months": 482,
+          "annualized_pct": 0.0085,
+          "t_newey_west": 1.84,
+          "mde_annualized": 0.0078,
+          "correlation": 0.9931
+        },
+        "V5_placebo_random": {
+          "months": 482,
+          "annualized_pct": 0.0,
+          "t_newey_west": 0.01,
+          "mde_annualized": 0.0092,
+          "correlation": 0.9906
+        }
+      },
+      "placebo_gate": {
+        "placebo_annualized_pct": 0.0,
+        "placebo_t": 0.01,
+        "verdict": "PASS \u2014 a random veto of the same size does not move the book, so a real arm's effect is attributable to its signal"
+      },
+      "turnover_gate": {
+        "control": 0.478,
+        "arms_needing_g7": [
+          "V5_placebo_random"
+        ],
+        "rule": "CANON 15: any arm more than 0.10 from the control routes through G7 before its net number is quoted"
+      },
+      "verdicts": {
+        "V1_accruals": "UNRESOLVED",
+        "V2_share_issuance": "UNRESOLVED",
+        "V3_distress": "UNRESOLVED",
+        "V4_union": "UNRESOLVED",
+        "V5_placebo_random": "UNRESOLVED"
+      },
+      "runtime_secs": 170.8
+    },
+    "N3_SEASONING.json": {
+      "trial": "TRIAL-N3-SEASONING-1",
+      "question": "does the edge live in fresh entrants and decay in stale incumbents?",
+      "status": "REPORTED-NEVER-DECIDING",
+      "prereg": "TRIALS/PREREG_N3_SEASONING.md",
+      "data_grade": "crsp",
+      "bar_pct_yr": 0.02,
+      "confound": "TENURE IS ENDOGENOUS \u2014 a name is still held because its score stayed high, and score persistence correlates with returns. Descriptive, never causal. Enough to close the band-tuning family if flat; not enough to adopt if not.",
+      "instrument_A_vs_benchmark": {
+        "m1_6": {
+          "months": 242,
+          "monthly_exit_hazard": 0.0069,
+          "name_months": 13655,
+          "cagr": 0.286,
+          "excess_cagr": 0.1128,
+          "t_excess": 3.09,
+          "mde_at_t2": 0.072
+        },
+        "m7_12": {
+          "months": 240,
+          "monthly_exit_hazard": 0.0721,
+          "name_months": 13177,
+          "cagr": 0.0461,
+          "excess_cagr": -0.008,
+          "t_excess": 0.29,
+          "mde_at_t2": 0.0565
+        },
+        "m13_24": {
+          "months": 470,
+          "monthly_exit_hazard": 0.0333,
+          "name_months": 14494,
+          "cagr": 0.144,
+          "excess_cagr": 0.0357,
+          "t_excess": 2.32,
+          "mde_at_t2": 0.0459
+        },
+        "m25_plus": {
+          "months": 458,
+          "monthly_exit_hazard": 0.0241,
+          "name_months": 28294,
+          "cagr": 0.1448,
+          "excess_cagr": 0.0347,
+          "t_excess": 2.16,
+          "mde_at_t2": 0.0362
+        },
+        "_note": "gross of costs: these are sub-book holding returns, not tradable portfolios. The comparison across buckets is the point; their levels are not net numbers."
+      },
+      "instrument_B_within_month": {
+        "m1_6": {
+          "months": 236,
+          "name_months": 13677,
+          "share_of_name_months": 0.1961,
+          "annualized_diff_pct": 0.0427,
+          "t_newey_west": 2.1,
+          "mde_annualized": 0.0489
+        },
+        "m7_12": {
+          "months": 234,
+          "name_months": 13177,
+          "share_of_name_months": 0.1889,
+          "annualized_diff_pct": -0.0097,
+          "t_newey_west": -0.56,
+          "mde_annualized": 0.0408
+        },
+        "m13_24": {
+          "months": 470,
+          "name_months": 14530,
+          "share_of_name_months": 0.2083,
+          "annualized_diff_pct": -0.0032,
+          "t_newey_west": -0.21,
+          "mde_annualized": 0.0323
+        },
+        "m25_plus": {
+          "months": 458,
+          "name_months": 28368,
+          "share_of_name_months": 0.4067,
+          "annualized_diff_pct": -0.0184,
+          "t_newey_west": -1.44,
+          "mde_annualized": 0.0317
+        }
+      },
+      "significant_buckets": [
+        "m1_6"
+      ],
+      "monotone": false,
+      "worst_bucket_mde": 0.0489,
+      "verdict": "POWER_FAILED \u2014 the weakest bucket could not have seen a 2%/yr difference, so a flat profile here is not evidence the family is dead",
+      "state": "POWER_FAILED",
+      "runtime_secs": 85.4
+    },
+    "N6_REFEREE_ON_NIGHT8.json": {
+      "findings": [
+        {
+          "check": "unbacked-number",
+          "severity": "question",
+          "line": 65,
+          "detail": "47.7 is backed by no receipt in the programme"
+        },
+        {
+          "check": "unbacked-number",
+          "severity": "question",
+          "line": 131,
+          "detail": "298 is backed by no receipt in the programme"
+        },
+        {
+          "check": "unbacked-number",
+          "severity": "question",
+          "line": 194,
+          "detail": "404 is backed by no receipt in the programme"
+        },
+        {
+          "check": "unbacked-number",
+          "severity": "question",
+          "line": 201,
+          "detail": "$935k is backed by no receipt in the programme"
+        }
+      ],
+      "counts": {
+        "blocker": 0,
+        "question": 4,
+        "note": 0
+      },
+      "blockers": [],
+      "clean": true,
+      "not_checked": [
+        "whether a qualifier attached to a number is HONEST \u2014 the NIGHT-7 failure was true numbers in true-looking sentences, and no regex reaches that",
+        "whether a mechanism is plausible or an idea is worth running",
+        "whether the statistics behind a state were computed correctly \u2014 this reads the write-up, not the arithmetic",
+        "leakage in the experiment itself; the purge is checked by the trial's own leak arm, not here"
+      ]
+    },
+    "N7_CAPACITY_INSTRUMENT_CALIBRATION.json": {
+      "task": "N7 \u2014 calibration of the capacity instrument (G7 daily sim)",
+      "status": "REPORTED-NEVER-DECIDING",
+      "why": "G7 is about to be asked whether the book has a capacity limit below AVUV's floor. It has never been asked whether it can tell a capacity effect from nothing.",
+      "material_threshold_pct_yr": 0.01,
+      "worlds": {
+        "Z_known_zero": {
+          "runs": [
+            {
+              "seed": 20260810,
+              "truth_cagr": 0.106741,
+              "sim_cagr": 0.106855,
+              "bias_pct_yr": 0.000114,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            },
+            {
+              "seed": 20260811,
+              "truth_cagr": 0.103354,
+              "sim_cagr": 0.103697,
+              "bias_pct_yr": 0.000344,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            },
+            {
+              "seed": 20260812,
+              "truth_cagr": 0.108897,
+              "sim_cagr": 0.10913,
+              "bias_pct_yr": 0.000233,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            },
+            {
+              "seed": 20260813,
+              "truth_cagr": 0.104204,
+              "sim_cagr": 0.10403,
+              "bias_pct_yr": -0.000173,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            },
+            {
+              "seed": 20260814,
+              "truth_cagr": 0.116908,
+              "sim_cagr": 0.116777,
+              "bias_pct_yr": -0.000131,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            },
+            {
+              "seed": 20260815,
+              "truth_cagr": 0.099258,
+              "sim_cagr": 0.099523,
+              "bias_pct_yr": 0.000264,
+              "cost_dollars": 0.0,
+              "capped_days": 0
+            }
+          ],
+          "mean_bias_pct_yr": 0.000108,
+          "max_abs_bias_pct_yr": 0.000344,
+          "false_positive_rate": 0.0,
+          "reading": "bias is the CAGR the simulator invents in a world with no frictions and no capacity limit. It is the floor below which no capacity claim from this instrument means anything."
+        },
+        "C_known_cost": {
+          "runs": [
+            {
+              "half_spread_bps": 5.0,
+              "expected_bps": 11.0,
+              "measured_bps": 11.0,
+              "error_bps": 0.0
+            },
+            {
+              "half_spread_bps": 25.0,
+              "expected_bps": 31.0,
+              "measured_bps": 31.0,
+              "error_bps": 0.0
+            },
+            {
+              "half_spread_bps": 100.0,
+              "expected_bps": 106.0,
+              "measured_bps": 106.0,
+              "error_bps": 0.0
+            }
+          ],
+          "max_abs_error_bps": 0.0,
+          "reading": "cost per dollar traded is analytic here: half-spread plus slippage plus commission. The instrument either recovers it or it is mis-charging every book it has ever priced."
+        },
+        "K_known_cap": {
+          "runs": [
+            {
+              "adv_multiple": 1000000.0,
+              "degradation_pct_yr": 0.00011,
+              "capped_days": 0,
+              "mean_unfilled_share_of_nav": 0.0
+            },
+            {
+              "adv_multiple": 100.0,
+              "degradation_pct_yr": 0.00013,
+              "capped_days": 1,
+              "mean_unfilled_share_of_nav": 2e-05
+            },
+            {
+              "adv_multiple": 20.0,
+              "degradation_pct_yr": 0.00017,
+              "capped_days": 35,
+              "mean_unfilled_share_of_nav": 0.00051
+            },
+            {
+              "adv_multiple": 5.0,
+              "degradation_pct_yr": 0.00036,
+              "capped_days": 174,
+              "mean_unfilled_share_of_nav": 0.00335
+            },
+            {
+              "adv_multiple": 1.0,
+              "degradation_pct_yr": -0.00065,
+              "capped_days": 894,
+              "mean_unfilled_share_of_nav": 0.01878
+            }
+          ],
+          "monotone_in_tightness": true,
+          "first_detected_at_adv_multiple": null,
+          "false_negative": true,
+          "reading": "liquidity tightens down the list. Degradation must be zero where the cap cannot bind and must grow as it does. A non-monotone column means the instrument is reading something other than capacity."
+        },
+        "I_impact_term": {
+          "runs": [
+            {
+              "adv_multiple": 1000000.0,
+              "cost_bps_of_traded": 31.0,
+              "capped_days": 0
+            },
+            {
+              "adv_multiple": 100.0,
+              "cost_bps_of_traded": 31.0,
+              "capped_days": 1
+            },
+            {
+              "adv_multiple": 5.0,
+              "cost_bps_of_traded": 31.0,
+              "capped_days": 173
+            },
+            {
+              "adv_multiple": 1.0,
+              "cost_bps_of_traded": 31.0,
+              "capped_days": 886
+            }
+          ],
+          "cost_bps_range_across_1e6x_liquidity": 0.0,
+          "cost_is_size_aware": false,
+          "reading": "cost per dollar traded is IDENTICAL across a million-fold range of liquidity. G7 charges half-spread + slippage + commission on notional and nothing that grows with participation, so it prices capacity as DELAY (orders that cannot fill are carried) and never as PRICE (moving the market against yourself). That is the dominant capacity cost in the literature and this instrument cannot see it."
+        }
+      },
+      "verdict": {
+        "trustworthy_where_it_measures": true,
+        "usable_for_a_capacity_limit_verdict": false,
+        "statement": "PARTIALLY CALIBRATED. What it does well: false positives 0% in a world with no capacity effect (max invented CAGR 0.03%/yr), cost per dollar traded recovered to 0.00 bps, degradation monotone in liquidity tightness. What it CANNOT do: price impact. Cost per dollar traded is identical across a 1,000,000x range of liquidity (range 0.00 bps), so G7 models capacity as DELAY and never as PRICE. Even with a name's whole daily volume equal to the position, degradation reached only 0.065%/yr \u2014 because an annual clock has a year to work orders down. CONSEQUENCE: a capacity number from this instrument is a LOWER BOUND, and CAPACITY-EDGE-1 may not report a capacity limit from it without either adding a participation-dependent impact term or labelling the result as delay-only.",
+        "hard_floor_pct_yr": 0.01,
+        "blocks": "CAPACITY-EDGE-1 as currently scoped"
+      },
+      "runtime_secs": 46.4
+    },
+    "T1c_ENSEMBLE_COST_NORMALIZED.json": {
+      "task": "T1c \u2014 the ensemble cost claim, normalised for the NAV path",
+      "status": "REPORTED-NEVER-DECIDING",
+      "corrects": "NIGHT-7B's 'the ensemble is CHEAPER' ($313,775 vs $333,165). Both arms start at the same NAV and end at different ones, so total cost DOLLARS reward the arm that compounded less. The panel says the turnover RATES are equal (0.468 vs 0.468), which is the tell.",
+      "capital_treatment": "each NAV rung is INDEPENDENTLY re-simulated \u2014 costs are never scaled from another rung, because participation caps and impact are nonlinear in size",
+      "window": [
+        "2002-01-01",
+        "2024-12-31"
+      ],
+      "panel_turnover_rates": {
+        "0": 0.464,
+        "1": 0.468,
+        "2": 0.475,
+        "3": 0.463,
+        "4": 0.483,
+        "5": 0.478,
+        "6": 0.476,
+        "7": 0.468,
+        "8": 0.453,
+        "9": 0.46,
+        "10": 0.463,
+        "11": 0.46
+      },
+      "arms": {
+        "nav1000000_single_clock_phase5": {
+          "years": 23.0,
+          "avg_nav": 6832482.0,
+          "final_nav": 18205671.0,
+          "cost_dollars": 333165.0,
+          "turnover_dollars": 91236586.0,
+          "cost_bps_of_traded": 36.52,
+          "turnover_rate_1way_annual": 0.5807,
+          "cost_drag_pct_per_year": 0.2121,
+          "unfilled_notional_pct_of_desired": 0.0568
+        },
+        "nav1000000_ensemble_12": {
+          "years": 23.0,
+          "avg_nav": 6109236.0,
+          "final_nav": 16268606.0,
+          "cost_dollars": 313775.0,
+          "turnover_dollars": 78333225.0,
+          "cost_bps_of_traded": 40.06,
+          "turnover_rate_1way_annual": 0.5576,
+          "cost_drag_pct_per_year": 0.2234,
+          "unfilled_notional_pct_of_desired": 0.0041
+        },
+        "nav50000000_single_clock_phase5": {
+          "years": 23.0,
+          "avg_nav": 330029656.0,
+          "final_nav": 865993328.0,
+          "cost_dollars": 16940544.0,
+          "turnover_dollars": 4349037549.0,
+          "cost_bps_of_traded": 38.95,
+          "turnover_rate_1way_annual": 0.5731,
+          "cost_drag_pct_per_year": 0.2232,
+          "unfilled_notional_pct_of_desired": 2.9662
+        },
+        "nav50000000_ensemble_12": {
+          "years": 23.0,
+          "avg_nav": 306616477.0,
+          "final_nav": 817608802.0,
+          "cost_dollars": 15623657.0,
+          "turnover_dollars": 3924067107.0,
+          "cost_bps_of_traded": 39.81,
+          "turnover_rate_1way_annual": 0.5565,
+          "cost_drag_pct_per_year": 0.2216,
+          "unfilled_notional_pct_of_desired": 0.2674
+        }
+      },
+      "reading_nav1000000": {
+        "dollar_cost_delta": -19390.0,
+        "bps_of_traded_delta": 3.54,
+        "cost_drag_pct_yr_delta": 0.0113,
+        "turnover_rate_delta": -0.0231,
+        "cheaper_on_dollars": true,
+        "cheaper_on_bps_of_traded": false,
+        "cheaper_on_drag": false
+      },
+      "reading_nav50000000": {
+        "dollar_cost_delta": -1316887.0,
+        "bps_of_traded_delta": 0.86,
+        "cost_drag_pct_yr_delta": -0.0016,
+        "turnover_rate_delta": -0.0166,
+        "cheaper_on_dollars": true,
+        "cheaper_on_bps_of_traded": false,
+        "cheaper_on_drag": true
+      },
+      "runtime_secs": 568.6
+    }
+  },
+  "prior_nights_consulted": [
+    "NIGHT7",
+    "G7",
+    "PF5",
+    "PF4",
+    "PF2",
+    "PF6"
+  ],
+  "prior_scalar_count": 21023,
+  "claim_check_calibration": {
+    "fabricated_numbers_tested": 396,
+    "false_positive_rate": 0.0101,
+    "landed_uninformative": 0.4823,
+    "correctly_unbacked": 0.5076,
+    "reading": "false_positive_rate is the share of INVENTED numbers this checker would have called informatively backed. Read every coverage figure against it."
+  },
+  "claim_check": {
+    "docs/NIGHT8_VERDICT_2026-08-10.md": {
+      "claims_found": 306,
+      "informatively_backed": 29,
+      "matched_but_uninformative": 269,
+      "unbacked_anywhere": 8,
+      "informative_threshold": 0.25,
+      "pool_size": 21403,
+      "backed": [
+        {
+          "raw": "$1m",
+          "value": 1000000.0,
+          "line": 22,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 22,
+          "collision": 0.1,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "1,000,000",
+          "value": 1000000.0,
+          "line": 23,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "5,000",
+          "value": 5000.0,
+          "line": 42,
+          "collision": 0.0,
+          "backed_by": "PF2/ALT-MULTIFACTOR__bbcb338c3025.json:tail.paths",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$1,316,887",
+          "value": 1316887.0,
+          "line": 63,
+          "collision": 0.0,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav50000000.dollar_cost_delta",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$19,390",
+          "value": 19390.0,
+          "line": 63,
+          "collision": 0.0,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.dollar_cost_delta",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 64,
+          "collision": 0.067,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "39.0",
+          "value": 39.0,
+          "line": 64,
+          "collision": 0.133,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R0_composite.rebalances",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$19,390",
+          "value": 19390.0,
+          "line": 77,
+          "collision": 0.0,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.dollar_cost_delta",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$1m",
+          "value": 1000000.0,
+          "line": 80,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 81,
+          "collision": 0.067,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "1,000,000",
+          "value": 1000000.0,
+          "line": 108,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "31.00",
+          "value": 31.0,
+          "line": 108,
+          "collision": 0.017,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].expected_bps",
+          "origin": "this_night"
+        },
+        {
+          "raw": "31.00",
+          "value": 31.0,
+          "line": 109,
+          "collision": 0.033,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].expected_bps",
+          "origin": "this_night"
+        },
+        {
+          "raw": "31.00",
+          "value": 31.0,
+          "line": 110,
+          "collision": 0.067,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].expected_bps",
+          "origin": "this_night"
+        },
+        {
+          "raw": "31.00",
+          "value": 31.0,
+          "line": 111,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].expected_bps",
+          "origin": "this_night"
+        },
+        {
+          "raw": "886",
+          "value": 886.0,
+          "line": 111,
+          "collision": 0.017,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.I_impact_term.runs[3].capped_days",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$100m",
+          "value": 100000000.0,
+          "line": 122,
+          "collision": 0.083,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.100000000.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$500m",
+          "value": 500000000.0,
+          "line": 122,
+          "collision": 0.017,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.500000000.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 123,
+          "collision": 0.083,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$19,390",
+          "value": 19390.0,
+          "line": 174,
+          "collision": 0.0,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.dollar_cost_delta",
+          "origin": "this_night"
+        },
+        {
+          "raw": "461",
+          "value": 461.0,
+          "line": 234,
+          "collision": 0.167,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.months",
+          "origin": "this_night"
+        },
+        {
+          "raw": "0.9952",
+          "value": 0.9952,
+          "line": 283,
+          "collision": 0.083,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.correlation",
+          "origin": "this_night"
+        },
+        {
+          "raw": "0.9980",
+          "value": 0.998,
+          "line": 284,
+          "collision": 0.017,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V2_share_issuance.correlation",
+          "origin": "this_night"
+        },
+        {
+          "raw": "0.9993",
+          "value": 0.9993,
+          "line": 285,
+          "collision": 0.05,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V3_distress.correlation",
+          "origin": "this_night"
+        },
+        {
+          "raw": "0.9931",
+          "value": 0.9931,
+          "line": 286,
+          "collision": 0.017,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V4_union.correlation",
+          "origin": "this_night"
+        },
+        {
+          "raw": "0.9906",
+          "value": 0.9906,
+          "line": 287,
+          "collision": 0.05,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V5_placebo_random.correlation",
+          "origin": "this_night"
+        },
+        {
+          "raw": "827",
+          "value": 827.0,
+          "line": 421,
+          "collision": 0.083,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:multiple_testing.denominator.total",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "836",
+          "value": 836.0,
+          "line": 421,
+          "collision": 0.067,
+          "backed_by": "PF2/PF-ENGINE-ALPHA-2__blend40__3d0c7e0dd0e7.json:tail.terminal_wealth_strategy.p25",
+          "origin": "prior_night"
+        }
+      ],
+      "uninformative": [
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 22,
+          "collision": 0.367,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 23,
+          "collision": 0.683,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 23,
+          "collision": 0.3,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 24,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 28,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 34,
+          "collision": 0.7,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "20%",
+          "value": 0.2,
+          "line": 55,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.share_of_name_months"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 61,
+          "collision": 0.767,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "50",
+          "value": 50.0,
+          "line": 63,
+          "collision": 0.867,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.refits"
+        },
+        {
+          "raw": "36.5",
+          "value": 36.5,
+          "line": 64,
+          "collision": 0.25,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:arms.nav1000000_single_clock_phase5.cost_bps_of_traded"
+        },
+        {
+          "raw": "50",
+          "value": 50.0,
+          "line": 65,
+          "collision": 0.917,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.refits"
+        },
+        {
+          "raw": "13.45%",
+          "value": 0.13449999999999998,
+          "line": 69,
+          "collision": 0.667,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav1000000_single_clock.daily_cagr"
+        },
+        {
+          "raw": "12.90%",
+          "value": 0.129,
+          "line": 69,
+          "collision": 0.75,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav1000000_ensemble_12.daily_cagr"
+        },
+        {
+          "raw": "0.468",
+          "value": 0.468,
+          "line": 71,
+          "collision": 0.867,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:panel_turnover_rates.1"
+        },
+        {
+          "raw": "0.468",
+          "value": 0.468,
+          "line": 72,
+          "collision": 0.833,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:panel_turnover_rates.1"
+        },
+        {
+          "raw": "3.54",
+          "value": 3.54,
+          "line": 80,
+          "collision": 0.5,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.bps_of_traded_delta"
+        },
+        {
+          "raw": "0.011",
+          "value": 0.011,
+          "line": 80,
+          "collision": 0.917,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.cost_drag_pct_yr_delta"
+        },
+        {
+          "raw": "0.0016",
+          "value": 0.0016,
+          "line": 81,
+          "collision": 0.983,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav50000000.cost_drag_pct_yr_delta"
+        },
+        {
+          "raw": "16",
+          "value": 16.0,
+          "line": 81,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R2_gbm_wide.cost_drag_annual_bps"
+        },
+        {
+          "raw": "2.45",
+          "value": 2.45,
+          "line": 83,
+          "collision": 0.783,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[85].t_excess_net"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 92,
+          "collision": 0.683,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "3.4",
+          "value": 3.4,
+          "line": 99,
+          "collision": 1.0,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[21].point_pct_yr"
+        },
+        {
+          "raw": "1%",
+          "value": 0.01,
+          "line": 100,
+          "collision": 0.483,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 101,
+          "collision": 0.9,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "25",
+          "value": 25.0,
+          "line": 101,
+          "collision": 0.967,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].half_spread_bps"
+        },
+        {
+          "raw": "100",
+          "value": 100.0,
+          "line": 101,
+          "collision": 0.783,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[2].half_spread_bps"
+        },
+        {
+          "raw": "100",
+          "value": 100.0,
+          "line": 109,
+          "collision": 0.717,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[2].half_spread_bps"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 109,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 110,
+          "collision": 0.883,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "173",
+          "value": 173.0,
+          "line": 110,
+          "collision": 0.6,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.I_impact_term.runs[2].capped_days"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 111,
+          "collision": 0.383,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "0.065%",
+          "value": 0.00065,
+          "line": 118,
+          "collision": 1.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[4].degradation_pct_yr"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 123,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 129,
+          "collision": 0.75,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "148",
+          "value": 148.0,
+          "line": 132,
+          "collision": 0.533,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:denominator.scan_rows_signal_x_segment"
+        },
+        {
+          "raw": "89",
+          "value": 89.0,
+          "line": 132,
+          "collision": 0.733,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:multiple_testing.denominator.trials_registered"
+        },
+        {
+          "raw": "60",
+          "value": 60.0,
+          "line": 132,
+          "collision": 0.85,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V3_distress.vetoed_names_per_month"
+        },
+        {
+          "raw": "31",
+          "value": 31.0,
+          "line": 136,
+          "collision": 0.833,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V0_control.cost_drag_annual_bps"
+        },
+        {
+          "raw": "29",
+          "value": 29.0,
+          "line": 136,
+          "collision": 0.917,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.secondary_5name_monthly.shapes.S3_plateau_then_decay.aic"
+        },
+        {
+          "raw": "14",
+          "value": 14.0,
+          "line": 136,
+          "collision": 0.917,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.shapes.S1_linear.aic"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 144,
+          "collision": 0.45,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "89",
+          "value": 89.0,
+          "line": 145,
+          "collision": 0.833,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:multiple_testing.denominator.trials_registered"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 147,
+          "collision": 0.667,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "56",
+          "value": 56.0,
+          "line": 147,
+          "collision": 0.867,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav1000000_single_clock.days_with_capped_orders"
+        },
+        {
+          "raw": "148",
+          "value": 148.0,
+          "line": 149,
+          "collision": 0.567,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:denominator.scan_rows_signal_x_segment"
+        },
+        {
+          "raw": "13%",
+          "value": 0.13,
+          "line": 150,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.purge_months"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 152,
+          "collision": 0.85,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "27",
+          "value": 27.0,
+          "line": 156,
+          "collision": 0.917,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R0_composite.cost_drag_annual_bps"
+        },
+        {
+          "raw": "17",
+          "value": 17.0,
+          "line": 156,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R2_gbm_wide.cost_drag_annual_bps"
+        },
+        {
+          "raw": "22",
+          "value": 22.0,
+          "line": 156,
+          "collision": 0.95,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.era_pre_2001.shapes.S3_plateau_then_decay.chi2"
+        },
+        {
+          "raw": "35",
+          "value": 35.0,
+          "line": 156,
+          "collision": 0.867,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[2].capped_days"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 165,
+          "collision": 0.8,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "74",
+          "value": 74.0,
+          "line": 174,
+          "collision": 0.917,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:denominator.unique_signals"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 190,
+          "collision": 0.883,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 194,
+          "collision": 0.717,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "-256",
+          "value": -256.0,
+          "line": 196,
+          "collision": 0.4,
+          "backed_by": "PF2/PF-PROF-COMPOSITE-150__blend25__3452c48aff49.json:tail.terminal_wealth_strategy.median"
+        },
+        {
+          "raw": "86.6%",
+          "value": 0.866,
+          "line": 205,
+          "collision": 0.467,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:arms[1].cost_drag_annual_bps"
+        },
+        {
+          "raw": "1.9%",
+          "value": 0.019,
+          "line": 206,
+          "collision": 0.95,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[4].mean_unfilled_share_of_nav"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 213,
+          "collision": 0.783,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 218,
+          "collision": 0.85,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "461",
+          "value": 461.0,
+          "line": 220,
+          "collision": 0.25,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.months"
+        },
+        {
+          "raw": "50",
+          "value": 50.0,
+          "line": 221,
+          "collision": 0.867,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.refits"
+        },
+        {
+          "raw": "13",
+          "value": 13.0,
+          "line": 221,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.purge_months"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 224,
+          "collision": 0.967,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "0.460",
+          "value": 0.46,
+          "line": 226,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R0_composite.turnover_1way_annual"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 227,
+          "collision": 0.283,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 227,
+          "collision": 0.833,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "0.469",
+          "value": 0.469,
+          "line": 227,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.turnover_1way_annual"
+        },
+        {
+          "raw": "-1.45%",
+          "value": -0.014499999999999999,
+          "line": 227,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "-0.98",
+          "value": -0.98,
+          "line": 227,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "3.10%",
+          "value": 0.031,
+          "line": 227,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.mde_annualized"
+        },
+        {
+          "raw": "0.903",
+          "value": 0.903,
+          "line": 227,
+          "collision": 0.383,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.correlation"
+        },
+        {
+          "raw": "+0.0340",
+          "value": 0.034,
+          "line": 227,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.mean_monthly"
+        },
+        {
+          "raw": "4.18",
+          "value": 4.18,
+          "line": 227,
+          "collision": 0.5,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 228,
+          "collision": 0.7,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "0.401",
+          "value": 0.401,
+          "line": 228,
+          "collision": 0.9,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R2_gbm_wide.turnover_1way_annual"
+        },
+        {
+          "raw": "-3.33%",
+          "value": -0.0333,
+          "line": 228,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.annualized_pct"
+        },
+        {
+          "raw": "-1.31",
+          "value": -1.31,
+          "line": 228,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.t_newey_west"
+        },
+        {
+          "raw": "4.56%",
+          "value": 0.045599999999999995,
+          "line": 228,
+          "collision": 0.917,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.mde_annualized"
+        },
+        {
+          "raw": "0.748",
+          "value": 0.748,
+          "line": 228,
+          "collision": 0.433,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.correlation"
+        },
+        {
+          "raw": "+0.0675",
+          "value": 0.0675,
+          "line": 228,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R2_gbm_wide.mean_monthly"
+        },
+        {
+          "raw": "4.09",
+          "value": 4.09,
+          "line": 228,
+          "collision": 0.383,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R2_gbm_wide.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 229,
+          "collision": 0.717,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "0.526",
+          "value": 0.526,
+          "line": 229,
+          "collision": 0.65,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R3_mlp_wide.turnover_1way_annual"
+        },
+        {
+          "raw": "-2.44%",
+          "value": -0.024399999999999998,
+          "line": 229,
+          "collision": 0.983,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.annualized_pct"
+        },
+        {
+          "raw": "-1.07",
+          "value": -1.07,
+          "line": 229,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.t_newey_west"
+        },
+        {
+          "raw": "4.15%",
+          "value": 0.0415,
+          "line": 229,
+          "collision": 0.967,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.mde_annualized"
+        },
+        {
+          "raw": "0.809",
+          "value": 0.809,
+          "line": 229,
+          "collision": 0.483,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.correlation"
+        },
+        {
+          "raw": "+0.0556",
+          "value": 0.0556,
+          "line": 229,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R3_mlp_wide.mean_monthly"
+        },
+        {
+          "raw": "3.46",
+          "value": 3.46,
+          "line": 229,
+          "collision": 0.667,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R3_mlp_wide.t_newey_west"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 232,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "0.124",
+          "value": 0.124,
+          "line": 233,
+          "collision": 0.983,
+          "backed_by": "PF2/CAMPAIGN_PF2.json:meta.PF-META-1__L12T1Q.holding_share.PF1-GP-SMALL"
+        },
+        {
+          "raw": "0.158",
+          "value": 0.158,
+          "line": 233,
+          "collision": 1.0,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:arms[4].cagr_gross"
+        },
+        {
+          "raw": "0.192",
+          "value": 0.192,
+          "line": 233,
+          "collision": 1.0,
+          "backed_by": "PF4/DIAG_BOUNDARY.json:windows.151-160.alpha_ff5_umd.betas.umd"
+        },
+        {
+          "raw": "0.180",
+          "value": 0.18,
+          "line": 233,
+          "collision": 1.0,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[5].point_pct_yr"
+        },
+        {
+          "raw": "3.5",
+          "value": 3.5,
+          "line": 234,
+          "collision": 0.983,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R3_mlp_wide.t_newey_west"
+        },
+        {
+          "raw": "4.2",
+          "value": 4.2,
+          "line": 234,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 236,
+          "collision": 0.317,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2.0",
+          "value": 2.0,
+          "line": 239,
+          "collision": 1.0,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:decision_rule.t_bar"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 243,
+          "collision": 0.583,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "0.401",
+          "value": 0.401,
+          "line": 244,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R2_gbm_wide.turnover_1way_annual"
+        },
+        {
+          "raw": "0.460",
+          "value": 0.46,
+          "line": 244,
+          "collision": 0.867,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R0_composite.turnover_1way_annual"
+        },
+        {
+          "raw": "4.65%",
+          "value": 0.04650000000000001,
+          "line": 250,
+          "collision": 0.967,
+          "backed_by": "PF2/ALT-MULTIFACTOR__bbcb338c3025.json:robustness.excess_cagr_first_half"
+        },
+        {
+          "raw": "0.75",
+          "value": 0.75,
+          "line": 250,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.correlation"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 250,
+          "collision": 0.733,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "0.748",
+          "value": 0.748,
+          "line": 250,
+          "collision": 0.567,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.correlation"
+        },
+        {
+          "raw": "4.56%",
+          "value": 0.045599999999999995,
+          "line": 250,
+          "collision": 0.967,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.mde_annualized"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 254,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "4.6%",
+          "value": 0.046,
+          "line": 254,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.mde_annualized"
+        },
+        {
+          "raw": "461",
+          "value": 461.0,
+          "line": 255,
+          "collision": 0.25,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.months"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 258,
+          "collision": 0.833,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 258,
+          "collision": 0.283,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 258,
+          "collision": 0.283,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 258,
+          "collision": 0.667,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 259,
+          "collision": 0.733,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "+3%",
+          "value": 0.03,
+          "line": 259,
+          "collision": 0.817,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 259,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 261,
+          "collision": 0.4,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 261,
+          "collision": 0.433,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "1.0",
+          "value": 1.0,
+          "line": 261,
+          "collision": 0.833,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample_freq"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 263,
+          "collision": 0.317,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "4.18",
+          "value": 4.18,
+          "line": 263,
+          "collision": 0.433,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 263,
+          "collision": 0.817,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "150",
+          "value": 150.0,
+          "line": 268,
+          "collision": 0.433,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.top_n"
+        },
+        {
+          "raw": "99.9%",
+          "value": 0.9990000000000001,
+          "line": 269,
+          "collision": 0.383,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V3_distress.correlation"
+        },
+        {
+          "raw": "88%",
+          "value": 0.88,
+          "line": 269,
+          "collision": 0.983,
+          "backed_by": "PF2/CAMPAIGN_PF2.json:meta.PF-META-1__L12T1Q.strategy_switches"
+        },
+        {
+          "raw": "150",
+          "value": 150.0,
+          "line": 271,
+          "collision": 0.517,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.top_n"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 275,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "179",
+          "value": 179.0,
+          "line": 277,
+          "collision": 0.483,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[36].months"
+        },
+        {
+          "raw": "150",
+          "value": 150.0,
+          "line": 279,
+          "collision": 0.583,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.top_n"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 281,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 281,
+          "collision": 0.767,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 283,
+          "collision": 0.317,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "+0.62%",
+          "value": 0.0062,
+          "line": 283,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.annualized_pct"
+        },
+        {
+          "raw": "1.57",
+          "value": 1.57,
+          "line": 283,
+          "collision": 0.967,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "0.65%",
+          "value": 0.006500000000000001,
+          "line": 283,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.mde_annualized"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 284,
+          "collision": 0.7,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "+0.37%",
+          "value": 0.0037,
+          "line": 284,
+          "collision": 0.933,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V2_share_issuance.annualized_pct"
+        },
+        {
+          "raw": "1.54",
+          "value": 1.54,
+          "line": 284,
+          "collision": 0.95,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V2_share_issuance.t_newey_west"
+        },
+        {
+          "raw": "0.42%",
+          "value": 0.0042,
+          "line": 284,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V2_share_issuance.mde_annualized"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 285,
+          "collision": 0.7,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "+0.02%",
+          "value": 0.0002,
+          "line": 285,
+          "collision": 0.633,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.annualized_pct"
+        },
+        {
+          "raw": "0.16",
+          "value": 0.16,
+          "line": 285,
+          "collision": 0.967,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V3_distress.t_newey_west"
+        },
+        {
+          "raw": "0.24%",
+          "value": 0.0024,
+          "line": 285,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V3_distress.mde_annualized"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 286,
+          "collision": 0.883,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "+0.85%",
+          "value": 0.0085,
+          "line": 286,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V3_distress.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "1.84",
+          "value": 1.84,
+          "line": 286,
+          "collision": 0.85,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V4_union.t_newey_west"
+        },
+        {
+          "raw": "0.78%",
+          "value": 0.0078000000000000005,
+          "line": 286,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.correlation"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 287,
+          "collision": 0.817,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "0.01",
+          "value": 0.01,
+          "line": 287,
+          "collision": 0.267,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "0.92%",
+          "value": 0.0092,
+          "line": 287,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V5_placebo_random.mde_annualized"
+        },
+        {
+          "raw": "288",
+          "value": 288.0,
+          "line": 289,
+          "collision": 0.4,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V4_union.vetoed_names_per_month"
+        },
+        {
+          "raw": "0.01",
+          "value": 0.01,
+          "line": 290,
+          "collision": 0.383,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 291,
+          "collision": 0.367,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 291,
+          "collision": 0.7,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 291,
+          "collision": 0.817,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "1.5%",
+          "value": 0.015,
+          "line": 294,
+          "collision": 0.983,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "0.24",
+          "value": 0.24,
+          "line": 295,
+          "collision": 0.917,
+          "backed_by": "PF5/T2_REBALANCE_FRONTIER.json:points[1].incremental_alpha_ff5_umd.betas.rmw"
+        },
+        {
+          "raw": "0.92%",
+          "value": 0.0092,
+          "line": 295,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V5_placebo_random.mde_annualized"
+        },
+        {
+          "raw": "0.993",
+          "value": 0.993,
+          "line": 296,
+          "collision": 0.5,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V4_union.correlation"
+        },
+        {
+          "raw": "0.999",
+          "value": 0.999,
+          "line": 296,
+          "collision": 0.35,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V3_distress.correlation"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 297,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "+1.63%",
+          "value": 0.0163,
+          "line": 297,
+          "collision": 1.0,
+          "backed_by": "PF2/ALT-MULTIFACTOR__bbcb338c3025.json:annual_table.1987.benchmark"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 304,
+          "collision": 0.783,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 308,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "0.9%",
+          "value": 0.009000000000000001,
+          "line": 308,
+          "collision": 0.917,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.correlation"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 309,
+          "collision": 0.75,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "3.1%",
+          "value": 0.031,
+          "line": 309,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.mde_annualized"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 310,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "6.2%",
+          "value": 0.062,
+          "line": 310,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V1_accruals.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 311,
+          "collision": 0.883,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "9.3%",
+          "value": 0.09300000000000001,
+          "line": 311,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V4_union.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 312,
+          "collision": 0.933,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "13.9%",
+          "value": 0.139,
+          "line": 312,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V5_placebo_random.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "13.9%",
+          "value": 0.139,
+          "line": 314,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V5_placebo_random.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "9.3%",
+          "value": 0.09300000000000001,
+          "line": 315,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V4_union.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "0.9%",
+          "value": 0.009000000000000001,
+          "line": 315,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.correlation"
+        },
+        {
+          "raw": "15",
+          "value": 15.0,
+          "line": 316,
+          "collision": 0.967,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.shapes.S2_quadratic.aic"
+        },
+        {
+          "raw": "0.03",
+          "value": 0.03,
+          "line": 321,
+          "collision": 0.85,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.learning_rate"
+        },
+        {
+          "raw": "0.478",
+          "value": 0.478,
+          "line": 321,
+          "collision": 0.783,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V0_control.turnover_1way_annual"
+        },
+        {
+          "raw": "0.579",
+          "value": 0.579,
+          "line": 322,
+          "collision": 0.783,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V5_placebo_random.turnover_1way_annual"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 325,
+          "collision": 0.417,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 325,
+          "collision": 0.717,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 326,
+          "collision": 0.733,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 326,
+          "collision": 0.833,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 326,
+          "collision": 0.867,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 326,
+          "collision": 0.883,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "8",
+          "value": 8.0,
+          "line": 328,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[0]"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 332,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 332,
+          "collision": 0.767,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 334,
+          "collision": 0.4,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 334,
+          "collision": 0.867,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "+4.27%",
+          "value": 0.042699999999999995,
+          "line": 334,
+          "collision": 0.917,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.annualized_diff_pct"
+        },
+        {
+          "raw": "+2.10",
+          "value": 2.1,
+          "line": 334,
+          "collision": 0.883,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.t_newey_west"
+        },
+        {
+          "raw": "4.89%",
+          "value": 0.0489,
+          "line": 334,
+          "collision": 0.933,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.mde_annualized"
+        },
+        {
+          "raw": "0.196",
+          "value": 0.196,
+          "line": 334,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.share_of_name_months"
+        },
+        {
+          "raw": "0.0069",
+          "value": 0.0069,
+          "line": 334,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m1_6.monthly_exit_hazard"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 335,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 335,
+          "collision": 0.85,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "-0.97%",
+          "value": -0.0097,
+          "line": 335,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m7_12.annualized_diff_pct"
+        },
+        {
+          "raw": "-0.56",
+          "value": -0.56,
+          "line": 335,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m7_12.t_newey_west"
+        },
+        {
+          "raw": "4.08%",
+          "value": 0.0408,
+          "line": 335,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m7_12.mde_annualized"
+        },
+        {
+          "raw": "0.189",
+          "value": 0.189,
+          "line": 335,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m7_12.share_of_name_months"
+        },
+        {
+          "raw": "0.0721",
+          "value": 0.0721,
+          "line": 335,
+          "collision": 0.917,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m7_12.monthly_exit_hazard"
+        },
+        {
+          "raw": "13",
+          "value": 13.0,
+          "line": 336,
+          "collision": 0.933,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.purge_months"
+        },
+        {
+          "raw": "24",
+          "value": 24.0,
+          "line": 336,
+          "collision": 0.9,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.cost_drag_annual_bps"
+        },
+        {
+          "raw": "-0.32%",
+          "value": -0.0032,
+          "line": 336,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m13_24.annualized_diff_pct"
+        },
+        {
+          "raw": "-0.21",
+          "value": -0.21,
+          "line": 336,
+          "collision": 0.967,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m13_24.share_of_name_months"
+        },
+        {
+          "raw": "3.23%",
+          "value": 0.0323,
+          "line": 336,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m13_24.mde_annualized"
+        },
+        {
+          "raw": "0.208",
+          "value": 0.208,
+          "line": 336,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m13_24.share_of_name_months"
+        },
+        {
+          "raw": "0.0333",
+          "value": 0.0333,
+          "line": 336,
+          "collision": 0.967,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R2_gbm_wide.annualized_pct"
+        },
+        {
+          "raw": "25",
+          "value": 25.0,
+          "line": 337,
+          "collision": 0.9,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].half_spread_bps"
+        },
+        {
+          "raw": "-1.84%",
+          "value": -0.0184,
+          "line": 337,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V4_union.t_newey_west"
+        },
+        {
+          "raw": "-1.44",
+          "value": -1.44,
+          "line": 337,
+          "collision": 0.967,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m25_plus.t_newey_west"
+        },
+        {
+          "raw": "3.17%",
+          "value": 0.0317,
+          "line": 337,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m25_plus.mde_annualized"
+        },
+        {
+          "raw": "0.407",
+          "value": 0.407,
+          "line": 337,
+          "collision": 0.85,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m25_plus.share_of_name_months"
+        },
+        {
+          "raw": "0.0241",
+          "value": 0.0241,
+          "line": 337,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m25_plus.monthly_exit_hazard"
+        },
+        {
+          "raw": "2%",
+          "value": 0.02,
+          "line": 340,
+          "collision": 0.633,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.annualized_pct"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 343,
+          "collision": 0.35,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "+4.27%",
+          "value": 0.042699999999999995,
+          "line": 344,
+          "collision": 0.983,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.annualized_diff_pct"
+        },
+        {
+          "raw": "2.10",
+          "value": 2.1,
+          "line": 344,
+          "collision": 0.817,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.t_newey_west"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 344,
+          "collision": 0.633,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "+11.28%",
+          "value": 0.1128,
+          "line": 346,
+          "collision": 0.683,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m1_6.excess_cagr"
+        },
+        {
+          "raw": "3.09",
+          "value": 3.09,
+          "line": 346,
+          "collision": 0.85,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m1_6.t_excess"
+        },
+        {
+          "raw": "2.6",
+          "value": 2.6,
+          "line": 346,
+          "collision": 1.0,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:arms[2].t_excess_nw"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 347,
+          "collision": 0.783,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "25",
+          "value": 25.0,
+          "line": 347,
+          "collision": 0.967,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].half_spread_bps"
+        },
+        {
+          "raw": "40.7%",
+          "value": 0.40700000000000003,
+          "line": 347,
+          "collision": 0.883,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m25_plus.share_of_name_months"
+        },
+        {
+          "raw": "0.0069",
+          "value": 0.0069,
+          "line": 350,
+          "collision": 1.0,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m1_6.monthly_exit_hazard"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 350,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 350,
+          "collision": 0.85,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "0.0721",
+          "value": 0.0721,
+          "line": 350,
+          "collision": 0.9,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m7_12.monthly_exit_hazard"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 350,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 350,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 352,
+          "collision": 0.417,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 352,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 353,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 353,
+          "collision": 0.95,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "9",
+          "value": 9.0,
+          "line": 364,
+          "collision": 0.95,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.1000000.stale_liquidations"
+        },
+        {
+          "raw": "0.587",
+          "value": 0.587,
+          "line": 366,
+          "collision": 0.717,
+          "backed_by": "PF2/PF1-PROF-COMPOSITE__8cf2f5da540c.json:distribution.monthly_win_rate"
+        },
+        {
+          "raw": "58.7%",
+          "value": 0.5870000000000001,
+          "line": 367,
+          "collision": 0.767,
+          "backed_by": "PF2/PF1-PROF-COMPOSITE__8cf2f5da540c.json:distribution.monthly_win_rate"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 368,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 369,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "0.43",
+          "value": 0.43,
+          "line": 371,
+          "collision": 0.983,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.179.expected_max_sr_annualized"
+        },
+        {
+          "raw": "1.43",
+          "value": 1.43,
+          "line": 372,
+          "collision": 0.933,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[76].t_excess_gross"
+        },
+        {
+          "raw": "43%",
+          "value": 0.43,
+          "line": 372,
+          "collision": 0.983,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.179.expected_max_sr_annualized"
+        },
+        {
+          "raw": "143%",
+          "value": 1.43,
+          "line": 372,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V2_share_issuance.vetoed_names_per_month"
+        },
+        {
+          "raw": "3.6%",
+          "value": 0.036000000000000004,
+          "line": 373,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V0_control.mean_cash_weight"
+        },
+        {
+          "raw": "11.9%",
+          "value": 0.11900000000000001,
+          "line": 373,
+          "collision": 1.0,
+          "backed_by": "NIGHT7/T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.1m.mde_annualized"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 373,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "-8.19%",
+          "value": -0.0819,
+          "line": 374,
+          "collision": 0.817,
+          "backed_by": "NIGHT7/T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.12m.annualized_diff_pct"
+        },
+        {
+          "raw": "3.6%",
+          "value": 0.036000000000000004,
+          "line": 374,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V0_control.mean_cash_weight"
+        },
+        {
+          "raw": "-4.97",
+          "value": -4.97,
+          "line": 374,
+          "collision": 0.35,
+          "backed_by": "NIGHT7/T2c_TRIGGER_MOM_CONTROL.json:by_horizon.12m.RAW.t_newey_west"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 378,
+          "collision": 0.9,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 378,
+          "collision": 0.817,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 378,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 378,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "50%",
+          "value": 0.5,
+          "line": 381,
+          "collision": 0.983,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.refits"
+        },
+        {
+          "raw": "10",
+          "value": 10.0,
+          "line": 386,
+          "collision": 0.883,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.width"
+        },
+        {
+          "raw": "11",
+          "value": 11.0,
+          "line": 408,
+          "collision": 0.917,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].expected_bps"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 412,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 412,
+          "collision": 0.817,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 413,
+          "collision": 0.833,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 413,
+          "collision": 0.883,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 414,
+          "collision": 0.3,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 423,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 425,
+          "collision": 0.333,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "10",
+          "value": 10.0,
+          "line": 426,
+          "collision": 0.917,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.width"
+        },
+        {
+          "raw": "10",
+          "value": 10.0,
+          "line": 428,
+          "collision": 0.867,
+          "backed_by": "PF5/T3_RANK_SHAPE.json:curves.primary_10name_monthly.width"
+        }
+      ],
+      "unbacked": [
+        {
+          "raw": "47.7",
+          "value": 47.7,
+          "line": 65,
+          "collision": 0.2
+        },
+        {
+          "raw": "298",
+          "value": 298.0,
+          "line": 131,
+          "collision": 0.267
+        },
+        {
+          "raw": "404",
+          "value": 404.0,
+          "line": 194,
+          "collision": 0.25
+        },
+        {
+          "raw": "$935k",
+          "value": 935000.0,
+          "line": 201,
+          "collision": 0.017
+        },
+        {
+          "raw": "47.7",
+          "value": 47.7,
+          "line": 389,
+          "collision": 0.167
+        },
+        {
+          "raw": "298",
+          "value": 298.0,
+          "line": 390,
+          "collision": 0.3
+        },
+        {
+          "raw": "404",
+          "value": 404.0,
+          "line": 390,
+          "collision": 0.317
+        },
+        {
+          "raw": "$935k",
+          "value": 935000.0,
+          "line": 390,
+          "collision": 0.0
+        }
+      ],
+      "reading": "Three states, not two. INFORMATIVELY BACKED: a receipt holds this number and a perturbed version of it would NOT have matched, so the match carries information. MATCHED BUT UNINFORMATIVE: a receipt holds it, but so many scalars sit nearby that any number of this shape would have matched \u2014 small integers and round figures live here and the check has no power over them. UNBACKED: no receipt in the programme holds it. None of the three says anything about the QUALIFIER attached to the number in prose, which is this programme's actual citation failure mode."
+    },
+    "STATUS.md": {
+      "claims_found": 73,
+      "informatively_backed": 10,
+      "matched_but_uninformative": 61,
+      "unbacked_anywhere": 2,
+      "informative_threshold": 0.25,
+      "pool_size": 21403,
+      "backed": [
+        {
+          "raw": "$1m",
+          "value": 1000000.0,
+          "line": 28,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 28,
+          "collision": 0.117,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "31.00",
+          "value": 31.0,
+          "line": 32,
+          "collision": 0.033,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[1].expected_bps",
+          "origin": "this_night"
+        },
+        {
+          "raw": "1,000,000",
+          "value": 1000000.0,
+          "line": 33,
+          "collision": 0.0,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[0].adv_multiple",
+          "origin": "this_night"
+        },
+        {
+          "raw": "$100m",
+          "value": 100000000.0,
+          "line": 36,
+          "collision": 0.033,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.100000000.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$500m",
+          "value": 500000000.0,
+          "line": 36,
+          "collision": 0.017,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.500000000.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "$50m",
+          "value": 50000000.0,
+          "line": 36,
+          "collision": 0.1,
+          "backed_by": "NIGHT7/T1b_ENSEMBLE_G7.json:daily.nav50000000_single_clock.start_nav",
+          "origin": "prior_night"
+        },
+        {
+          "raw": "461",
+          "value": 461.0,
+          "line": 42,
+          "collision": 0.183,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R1_gbm_narrow.months",
+          "origin": "this_night"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 78,
+          "collision": 0.183,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample",
+          "origin": "this_night"
+        },
+        {
+          "raw": "1b",
+          "value": 1000000000.0,
+          "line": 89,
+          "collision": 0.183,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:arms.nav50000000_single_clock_phase5.final_nav",
+          "origin": "this_night"
+        }
+      ],
+      "uninformative": [
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 25,
+          "collision": 0.367,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "3.54",
+          "value": 3.54,
+          "line": 27,
+          "collision": 0.667,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.bps_of_traded_delta"
+        },
+        {
+          "raw": "0.011",
+          "value": 0.011,
+          "line": 28,
+          "collision": 0.983,
+          "backed_by": "T1c_ENSEMBLE_COST_NORMALIZED.json:reading_nav1000000.cost_drag_pct_yr_delta"
+        },
+        {
+          "raw": "2.45",
+          "value": 2.45,
+          "line": 30,
+          "collision": 0.833,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[85].t_excess_net"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 32,
+          "collision": 0.683,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "100",
+          "value": 100.0,
+          "line": 33,
+          "collision": 0.833,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[2].half_spread_bps"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 33,
+          "collision": 0.917,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 33,
+          "collision": 0.35,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 36,
+          "collision": 0.4,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 40,
+          "collision": 0.817,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "0.124",
+          "value": 0.124,
+          "line": 41,
+          "collision": 1.0,
+          "backed_by": "PF2/CAMPAIGN_PF2.json:meta.PF-META-1__L12T1Q.holding_share.PF1-GP-SMALL"
+        },
+        {
+          "raw": "0.158",
+          "value": 0.158,
+          "line": 42,
+          "collision": 1.0,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:arms[4].cagr_gross"
+        },
+        {
+          "raw": "0.192",
+          "value": 0.192,
+          "line": 42,
+          "collision": 1.0,
+          "backed_by": "PF4/DIAG_BOUNDARY.json:windows.151-160.alpha_ff5_umd.betas.umd"
+        },
+        {
+          "raw": "0.180",
+          "value": 0.18,
+          "line": 42,
+          "collision": 1.0,
+          "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[5].point_pct_yr"
+        },
+        {
+          "raw": "4.18",
+          "value": 4.18,
+          "line": 42,
+          "collision": 0.5,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "4.09",
+          "value": 4.09,
+          "line": 42,
+          "collision": 0.45,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R2_gbm_wide.t_newey_west"
+        },
+        {
+          "raw": "3.46",
+          "value": 3.46,
+          "line": 42,
+          "collision": 0.6,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R3_mlp_wide.t_newey_west"
+        },
+        {
+          "raw": "0.401",
+          "value": 0.401,
+          "line": 44,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R2_gbm_wide.turnover_1way_annual"
+        },
+        {
+          "raw": "0.460",
+          "value": 0.46,
+          "line": 45,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:diagnostics.R0_composite.turnover_1way_annual"
+        },
+        {
+          "raw": "2%",
+          "value": 0.02,
+          "line": 45,
+          "collision": 0.7,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.annualized_pct"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 47,
+          "collision": 0.9,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "0.01",
+          "value": 0.01,
+          "line": 48,
+          "collision": 0.317,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "1.5%",
+          "value": 0.015,
+          "line": 49,
+          "collision": 0.95,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.annualized_pct"
+        },
+        {
+          "raw": "13.9%",
+          "value": 0.139,
+          "line": 50,
+          "collision": 0.983,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V5_placebo_random.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "9.3%",
+          "value": 0.09300000000000001,
+          "line": 51,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V4_union.share_of_held_book_vetoed"
+        },
+        {
+          "raw": "0.9%",
+          "value": 0.009000000000000001,
+          "line": 51,
+          "collision": 0.9,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R1_gbm_narrow.correlation"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 54,
+          "collision": 0.933,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "+4.27%",
+          "value": 0.042699999999999995,
+          "line": 55,
+          "collision": 0.933,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.annualized_diff_pct"
+        },
+        {
+          "raw": "2.10",
+          "value": 2.1,
+          "line": 55,
+          "collision": 0.867,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.t_newey_west"
+        },
+        {
+          "raw": "4.89%",
+          "value": 0.0489,
+          "line": 56,
+          "collision": 0.917,
+          "backed_by": "N3_SEASONING.json:instrument_B_within_month.m1_6.mde_annualized"
+        },
+        {
+          "raw": "2%",
+          "value": 0.02,
+          "line": 56,
+          "collision": 0.7,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:money.R3_mlp_wide.annualized_pct"
+        },
+        {
+          "raw": "0.0069",
+          "value": 0.0069,
+          "line": 57,
+          "collision": 0.967,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m1_6.monthly_exit_hazard"
+        },
+        {
+          "raw": "1",
+          "value": 1.0,
+          "line": 57,
+          "collision": 0.283,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 57,
+          "collision": 0.833,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "0.0721",
+          "value": 0.0721,
+          "line": 57,
+          "collision": 0.883,
+          "backed_by": "N3_SEASONING.json:instrument_A_vs_benchmark.m7_12.monthly_exit_hazard"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 57,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 57,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 61,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "43%",
+          "value": 0.43,
+          "line": 63,
+          "collision": 0.983,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.179.expected_max_sr_annualized"
+        },
+        {
+          "raw": "143%",
+          "value": 1.43,
+          "line": 63,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:veto_bite.V2_share_issuance.vetoed_names_per_month"
+        },
+        {
+          "raw": "12",
+          "value": 12.0,
+          "line": 63,
+          "collision": 0.95,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.clock_months"
+        },
+        {
+          "raw": "-8.19%",
+          "value": -0.0819,
+          "line": 64,
+          "collision": 0.917,
+          "backed_by": "NIGHT7/T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.12m.annualized_diff_pct"
+        },
+        {
+          "raw": "3.61%",
+          "value": 0.0361,
+          "line": 64,
+          "collision": 1.0,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:diagnostics.V1_accruals.mean_cash_weight"
+        },
+        {
+          "raw": "50%",
+          "value": 0.5,
+          "line": 65,
+          "collision": 1.0,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.refits"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 71,
+          "collision": 0.683,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "86.6%",
+          "value": 0.866,
+          "line": 72,
+          "collision": 0.567,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:arms[1].cost_drag_annual_bps"
+        },
+        {
+          "raw": "1.9%",
+          "value": 0.019,
+          "line": 72,
+          "collision": 0.95,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.K_known_cap.runs[4].mean_unfilled_share_of_nav"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 74,
+          "collision": 0.867,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 74,
+          "collision": 0.85,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "9",
+          "value": 9.0,
+          "line": 74,
+          "collision": 0.867,
+          "backed_by": "G7/G7_DAILY.json:capacity_ladder.1000000.stale_liquidations"
+        },
+        {
+          "raw": "8",
+          "value": 8.0,
+          "line": 74,
+          "collision": 0.883,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[0]"
+        },
+        {
+          "raw": "-150",
+          "value": -150.0,
+          "line": 79,
+          "collision": 0.667,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:entry_held_fixed.top_n"
+        },
+        {
+          "raw": "2",
+          "value": 2.0,
+          "line": 82,
+          "collision": 0.6,
+          "backed_by": "N2_NEGATIVE_SELECTION.json:paired.V1_accruals.t_newey_west"
+        },
+        {
+          "raw": "3",
+          "value": 3.0,
+          "line": 83,
+          "collision": 0.767,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.max_depth"
+        },
+        {
+          "raw": "4",
+          "value": 4.0,
+          "line": 85,
+          "collision": 0.8,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:ordering.R1_gbm_narrow.t_newey_west"
+        },
+        {
+          "raw": "5",
+          "value": 5.0,
+          "line": 86,
+          "collision": 0.9,
+          "backed_by": "N7_CAPACITY_INSTRUMENT_CALIBRATION.json:worlds.C_known_cost.runs[0].half_spread_bps"
+        },
+        {
+          "raw": "6",
+          "value": 6.0,
+          "line": 87,
+          "collision": 0.9,
+          "backed_by": "NIGHT7/T2_EXIT_SWEEP.json:branches_this_family"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 87,
+          "collision": 0.3,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "7",
+          "value": 7.0,
+          "line": 88,
+          "collision": 0.883,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[1]"
+        },
+        {
+          "raw": "-1",
+          "value": -1.0,
+          "line": 88,
+          "collision": 0.283,
+          "backed_by": "N1_RANKER_VS_COMPOSITE.json:protocol.gbm.subsample"
+        },
+        {
+          "raw": "8",
+          "value": 8.0,
+          "line": 89,
+          "collision": 0.933,
+          "backed_by": "NIGHT7/T4_DEFLATED_SHARPE.json:var_sr_estimate.graveyard_t_range[0]"
+        }
+      ],
+      "unbacked": [
+        {
+          "raw": "12m",
+          "value": 12000000.0,
+          "line": 63,
+          "collision": 0.367
+        },
+        {
+          "raw": "301",
+          "value": 301.0,
+          "line": 71,
+          "collision": 0.25
+        }
+      ],
+      "reading": "Three states, not two. INFORMATIVELY BACKED: a receipt holds this number and a perturbed version of it would NOT have matched, so the match carries information. MATCHED BUT UNINFORMATIVE: a receipt holds it, but so many scalars sit nearby that any number of this shape would have matched \u2014 small integers and round figures live here and the check has no power over them. UNBACKED: no receipt in the programme holds it. None of the three says anything about the QUALIFIER attached to the number in prose, which is this programme's actual citation failure mode."
+    }
+  }
+}

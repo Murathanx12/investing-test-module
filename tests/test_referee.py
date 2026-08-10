@@ -87,7 +87,51 @@ def test_mde_annualized_refuses_a_pre_annualised_series():
     from aegis_brain.pf.decomp import mde_annualized
 
     rng = np.random.default_rng(0)
-    monthly = pd.Series(rng.normal(0.0, 0.02, 400))
-    assert 0.0 < mde_annualized(monthly) < 0.1
+    monthly = pd.Series(rng.normal(0.0, 0.06, 250))   # the book's own vol
+    assert 0.0 < mde_annualized(monthly) < 0.15
     with pytest.raises(ValueError, match="units error"):
         mde_annualized(monthly * 12)
+
+
+def test_the_mde_guard_is_a_backstop_and_says_so():
+    """A twelvefold inflation of a SMALL mde still slips through. Documented."""
+    import numpy as np
+    import pandas as pd
+
+    from aegis_brain.pf.decomp import _ABSURD_MDE, mde_annualized
+
+    rng = np.random.default_rng(1)
+    tiny = pd.Series(rng.normal(0.0, 0.002, 400))
+    assert mde_annualized(tiny * 12) < _ABSURD_MDE     # no raise: it passes
+
+
+# ── context handling (found by running the referee on its own night) ────────
+def test_an_mde_in_a_table_header_counts_for_every_row():
+    """A fixed three-line window never reaches a long table's column header.
+
+    Nine of the first eleven findings this module produced on NIGHT-8's own
+    write-up were that false positive.
+    """
+    doc = ("| arm | effect | MDE at t 2 | verdict |\n"
+           "|---|---|---|---|\n"
+           "| V1 | +0.62%/yr | 0.65%/yr | UNRESOLVED |\n"
+           "| V2 | +0.37%/yr | 0.42%/yr | UNRESOLVED |\n"
+           "| V3 | +0.02%/yr | 0.24%/yr | UNRESOLVED |\n"
+           "| V4 | +0.85%/yr | 0.78%/yr | UNRESOLVED |\n"
+           "| V5 | +0.00%/yr | 0.92%/yr | UNRESOLVED |\n")
+    r = review(doc)
+    assert not any(f["check"] == "mde-missing" for f in r["findings"]), r["blockers"]
+
+
+def test_a_table_without_an_mde_column_still_fails():
+    doc = ("| arm | effect | verdict |\n|---|---|---|\n"
+           "| V1 | +0.62%/yr | UNRESOLVED |\n")
+    r = review(doc)
+    assert any(f["check"] == "mde-missing" for f in r["blockers"])
+
+
+def test_a_quoted_claim_is_reported_not_asserted():
+    """Otherwise the module blocks any document that quotes what it criticises."""
+    r = review('NIGHT-7B said "The ensemble is CHEAPER by $19,390" and that '
+               "claim is what this section retracts.")
+    assert not any(f["check"] == "cost-denominator" for f in r["findings"])

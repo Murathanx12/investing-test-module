@@ -1,127 +1,94 @@
-# STATUS — handoff after NIGHT-7 (2026-08-10)
+# STATUS — handoff after NIGHT-8 (2026-08-10)
 
 ## Where the code is
 
-* `main` (Aegis module) — **night-5 and night-6 merged** (night-5 was an ancestor
-  of night-6, so one merge carried both). Suite green post-merge.
-* `factory/night-7` — **UNMERGED**, awaiting Murat's read. 495 tests green
-  (470 + 25 new firewall tests).
-* `aegis-finance` `main` — CANON amended with four new rules (§12–§15) and six
-  new closed rabbit holes.
+* `main` (Aegis module) — NIGHT-7 and NIGHT-7B merged; **NIGHT-8 committed on
+  `main`**. Suite green.
+* `aegis-finance` `main` — CANON §2 scoped by data grade, §15 scoped to path
+  dependence, **§16 added** (a cost comparison needs a denominator that is not
+  the winner's).
 * Holdout unread throughout. Nothing promoted. No lane seeded, no flag flipped,
-  no `paper_nav` touched, no keys changed. LLM spend this night: **$0** (no
-  extraction experiments ran — T6 was refused by its own power check).
+  no `paper_nav` touched, no keys changed. **LLM spend this night: $0** — the
+  work that needed the budget (N4) is the work that got deferred, and it was
+  deferred for a stated reason rather than quietly dropped.
 
-## What NIGHT-7 found
+## What NIGHT-8 found
 
-Full detail: `docs/NIGHT7_VERDICT_2026-08-10.md`. Receipts in `runs/NIGHT7/`.
+Full detail: `docs/NIGHT8_VERDICT_2026-08-10.md`. Receipts in `runs/NIGHT8/`,
+hashes and embedded scalars in `docs/manifests/NIGHT8_MANIFEST.json`.
 
-**1. The exit layer is not where the money is either.** Five registered exit
-arms, entry held fixed on the banked book, all fully invested at 150 names.
-Reconciliation exact (max abs monthly diff **0.0** vs the untouched banked path).
-**No arm reaches paired |t| ≥ 2.0** — max is 1.24; best-worst spread 0.79%/yr;
-arm correlations 0.983–0.998. All five UNRESOLVED, with MDEs 0.41–1.21%/yr
-printed beside them.
+**Three of five findings are about instruments, and two retract published
+claims.** That is the right shape for this programme right now: NIGHT-7's lesson
+was that the errors live in the apparatus and the write-up rather than the
+arithmetic, and tonight the apparatus was pointed at itself.
 
-**2. The arm the monthly panel ranked FIRST loses 3.08%/yr in reality.** The
-trailing stop showed +0.34%/yr net (and the best gross, +5.74%) while trading
-2.7× as much. Under G7's daily simulator on the same spine it lands **3.08%/yr
-behind** the baseline at $1m and pays **$743,599 more in costs over 23 years —
-74% of starting capital**. The monthly panel understated the churn penalty by
-**2.43 pts/yr**, *the same magnitude NIGHT-6 measured for the monthly clock*.
-Two independent turnover increments, one understatement — the panel's churn bias
-is now a calibrated property, and it is CANON §15.
+**1. The clock ensemble is NOT cheaper — NIGHT-7B is retracted.** Both arms start
+at the same NAV and end at different ones, so totalling cost in *dollars* rewards
+the arm that compounded less. Normalised by average NAV the ensemble is **3.54
+bps/traded and 0.011 pt/yr worse at $1m**, and indistinguishable at $50m. Three
+nights, three answers, from three denominators. The case for the ensemble rests
+entirely on removing the 2.45 pt/yr date-luck range — not on cost. **CANON §16.**
 
-*A silent-fragility trap was caught first:* `holdings_out` flagged only full
-rebalances, so exit-driven interim trades were invisible to G7. The highest-churn
-arm would have been measured on the **baseline's** trade schedule and its cost
-would have vanished silently.
+**2. G7 cannot price impact.** Cost per dollar traded is **31.00 bps at ADV
+multiples of 1,000,000×, 100×, 5× and 1×** — identical across a million-fold
+range of liquidity. It models capacity as *delay*, never as *price*. Every
+capacity number this programme has quoted is a **delay-only lower bound**,
+including NIGHT-5's "$100m → $500m" and NIGHT-7's $50m rung. **CAPACITY-EDGE-1 is
+blocked as scoped.** What G7 *does* do well is now measured: 0% false positives
+in a frictionless world, cost recovered to 0.00 bps.
 
-**3. Rebalance-date luck is worth a 2.45 pt/yr range — and is free to remove.**
-Twelve staggered annual cohorts: individual clocks span **+2.24% to +4.69%**
-excess CAGR (σ 0.80%/yr). The ensemble lands at the mean (+3.48% vs +3.43%, gap
-+0.04% — no free lunch) at **unchanged turnover** (0.468). Date luck is **three
-times** the entire spread across all five exit rules.
+**3. N1 — learned rankers order better and earn less.** All three (GBM narrow,
+GBM wide, MLP wide) beat the hand-written composite on rank-IC: mean IC 0.124 →
+**0.158 / 0.192 / 0.180**, paired t **4.18 / 4.09 / 3.46** over 461 months. None
+makes more money; all three `IMPLEMENTATION_FAILED`. **Turnover is ruled out by
+measurement** — the best-ordering arm had the *lowest* turnover (0.401 vs the
+control's 0.460). The pre-compute power table was accurate to within 2%.
 
-*The first run of this was wrong and says so in the receipt:* shifting
-`first_month` does not stagger the book (the small segment cannot seat 150 names
-until 1982, so all 12 cohorts collapsed onto one date). A real clock phase was
-added, plus a guard that refuses to report an ensemble whose cohorts share a
-first-trade date.
+**4. N2 — the book already refuses the worst.** A size-matched random veto moves
+it **+0.00%/yr at t 0.01** (a clean placebo pass); accruals/issuance/distress
+vetoes are all positive but below the 1.5%/yr bar. The diagnostic is the finding:
+a random veto removes **13.9%** of the held book, the union of three anomalies
+**9.3%**, distress alone **0.9%**. A profitability tilt is an implicit distress
+veto.
 
-**4. The survivor does not survive trial-count accounting. Published anyway.**
-Deflated Sharpe on the excess series, with V[SR] estimated from **our own
-graveyard** and reported under three assumptions rather than one. **Under every
-assumption, at every N ≥ 5, it fails DSR 0.95.** Under the most
-strategy-favourable defensible assumption (all trials pure noise), at N=179:
+**5. N3 — seasoning POWER_FAILED, and the buckets were not what they looked
+like.** Fresh entrants beat fellow holdings by +4.27%/yr (NW t 2.10) but the
+weakest bucket's MDE is 4.89%/yr against a 2%/yr bar. The exit hazard is
+**0.0069** in months 1–6 and **0.0721** in months 7–12 — on an annual clock a
+name *cannot* be sold before the next rebalance, so these buckets are first
+half-year vs second half-year, not fresh vs stale. Band tuning does **not** close.
 
-> **DSR = 0.549.** The survivor's annualised excess Sharpe is 0.449; the expected
-> maximum of 179 pure-noise draws over the same window is 0.431. **We beat
-> noise-selected-179-times by 0.018 of Sharpe.**
+**6. A units bug in a published receipt.** `mde_annualized()` annualises its
+input; five call sites pre-annualised. NIGHT-7's trigger receipts reported MDEs
+of **43%–143%/yr**; true values are those ÷12. The *finding* is unaffected (12m
+effect −8.19%/yr vs corrected MDE 3.61%/yr) and no prose quoted them, but the
+receipts were wrong and are regenerated. The function now raises above 50%/yr.
 
-**CORRECTED after external review (NIGHT-7B):** the original wording here —
-"P(true excess Sharpe > 0) ≈ 0.55" — was **wrong**. DSR is not a Bayesian
-posterior over true alpha; it is a probabilistic-Sharpe statistic against a
-selection-adjusted benchmark Sharpe. The claim the arithmetic supports is:
-**the historical survivor does not establish unique alpha once the search is
-accounted for.** And DSR is **not** re-armed as a kill gate — GATE-M1 measured
-DSR ≥ 0.95 as nearly powerless. `T4b` (empirical selection bootstrap) is
-registered to replace arguing about N.
+## New machinery, all of it calibrated before use
 
-**5. The firewall is code, not a design note.** `aegis_brain/firewall/`, 25 tests.
-Layer 1 refuses outcome-shaped context and unstamped extractions; the crossing
-(`LearningSample`) rejects outcomes not strictly after the extraction's `as_of`,
-and `to_layer1_payload()` exists solely to raise; Layer 3's `set_weight()` raises
-and its vetoes are Brier-scoreable.
+| tool | what it does | its own error rate |
+|---|---|---|
+| `scripts/lint_prereg.py` | corpse-check vs 301 recorded experiments; BLOCKED / DUPLICATE / RESURRECTION / PASS | failed calibration 3× first; TEMPLATE.md no longer self-blocks; FP and FN pinned by tests on the real corpus |
+| `discipline/manifest.py` | committable receipts + claim coverage | fabricated numbers "backed" **86.6% → 1.9%**; `calibrate()` ships inside every manifest |
+| `discipline/citations.py` | qualifier is a **required field** | a citation that does not declare transfer does not load |
+| `discipline/referee.py` | 5 checks from 5 real write-up failures | 9 blockers on its first pass over this night, 8 of them false; fixed, then **0 blockers** |
 
-**6. A citation gate that corrected US, not just them.** 20 claims read at source.
-The reviews' failure mode was **not fabrication** — it was correctly quoted
-numbers stripped of the qualifier that decides whether they transfer (a
-long-short alpha quoted to a long-only book; a buy-and-hold-relative rebalancing
-premium quoted to a rebalanced benchmark; a 131.83% return quoted without its
-Sharpe of 0.31, which reverses its meaning). But one verified finding amends
-**our** record: **masking the name is not masking the date** (LAP
-arXiv:2512.23847, FinCAD arXiv:2605.24564). NIGHT-1's 0/240 result measured
-entity masking only ⇒ masked replay is a reasoning laboratory, not an
-alpha-certification laboratory. Now CANON §13 and enforced in code.
+## Queue — nothing here is blocked on Murat
 
-**7. T6 was registered and then refused by its own power check.** The semantic-diff
-prior (188bps/mo verified → long-leg ×0.30 → decay ×0.5 ≈ **3.4%/yr**) sits below
-the design's MDE (**4.52%/yr** at t=2 on the 264-month EDGAR window, **6.78%** at
-the Harvey-Liu-Zhu bar). **The money version does not run. We did not add row
-149.** Licensed instead as a Layer-1 extractor validation on filing-pairs.
+1. **`TRIAL-N1B-WHERE-DOES-THE-IC-LIVE-1`** — the highest-value open item. Decile
+   IC decomposition + top-150-only IC. If the learned rankers' advantage sits in
+   the bottom deciles (the §28 hypothesis), a long-only book structurally cannot
+   collect it, and a symmetric regression loss is the wrong objective.
+2. **`TRIAL-PF7B-TRIGGER-PENALTY-1`** — amended and ready; all arms through G7.
+3. **T4b selection bootstrap** — amended, implementation frozen, coverage matrix
+   first.
+4. **`TRIAL-PF8-TRIGGER-CONFOUND-1`** — the path-geometry placebo is the sharp test.
+5. **`TRIAL-N3B-FRESH-ENTRANT-CONFOUND-1`** — half-year placebo; I predict it fires.
+6. **An impact term for G7**, or CAPACITY-EDGE-1 stays blocked.
+7. **N4 LLM-VETO-CAL-1** — blocked on an EDGAR retrieval build, not on a decision.
+8. `TRIAL-IMAGE-RANK-1` — backlog, gated on N1b.
 
-## Predictions
+## Decisions that are Murat's
 
-Worker **1.5 / 5** (one clean hit, two clean misses, one half, **one not measured
-— an execution miss, recorded**). Brain **2 / 4** with two halves. The
-instructive miss: I predicted the trailing stop would lose by *selling winners*
-(Bessembinder). It lost by *paying the spread*. The mechanism imported from the
-literature was wrong; the cost model we already owned was right.
-
-## Attended decisions waiting on Murat
-
-1. **Merge `factory/night-7`** (and push the `aegis-finance` CANON amendment).
-2. **The strategic fork** — ROADMAP §12. Path A (fund) is gated on evidence T4
-   says we do not have. Path B (research/infrastructure) is nearly finished and
-   is what opens Path A later. Recommendation is Path B primary, forward lanes
-   untouched. **This is his call, not the session's.**
-3. **Accept the corrected product sentence** (ROADMAP §10) — it now carries the
-   DSR number, so it claims less than the current product note.
-
-## Queue, re-ordered by NIGHT-7
-
-1. **PRisk replication** — first extractor validation; ground truth free and live.
-   Nothing in the LLM programme is worth building until Layer 1 is calibrated.
-2. **Re-read the graveyard under the calibrated turnover penalty** — every
-   high-turnover corpse was judged on a panel that flattered it, so they are
-   *more* dead. `conc_low` remains the only distinct resurrection candidate.
-3. **A3 segment drift** — registered, not measured. Cheap; do it first.
-4. **Capacity below AVUV's floor** — the one AVUV axis with high plausibility and
-   no measurement.
-5. **Revise the product note** to lead with AVUV and carry the DSR number.
-6. Narrative-salience thematic entry · insider-disagreement interaction ·
-   EDGAR full-text spine · ANALYST-LEDGER-1 first forward notes.
-
-**Nothing is blocked on Murat except his decisions.** No endpoint was reported as
-blocked this night without being called first.
+Unchanged from NIGHT-7B. Nothing new tonight requires him: no lane, no flag, no
+capital, no key, no claim that leaves the repository.

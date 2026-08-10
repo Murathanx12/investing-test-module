@@ -114,11 +114,15 @@ def nw_t(x: pd.Series, lags: int = 12) -> float | None:
     return None if r.get("t") is None else round(float(r["t"]), 2)
 
 
-#: Above this, an MDE is not a number, it is a units error. A long-only equity
-#: book cannot have a minimum detectable effect of 100%/yr on a multi-decade
-#: panel, and every time this has fired it has been the same mistake:
-#: pre-annualising the input to a function that annualises.
-_ABSURD_MDE = 1.0
+#: Above this, an MDE is not a detectable-effect size, it is a units error. A
+#: long-only equity book on a multi-decade panel cannot have a minimum
+#: detectable effect of 50%/yr.
+#:
+#: This is a BACKSTOP, not a proof. A twelvefold inflation of a genuinely small
+#: MDE lands below the threshold and passes — the NIGHT-7 12-month trigger row
+#: was 0.4335 and would still slip through. The real protection is the explicit
+#: contract in the docstring; this only catches the gross cases.
+_ABSURD_MDE = 0.5
 
 
 def mde_annualized(x: pd.Series, t_bar: float = 2.0) -> float:

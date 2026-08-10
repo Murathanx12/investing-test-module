@@ -1,6 +1,6 @@
 {
   "night": "NIGHT7",
-  "code_sha": "06721fc58649fc543a9edd2f1d2ec03d1fb1f377-DIRTY",
+  "code_sha": "1aba424835efda3e5e97ded754a452a7f53bde26-DIRTY",
   "run_dir": "runs\\NIGHT7",
   "why_this_exists": "/runs/ is gitignored, so receipts live on one machine. This is the committable half: hashes that bind prose to a specific run, plus the receipts' scalar contents, which are sufficient statistics and contain no vendor data.",
   "artifact_count": 10,
@@ -31,14 +31,14 @@
     },
     {
       "name": "T2c_TRIGGER_AND_A3_DRIFT.json",
-      "bytes": 3603,
-      "sha256": "d4161464e15485027fa58e8875a671f1f778e1e37a639352ebcc424ca59f9f35",
+      "bytes": 3600,
+      "sha256": "640347776a0f543ddc95c10713c7a7e523e8776f335b399e79d7a361a9b32283",
       "embedded": true
     },
     {
       "name": "T2c_TRIGGER_MOM_CONTROL.json",
-      "bytes": 2771,
-      "sha256": "02b11fc37c910447443db29ccede8f3c2cefbb07c5b2f785d1e3e98e3de0946a",
+      "bytes": 2769,
+      "sha256": "84fb3b7381691161e16a2a1e30788c1d9551177ab8f3abf3cf8555150f6f77d5",
       "embedded": true
     },
     {
@@ -514,7 +514,7 @@
             "mean_log_return_diff": -7e-05,
             "annualized_diff_pct": -0.0008,
             "t_stat": -0.014,
-            "mde_annualized": 1.4283
+            "mde_annualized": 0.119
           },
           "3m": {
             "months_with_triggers": 394,
@@ -523,7 +523,7 @@
             "mean_log_return_diff": -0.02079,
             "annualized_diff_pct": -0.0798,
             "t_stat": -2.376,
-            "mde_annualized": 0.8402
+            "mde_annualized": 0.07
           },
           "6m": {
             "months_with_triggers": 389,
@@ -532,7 +532,7 @@
             "mean_log_return_diff": -0.04063,
             "annualized_diff_pct": -0.078,
             "t_stat": -3.094,
-            "mde_annualized": 0.6302
+            "mde_annualized": 0.0525
           },
           "12m": {
             "months_with_triggers": 376,
@@ -541,7 +541,7 @@
             "mean_log_return_diff": -0.08543,
             "annualized_diff_pct": -0.0819,
             "t_stat": -4.731,
-            "mde_annualized": 0.4333
+            "mde_annualized": 0.0361
           }
         },
         "significant_horizons": [
@@ -551,7 +551,7 @@
         ],
         "verdict": "SIGNAL AT ['3m', '6m', '12m'] \u2014 register a low-turnover rank-penalty test; do NOT resurrect the stop itself"
       },
-      "runtime_secs": 330.1
+      "runtime_secs": 282.8
     },
     "T2c_TRIGGER_MOM_CONTROL.json": {
       "task": "T2c control \u2014 is the stop trigger anything but momentum?",
@@ -570,7 +570,7 @@
             "t_naive": -2.36,
             "t_newey_west": -2.43,
             "nw_lags": 3,
-            "mde_annualized": 0.8426
+            "mde_annualized": 0.0702
           },
           "MOM_NEUTRAL": {
             "months": 394,
@@ -578,7 +578,7 @@
             "t_naive": -2.371,
             "t_newey_west": -2.43,
             "nw_lags": 3,
-            "mde_annualized": 0.8328
+            "mde_annualized": 0.0694
           },
           "MOM_MATCHED": {
             "months": 394,
@@ -586,7 +586,7 @@
             "t_naive": -2.494,
             "t_newey_west": -2.55,
             "nw_lags": 3,
-            "mde_annualized": 0.8441
+            "mde_annualized": 0.0703
           }
         },
         "6m": {
@@ -596,7 +596,7 @@
             "t_naive": -3.106,
             "t_newey_west": -3.27,
             "nw_lags": 6,
-            "mde_annualized": 0.6314
+            "mde_annualized": 0.0526
           },
           "MOM_NEUTRAL": {
             "months": 389,
@@ -604,7 +604,7 @@
             "t_naive": -2.924,
             "t_newey_west": -3.04,
             "nw_lags": 6,
-            "mde_annualized": 0.6284
+            "mde_annualized": 0.0524
           },
           "MOM_MATCHED": {
             "months": 389,
@@ -612,7 +612,7 @@
             "t_naive": -2.919,
             "t_newey_west": -3.03,
             "nw_lags": 6,
-            "mde_annualized": 0.6357
+            "mde_annualized": 0.053
           }
         },
         "12m": {
@@ -622,7 +622,7 @@
             "t_naive": -4.729,
             "t_newey_west": -4.97,
             "nw_lags": 12,
-            "mde_annualized": 0.4335
+            "mde_annualized": 0.0361
           },
           "MOM_NEUTRAL": {
             "months": 376,
@@ -630,7 +630,7 @@
             "t_naive": -4.26,
             "t_newey_west": -4.37,
             "nw_lags": 12,
-            "mde_annualized": 0.4382
+            "mde_annualized": 0.0365
           },
           "MOM_MATCHED": {
             "months": 376,
@@ -638,7 +638,7 @@
             "t_naive": -4.07,
             "t_newey_west": -4.31,
             "nw_lags": 12,
-            "mde_annualized": 0.4431
+            "mde_annualized": 0.0369
           }
         }
       },
@@ -648,7 +648,7 @@
         "12m"
       ],
       "verdict": "SURVIVES at ['3m', '6m', '12m'] \u2014 the trigger carries information beyond momentum. Register a low-turnover rank-penalty test at the annual rebalance. Do NOT resurrect the stop itself (G7: -3.08%/yr).",
-      "runtime_secs": 125.5
+      "runtime_secs": 92.0
     },
     "T3_CLOCK_ENSEMBLE.json": {
       "task": "T3 rebalance-clock ensemble",
@@ -1445,7 +1445,7 @@
           "raw": "0.431",
           "value": 0.431,
           "line": 25,
-          "collision": 0.883,
+          "collision": 0.867,
           "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.179.expected_max_sr_annualized"
         },
         {
@@ -1526,7 +1526,7 @@
           "backed_by": "T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.12m.t_stat"
         },
         {
-          "raw": "-6,",
+          "raw": "-6",
           "value": -6.0,
           "line": 48,
           "collision": 0.85,
@@ -1571,7 +1571,7 @@
           "raw": "60",
           "value": 60.0,
           "line": 56,
-          "collision": 0.867,
+          "collision": 0.883,
           "backed_by": "T1b_ENSEMBLE_G7.json:daily.nav1000000_ensemble_12.days_with_capped_orders"
         },
         {
@@ -1592,7 +1592,7 @@
           "raw": "85",
           "value": 85.0,
           "line": 68,
-          "collision": 0.7,
+          "collision": 0.717,
           "backed_by": "PF5/T2_REBALANCE_FRONTIER.json:multiple_testing.denominator.trials_registered"
         },
         {
@@ -1613,7 +1613,7 @@
           "raw": "-67.1%",
           "value": -0.6709999999999999,
           "line": 74,
-          "collision": 0.75,
+          "collision": 0.733,
           "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[147].turnover_1way"
         },
         {
@@ -1887,7 +1887,7 @@
           "value": 0.4,
           "line": 109,
           "collision": 0.85,
-          "backed_by": "T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.12m.mde_annualized"
+          "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.series.sr_annualized"
         },
         {
           "raw": "1.2%",
@@ -2138,7 +2138,7 @@
           "raw": "-47.7%",
           "value": -0.47700000000000004,
           "line": 161,
-          "collision": 0.817,
+          "collision": 0.8,
           "backed_by": "T3_CLOCK_ENSEMBLE.json:readings.vol_and_drawdown.mean_cohort_max_dd"
         },
         {
@@ -2212,7 +2212,7 @@
           "backed_by": "T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.12m.t_stat"
         },
         {
-          "raw": "5,",
+          "raw": "5",
           "value": 5.0,
           "line": 185,
           "collision": 0.883,
@@ -2243,7 +2243,7 @@
           "raw": "90",
           "value": 90.0,
           "line": 188,
-          "collision": 0.8,
+          "collision": 0.817,
           "backed_by": "T2_EXIT_SWEEP.json:multiple_testing.denominator.specs_on_disk"
         },
         {
@@ -2257,7 +2257,7 @@
           "raw": "50",
           "value": 50.0,
           "line": 193,
-          "collision": 0.9,
+          "collision": 0.917,
           "backed_by": "PF2/PF-ENGINE-ALPHA-2__N50__c4f83b490c66.json:spec.top_n"
         },
         {
@@ -2285,28 +2285,28 @@
           "raw": "0.421",
           "value": 0.421,
           "line": 194,
-          "collision": 0.867,
+          "collision": 0.85,
           "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.148.expected_max_sr_annualized"
         },
         {
           "raw": "0.575",
           "value": 0.575,
           "line": 194,
-          "collision": 0.75,
+          "collision": 0.733,
           "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.148.DSR"
         },
         {
           "raw": "179",
           "value": 179.0,
           "line": 195,
-          "collision": 0.35,
+          "collision": 0.333,
           "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[36].months"
         },
         {
           "raw": "0.431",
           "value": 0.431,
           "line": 195,
-          "collision": 0.933,
+          "collision": 0.917,
           "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.dsr_grid_by_var_estimate.NULL_pure_noise.179.expected_max_sr_annualized"
         },
         {
@@ -2334,7 +2334,7 @@
           "raw": "0.449",
           "value": 0.449,
           "line": 198,
-          "collision": 0.717,
+          "collision": 0.7,
           "backed_by": "T4_DEFLATED_SHARPE.json:configs.as_banked_monthly_flat25.series.sr_annualized"
         },
         {
@@ -2362,7 +2362,7 @@
           "raw": "-179",
           "value": -179.0,
           "line": 200,
-          "collision": 0.45,
+          "collision": 0.467,
           "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[36].months"
         },
         {
@@ -2485,7 +2485,7 @@
           "backed_by": "T1b_ENSEMBLE_G7.json:daily.nav1000000_single_clock.max_drawdown_daily"
         },
         {
-          "raw": "2,",
+          "raw": "2",
           "value": 2.0,
           "line": 275,
           "collision": 0.6,
@@ -2517,7 +2517,7 @@
           "value": 0.12,
           "line": 283,
           "collision": 0.933,
-          "backed_by": "G7/G7_DAILY.json:capacity_ladder.500000000.cagr"
+          "backed_by": "T2c_TRIGGER_AND_A3_DRIFT.json:T2c_stop_trigger_informativeness.by_horizon.1m.mde_annualized"
         },
         {
           "raw": "0.5",
@@ -2873,7 +2873,7 @@
           "raw": "100",
           "value": 100.0,
           "line": 349,
-          "collision": 0.583,
+          "collision": 0.6,
           "backed_by": "PF4/STAGE_B_CHAR_PLACEBO.json:band.n_draws"
         },
         {
@@ -2895,7 +2895,7 @@
           "raw": "470",
           "value": 470.0,
           "line": 5,
-          "collision": 0.233
+          "collision": 0.217
         },
         {
           "raw": "470",
@@ -2925,7 +2925,7 @@
           "raw": "82",
           "value": 82.0,
           "line": 68,
-          "collision": 0.8
+          "collision": 0.817
         },
         {
           "raw": "11,000",
@@ -3382,7 +3382,7 @@
           "raw": "179",
           "value": 179.0,
           "line": 55,
-          "collision": 0.55,
+          "collision": 0.533,
           "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[36].months"
         },
         {
@@ -3498,7 +3498,7 @@
           "backed_by": "PF5/T4_GRAVEYARD_TRIAGE.json:rows[55].t_excess_net"
         },
         {
-          "raw": "12,",
+          "raw": "12",
           "value": 12.0,
           "line": 100,
           "collision": 0.917,
@@ -3844,7 +3844,7 @@
           "raw": "105",
           "value": 105.0,
           "line": 183,
-          "collision": 0.65,
+          "collision": 0.667,
           "backed_by": "PF5/T3_RANK_SHAPE.json:decision_branches_this_family"
         },
         {
