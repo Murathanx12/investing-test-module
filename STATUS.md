@@ -1,147 +1,105 @@
-# STATUS — handoff after BUILD-1.1 (2026-08-10)
+# STATUS — handoff after ARENA-1 (2026-08-11)
 
-**The project pivoted at NIGHT-9 and the pivot is binding.** The PM now exists
-and has been made decision-grade. Read
-**`aegis-finance/docs/HANDOFF_BUILD1_1.md` first** — it says what BUILD-1.1
-fixed, what Murat must enter, and the next three product tasks.
-`docs/HANDOFF_BUILD1.md` (this repo) is the prior handoff and is still the map
-of what B1–B7 were.
+**Read `aegis-finance/docs/HANDOFF_ARENA1.md` first.** It carries the four
+numbers, the one thing Murat has to do, and the contradiction the product now
+prints about itself. `aegis-finance/docs/RESEARCH_PM_FLYWHEEL.md` is the
+architecture Murat asked for: research and portfolio management as one loop
+rather than two priorities competing.
 
 ## Where the code is
 
-* `factory/night-9` (Aegis module) — N1B, G8, typed stats, the N2 corrigendum.
-  **Untouched by BUILD-1.1.**
-* `aegis-finance` `main` `d54723f` — **Optimus Portfolio Manager v1.1**.
-  Six review defects fixed plus eight found on the way. The book now marks to
-  market off `shares`; a missing feed can no longer become a SELL; volatility
-  no longer manufactures expected return (median $64.5k → ~$48.5k,
-  P($100k) 19.8% → ~1.7% — the old numbers were the convexity of an unvalidated
-  assumption); holdings and candidates are solved as ONE portfolio; every wealth
-  answer prints conservative/base/optimistic; an unconfirmed book returns
-  `actionable: false`.
-* **B1 is answered with printed status codes**
-  (`aegis-finance/docs/BUILD1/ANALYST_SOURCE_COVERAGE.md`): per-analyst target
-  history is 402/403 on every tier we hold, so the PIT ledger we write ourselves
-  is the only route to ΔTarget. **B5 v0 exists** (earnings from Finnhub, free,
-  and loud about the seven event types it cannot see).
+* **Aegis module `main` `580c9ed`** — ARENA-1 and ANALYST-IBES-1.
+  `d0ab548` froze the 384-genome manifest *before* anything was scored.
+* **aegis-finance `main`** — the book reconciliation, the signal registry, the
+  opportunity funnel, the shadow register and the evidence-conflict warning.
 * Holdout unread. No lane seeded, no flag flipped, no `paper_nav` touched, no
-  keys changed. **LLM spend: $0.**
-* Tests: **3,165 passed / 3 skipped** (aegis-finance, +65); module suite green
-  (+22: 15 G8 invariants, 7 typed-stats invariants).
+  capital, no order path. **LLM spend: $0.**
 
-## The one thing blocking the product
+## The four numbers
 
-**Murat must enter shares, cost basis (per share) and cash** in
-`backend/data/murat_book.yaml`, then set `confirmed: true`. Until then every
-dollar figure prints as `SIMULATED TICKETS — DO NOT EXECUTE`. A confirmed book
-missing a share count is rejected at load, because `dollars` cannot mark to
-market. Dry-run first with
-`python scripts/morning_brief.py --book docs/BUILD1/example_confirmed_book.yaml`.
+| | |
+|---|---|
+| **+4.87 %/yr** | false-discovery bar: best of 384 portfolios when nothing predicts anything |
+| **−8 to −18 %/yr** | analyst-implied upside as a picker, **gross**, 21 years of PIT IBES |
+| **+1.5 to +6.1 %/yr** | analyst target **revisions**, gross — real, net-dead on 10× turnover |
+| **4th of 384** | where a book picking names **at random** ranked in the Arena |
 
-## The mandate changed
+## ANALYST-IBES-1 — the honest backtest of Murat's process
 
-Three systems, none subordinate: **Research Lab** (~25%) asks what evidence we
-possess; **Portfolio Manager** (~55%) compounds Murat's real $45k; **Opportunity
-Engine** (~20%) finds where the payoff moved. Research sets reliability
-*weights*; it does not block labelled OBSERVATIONAL information from reaching
-the PM. The LLM never sizes. The engine never trades. Every wealth-target screen
-prints the ruin probability beside the dream number.
+`docs/ANALYST_IBES_1_VERDICT_2026-08-11.md`. Receipts
+`runs/ARENA1/ANALYST_IBES_1/`.
 
-## What NIGHT-9 found
+The WRDS probe found `ibes.ptgdet` readable, so the object retail vendors gate
+at 402/403 was available all along and B1's conclusion was true of the retail
+layer only. 6 tables pulled, 9.6 m rows, 1976–2026, IBES→CRSP link match 92.7 %.
 
-Full detail: `docs/NIGHT9_VERDICT_2026-08-10.md`. Receipts in `runs/NIGHT9/`.
+**The corpse linter cut the trial before a number was computed.** It matched
+the first draft against TRIAL-TGT-REBUILD, TRIAL-BRAIN-005-revisions and
+VOID-TGT-UPSIDE-B3B-B3C; reading those three reduced 6 arms to 2 accruing arms,
+because EPS revisions and target dispersion had already been killed. What was
+genuinely unrun is narrower than "analyst revisions" — the *target*-revision
+objects in `ibes.ptgsumu`, a table never pulled here before.
 
-**1. N1B — every rank-based axis says the learned rankers are better, and the
-book still earns less.** The re-fit reproduced the parent's published statistics
-exactly (the first time this programme has verified that). Then: the advantage
-is the **same size on the book's own rebalance months** (the clock hypothesis is
-dead); it is **larger in the top decile than the bottom** (the §28 hypothesis is
-dead); the learned top-K beats the control at **every** K from 25 to 300; and
-the names they **add** beat the names they **drop** by 3.3–5.9 points. Overlap
-between the two books is only **14–25%**. Four of five registered predictions
-refuted.
+Both replication arms reproduced their known kills, so the accruing arms are
+readable. **Levels lose 8–18 %/yr gross. Revisions earn 1.5–6.1 %/yr gross and
+die on turnover.** The two revision constructions **disagree in sign in the
+small segment**, so by the registered rule the idea is not identified there and
+no verdict may be issued. Nothing graduates.
 
-**AMENDMENT 2 ran, and it is the finding of the night.** The label is a demeaned
-**log** return; a long-only book is paid in **simple** returns. Under the simple
-label the learned rankers' top-K is **worse than the composite's at every K and
-in every arm — 15 of 15 negative**, agreeing in sign with the money result. And
-**ΔIC is identical to five decimals under both labels**, because a rank
-correlation is invariant to a monotone relabelling.
+The levels-vs-revisions distinction the PM was built on is real and now
+measured. Its tradability is not established.
 
-**So the ordering instrument is structurally blind to what determines the
-money.** A portfolio earns the arithmetic mean of simple returns, which depends
-on right-tail magnitudes; rank-IC discards magnitudes by construction. NIGHT-8
-said "two instruments is what saved this from a vacuous null" — it did not. The
-+0.068 at t 4.09 was never wrong and was never evidence about money.
-**Standing consequence: rank-IC may describe ordering; it may not corroborate a
-null money result, and "orders better" may not be said without a magnitude test
-beside it.** No single top-K delta clears |t| 2 (0.98–1.70), so this is a
-directional reconciliation across five cut points, three architectures and the
-money instrument — not an independently significant effect.
+## ARENA-1 — 384 portfolios, frozen first
 
-**2. G8 — the impact term exists now.** Metaorder square-root law charged on the
-whole order, so splitting an order over days no longer escapes it — G7's actual
-loophole. Built beside G7, not inside it: `impact_coef = 0.0` skips the
-arithmetic and reproduces G7 exactly. 15 invariants, two of which failed on the
-first run for real reasons. **The capacity ladder was deliberately NOT run** —
-institutional capacity does not help a $45k account.
+`docs/ARENA1_REPORT_2026-08-11.md`. Manifest sha `f7f7e7ef7457be50`.
 
-**3. The N2 "15× better than chance" is withdrawn.** The random placebo was
-count-matched to the union arm (288 names), not to distress (60). Correctly
-normalised: distress **3.40×**, issuance 2.22×, union 1.49×, **accruals 1.05× —
-chance**. Direction survives at a quarter of the size and only for two of three
-families. Every return result in N2 stands.
+95 of 384 positive, 66 pass the frozen selection rule, **2** clear the
+false-discovery bar, both at t ≈ 1.2, Bonferroni p_adj = 1.000. Two of the top
+eight pick their names at random. **ARENA-1 is a null.**
 
-**4. The units bug has a structural fix.** `aegis_brain/pf/stats.py` removes the
-generic `paired()` entry point; four typed functions carry `unit`, `frequency`,
-`annualization`, `estimator`, and the annualising arithmetic is unreachable from
-the IC path.
+**The pre-registration worked visibly:** the highest-excess genome (G0245,
++6.06 %/yr, t 2.69, 7/7 regime blocks) is excluded because turnover is 3.03
+against a frozen gate of 3.00. Recorded, not promoted.
 
-**5. Portfolio Manager v1 ships and runs on live data.** One command, one
-morning: state, the 12-month distribution with the downside beside the target,
-per-holding BUY/ADD/HOLD/TRIM/SELL with dollars and kill conditions, threats, a
-ranked radar, and which holding funds which buy. On the reconstructed book:
-median ~$64,500, **P($100k) ≈ 20%**, **P(<$30k) ≈ 6%**, expected max drawdown
-**−27%**. Two construction bugs found and fixed during the build, both of which
-had produced confident nonsense.
+**Power curve:** the Arena reliably separates truth from noise only at a
+planted decile spread of **+8 %/yr** or more.
 
-## What is stubbed, wrong, or untrustworthy — read before quoting anything
+## Three defects found, each of which would have produced a confident wrong answer
 
-* **The book is `confirmed: false`.** Reconstructed from the January 2026 PDF;
-  no share counts, no cash. Every dollar figure carries a banner.
-* **The analyst layer is Yahoo-only and has no target history.** ΔTarget over
-  7/30/90 days — the mandate's central signal — **does not exist yet**; it is
-  approximated by a 4-row rating-trend table. B1 is the real gate.
-* **`TARGET_HAIRCUT = 0.35` is fitted to nothing** and every probability the PM
-  prints depends on it.
-* **No catalyst calendar at all.** For a book with three pre-revenue clinical
-  names this is the largest gap in the product.
-* **The N1B phase axis is not trustworthy** — twelve phases returned an
-  identical excess CAGR, contradicting NIGHT-7's 2.45 pt/yr date-luck range. No
-  phase claim may be made until it is resolved.
-* **Every capacity number remains a delay-only lower bound** until G8 is pointed
-  at the book (CANON §17).
+* The synthetic world generator reconstructed returns *after* planting in a way
+  that **cancelled the plant exactly**. Every known-answer test would have run
+  against a null world while reporting an effect size.
+* A pure **noise** signal shows a **+1.7 %/yr decile spread** in that generator,
+  because persistent AR(0.8) noise correlates with the fixed beta draw and holds
+  it for years. Kept as part of the null and reported, not tuned away.
+* **Scoring pass 1 is VOID**: it benchmarked against a monthly-rebalanced
+  equal-weight universe earning 17.97 %/yr small and 25.69 % largemid, against
+  7.7–8.0 % buy-and-hold. All 384 genomes were negative against it — including
+  the control, which is what exposed it.
 
-## Queue
+## The honest gap in the flywheel
 
-1. **B1 — the analyst data spine.** Call Finnhub / FMP / Polygon / EODHD /
-   Alpha Vantage for target history and print status codes and payloads. Nothing
-   in B4 is honest without it.
-2. **The relabelling successor** — train on the arithmetic objective the book is
-   actually paid in, rather than a demeaned log return. Registered by the N1B
-   conclusion, not yet written.
-3. **B5 catalyst calendar** — earnings, PDUFA, offerings, lockups.
-4. **B7 reconstruction dataset** — the 25k→45k process as data, preserving the
-   dated snapshots rather than refreshing them.
-5. Fit the haircut once the journal has ~50 resolved instructions.
-6. Resolve the phase axis.
-7. **Background:** G8 capacity ladder, PF8 trigger confound, T4b coverage
-   matrix, N3b. Displaced by the pivot, not by a finding.
+The Arena **did not find** a planted +8 %/yr analyst effect, because the
+registry grades that signal RISK_INPUT so no analyst-*led* genome exists in the
+pool. **The search can confirm what the lab believes and can never overturn
+it.** A "heresy sleeve" is registered as the fix and deliberately not built.
 
 ## Decisions that are Murat's
 
-Two inputs only he can give, and both gate real work: **actual holdings**
-(tickers, shares, cost basis, cash) and the **trade history** behind the
-25k→45k year. Both are private operational data — gitignored, per
-`docs/BUILD1/PRIVATE_DATA_POLICY.md`. No lane, flag, capital or key decision is
-outstanding.
+**Cash.** That is the whole list. Holdings, share counts and 7 of 12 cost bases
+were recovered from `book_lanes.yaml` + the conviction decision log + the
+January PDF; he should never have been asked to re-type them. Two smaller
+confirmations: QUBT 300 or 200, and that MSTR / FSLR / ELF / APLT are exited.
+
+## Queue
+
+1. **Close the evidence conflict** — the funnel's output becomes the PM's
+   candidate list, replacing a watchlist ranked on a PERVERSE signal.
+2. The **heresy sleeve**, so the loop can run backwards.
+3. **Fit `TARGET_HAIRCUT`** — IBES now makes an empirical estimate possible.
+4. **Per-analyst reliability** from `ptgdet` (17,364 analyst codes on disk;
+   needs `ibes.adj` because the values are download-date adjusted).
+5. Placebo band on ANALYST-IBES-1 (dropped for time, declared).
+6. Health canary for the registry / funnel / shadow ledger.
+7. **Background, unchanged:** G8 capacity ladder, PF8 trigger confound, T4b,
+   N3b, the phase axis.
