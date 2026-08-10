@@ -59,7 +59,14 @@ strategy-favourable defensible assumption (all trials pure noise), at N=179:
 > maximum of 179 pure-noise draws over the same window is 0.431. **We beat
 > noise-selected-179-times by 0.018 of Sharpe.**
 
-The honest label is now a number: **P(true excess Sharpe > 0) ≈ 0.55.**
+**CORRECTED after external review (NIGHT-7B):** the original wording here —
+"P(true excess Sharpe > 0) ≈ 0.55" — was **wrong**. DSR is not a Bayesian
+posterior over true alpha; it is a probabilistic-Sharpe statistic against a
+selection-adjusted benchmark Sharpe. The claim the arithmetic supports is:
+**the historical survivor does not establish unique alpha once the search is
+accounted for.** And DSR is **not** re-armed as a kill gate — GATE-M1 measured
+DSR ≥ 0.95 as nearly powerless. `T4b` (empirical selection bootstrap) is
+registered to replace arguing about N.
 
 **5. The firewall is code, not a design note.** `aegis_brain/firewall/`, 25 tests.
 Layer 1 refuses outcome-shaped context and unstamped extractions; the crossing

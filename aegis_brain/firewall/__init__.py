@@ -47,19 +47,27 @@ NOT YET LICENSED
 """
 
 from aegis_brain.firewall.contracts import (
+    CHANNELS,
+    LLM_CHANNELS,
+    VETO_REASONS,
     Adjudication,
     Extraction,
     ExtractionRequest,
     FirewallViolation,
     LearningSample,
     ProvenanceStamp,
+    VetoProposal,
 )
 
 __all__ = [
+    "CHANNELS",
+    "LLM_CHANNELS",
+    "VETO_REASONS",
     "Adjudication",
     "Extraction",
     "ExtractionRequest",
     "FirewallViolation",
     "LearningSample",
     "ProvenanceStamp",
+    "VetoProposal",
 ]
