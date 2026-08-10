@@ -245,7 +245,7 @@ Murat corrects it.
 | N1B-3 | top-150 overlap above 50% | **REFUTED** — 14–25% |
 | N1B-4 | the clock is NOT the explanation | **CORRECT** (against the reviewer's hypothesis) |
 | N1B-5 | replacement loss positive | **REFUTED** — the added names beat the dropped ones |
-| N1B-6 | wide phase spread | **UNRESOLVED** — the phase axis is not trustworthy |
+| N1B-6 | wide phase spread | **UNRESOLVED, and deliberately with no MDE.** The referee flags a null without a minimum detectable effect, correctly — but an MDE would be a lie here. The axis returned an identical number for all twelve phases, so the estimate is not small, it is *degenerate*: there is no dispersion to compute a standard error from. The instrument is broken, not underpowered, and quoting an MDE would dress a broken measurement as a weak one |
 | N1B-7 | ΔIC shrinks by half under a simple-return label | **REFUTED** — it does not move at all; a rank correlation is invariant to a monotone relabelling, which is the whole point |
 | N1B-8 | the top-150 delta turns negative | **CORRECT** — negative at every K and in every arm, 15 of 15 |
 | N1B-9 | the composite's holdings are more positively skewed | **PARTLY** — true for R2 and R3, false for R1 |
@@ -256,6 +256,14 @@ prereg whose predictions all come true is usually a prereg written after the
 compute.
 
 ---
+
+## 6b. Ledger
+
+**NIGHT-9 adds 0 strategy branches.** No signal, weight, threshold, holding rule
+or clock was searched. N1B fitted no model (its step-0 re-fit had to reproduce
+the parent exactly or void), G8 is an execution instrument, and the corrigendum
+and the typed-stats split are corrections. The trial-count denominator stays at
+**179**, unchanged since the search closed.
 
 ## 7. What is NOT claimed
 
