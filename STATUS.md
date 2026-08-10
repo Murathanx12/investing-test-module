@@ -1,94 +1,124 @@
-# STATUS — handoff after NIGHT-8 (2026-08-10)
+# STATUS — handoff after NIGHT-9 (2026-08-10)
+
+**The project pivoted mid-session and the pivot is binding.** Read
+`docs/HANDOFF_BUILD1.md` first — it says what is already built so BUILD-1 does
+not rebuild it.
 
 ## Where the code is
 
-* `main` (Aegis module) — NIGHT-7 and NIGHT-7B merged; **NIGHT-8 committed on
-  `main`**. Suite green.
-* `aegis-finance` `main` — CANON §2 scoped by data grade, §15 scoped to path
-  dependence, **§16 added** (a cost comparison needs a denominator that is not
-  the winner's).
-* Holdout unread throughout. Nothing promoted. No lane seeded, no flag flipped,
-  no `paper_nav` touched, no keys changed. **LLM spend this night: $0** — the
-  work that needed the budget (N4) is the work that got deferred, and it was
-  deferred for a stated reason rather than quietly dropped.
+* `factory/night-9` (Aegis module) — N1B, G8, typed stats, the N2 corrigendum.
+* `aegis-finance` `main` `0c3f170` — **Optimus Portfolio Manager v1**, live.
+  CANON §16 amended (it claimed G7 prices impact; it does not) and **§17 added**
+  (an execution number carries the model that produced it).
+* Holdout unread. No lane seeded, no flag flipped, no `paper_nav` touched, no
+  keys changed. **LLM spend: $0.**
+* Tests: **3,100 passed / 3 skipped** (aegis-finance, +26); module suite green
+  (+22: 15 G8 invariants, 7 typed-stats invariants).
 
-## What NIGHT-8 found
+## The mandate changed
 
-Full detail: `docs/NIGHT8_VERDICT_2026-08-10.md`. Receipts in `runs/NIGHT8/`,
-hashes and embedded scalars in `docs/manifests/NIGHT8_MANIFEST.json`.
+Three systems, none subordinate: **Research Lab** (~25%) asks what evidence we
+possess; **Portfolio Manager** (~55%) compounds Murat's real $45k; **Opportunity
+Engine** (~20%) finds where the payoff moved. Research sets reliability
+*weights*; it does not block labelled OBSERVATIONAL information from reaching
+the PM. The LLM never sizes. The engine never trades. Every wealth-target screen
+prints the ruin probability beside the dream number.
 
-**Three of five findings are about instruments, and two retract published
-claims.** That is the right shape for this programme right now: NIGHT-7's lesson
-was that the errors live in the apparatus and the write-up rather than the
-arithmetic, and tonight the apparatus was pointed at itself.
+## What NIGHT-9 found
 
-**1. The clock ensemble is NOT cheaper — NIGHT-7B is retracted.** Both arms start
-at the same NAV and end at different ones, so totalling cost in *dollars* rewards
-the arm that compounded less. Normalised by average NAV the ensemble is **3.54
-bps/traded and 0.011 pt/yr worse at $1m**, and indistinguishable at $50m. Three
-nights, three answers, from three denominators. The case for the ensemble rests
-entirely on removing the 2.45 pt/yr date-luck range — not on cost. **CANON §16.**
+Full detail: `docs/NIGHT9_VERDICT_2026-08-10.md`. Receipts in `runs/NIGHT9/`.
 
-**2. G7 cannot price impact.** Cost per dollar traded is **31.00 bps at ADV
-multiples of 1,000,000×, 100×, 5× and 1×** — identical across a million-fold
-range of liquidity. It models capacity as *delay*, never as *price*. Every
-capacity number this programme has quoted is a **delay-only lower bound**,
-including NIGHT-5's "$100m → $500m" and NIGHT-7's $50m rung. **CAPACITY-EDGE-1 is
-blocked as scoped.** What G7 *does* do well is now measured: 0% false positives
-in a frictionless world, cost recovered to 0.00 bps.
+**1. N1B — every rank-based axis says the learned rankers are better, and the
+book still earns less.** The re-fit reproduced the parent's published statistics
+exactly (the first time this programme has verified that). Then: the advantage
+is the **same size on the book's own rebalance months** (the clock hypothesis is
+dead); it is **larger in the top decile than the bottom** (the §28 hypothesis is
+dead); the learned top-K beats the control at **every** K from 25 to 300; and
+the names they **add** beat the names they **drop** by 3.3–5.9 points. Overlap
+between the two books is only **14–25%**. Four of five registered predictions
+refuted.
 
-**3. N1 — learned rankers order better and earn less.** All three (GBM narrow,
-GBM wide, MLP wide) beat the hand-written composite on rank-IC: mean IC 0.124 →
-**0.158 / 0.192 / 0.180**, paired t **4.18 / 4.09 / 3.46** over 461 months. None
-makes more money; all three `IMPLEMENTATION_FAILED`. **Turnover is ruled out by
-measurement** — the best-ordering arm had the *lowest* turnover (0.401 vs the
-control's 0.460). The pre-compute power table was accurate to within 2%.
+**AMENDMENT 2 ran, and it is the finding of the night.** The label is a demeaned
+**log** return; a long-only book is paid in **simple** returns. Under the simple
+label the learned rankers' top-K is **worse than the composite's at every K and
+in every arm — 15 of 15 negative**, agreeing in sign with the money result. And
+**ΔIC is identical to five decimals under both labels**, because a rank
+correlation is invariant to a monotone relabelling.
 
-**4. N2 — the book already refuses the worst.** A size-matched random veto moves
-it **+0.00%/yr at t 0.01** (a clean placebo pass); accruals/issuance/distress
-vetoes are all positive but below the 1.5%/yr bar. The diagnostic is the finding:
-a random veto removes **13.9%** of the held book, the union of three anomalies
-**9.3%**, distress alone **0.9%**. A profitability tilt is an implicit distress
-veto.
+**So the ordering instrument is structurally blind to what determines the
+money.** A portfolio earns the arithmetic mean of simple returns, which depends
+on right-tail magnitudes; rank-IC discards magnitudes by construction. NIGHT-8
+said "two instruments is what saved this from a vacuous null" — it did not. The
++0.068 at t 4.09 was never wrong and was never evidence about money.
+**Standing consequence: rank-IC may describe ordering; it may not corroborate a
+null money result, and "orders better" may not be said without a magnitude test
+beside it.** No single top-K delta clears |t| 2 (0.98–1.70), so this is a
+directional reconciliation across five cut points, three architectures and the
+money instrument — not an independently significant effect.
 
-**5. N3 — seasoning POWER_FAILED, and the buckets were not what they looked
-like.** Fresh entrants beat fellow holdings by +4.27%/yr (NW t 2.10) but the
-weakest bucket's MDE is 4.89%/yr against a 2%/yr bar. The exit hazard is
-**0.0069** in months 1–6 and **0.0721** in months 7–12 — on an annual clock a
-name *cannot* be sold before the next rebalance, so these buckets are first
-half-year vs second half-year, not fresh vs stale. Band tuning does **not** close.
+**2. G8 — the impact term exists now.** Metaorder square-root law charged on the
+whole order, so splitting an order over days no longer escapes it — G7's actual
+loophole. Built beside G7, not inside it: `impact_coef = 0.0` skips the
+arithmetic and reproduces G7 exactly. 15 invariants, two of which failed on the
+first run for real reasons. **The capacity ladder was deliberately NOT run** —
+institutional capacity does not help a $45k account.
 
-**6. A units bug in a published receipt.** `mde_annualized()` annualises its
-input; five call sites pre-annualised. NIGHT-7's trigger receipts reported MDEs
-of **43%–143%/yr**; true values are those ÷12. The *finding* is unaffected (12m
-effect −8.19%/yr vs corrected MDE 3.61%/yr) and no prose quoted them, but the
-receipts were wrong and are regenerated. The function now raises above 50%/yr.
+**3. The N2 "15× better than chance" is withdrawn.** The random placebo was
+count-matched to the union arm (288 names), not to distress (60). Correctly
+normalised: distress **3.40×**, issuance 2.22×, union 1.49×, **accruals 1.05× —
+chance**. Direction survives at a quarter of the size and only for two of three
+families. Every return result in N2 stands.
 
-## New machinery, all of it calibrated before use
+**4. The units bug has a structural fix.** `aegis_brain/pf/stats.py` removes the
+generic `paired()` entry point; four typed functions carry `unit`, `frequency`,
+`annualization`, `estimator`, and the annualising arithmetic is unreachable from
+the IC path.
 
-| tool | what it does | its own error rate |
-|---|---|---|
-| `scripts/lint_prereg.py` | corpse-check vs 301 recorded experiments; BLOCKED / DUPLICATE / RESURRECTION / PASS | failed calibration 3× first; TEMPLATE.md no longer self-blocks; FP and FN pinned by tests on the real corpus |
-| `discipline/manifest.py` | committable receipts + claim coverage | fabricated numbers "backed" **86.6% → 1.9%**; `calibrate()` ships inside every manifest |
-| `discipline/citations.py` | qualifier is a **required field** | a citation that does not declare transfer does not load |
-| `discipline/referee.py` | 5 checks from 5 real write-up failures | 9 blockers on its first pass over this night, 8 of them false; fixed, then **0 blockers** |
+**5. Portfolio Manager v1 ships and runs on live data.** One command, one
+morning: state, the 12-month distribution with the downside beside the target,
+per-holding BUY/ADD/HOLD/TRIM/SELL with dollars and kill conditions, threats, a
+ranked radar, and which holding funds which buy. On the reconstructed book:
+median ~$64,500, **P($100k) ≈ 20%**, **P(<$30k) ≈ 6%**, expected max drawdown
+**−27%**. Two construction bugs found and fixed during the build, both of which
+had produced confident nonsense.
 
-## Queue — nothing here is blocked on Murat
+## What is stubbed, wrong, or untrustworthy — read before quoting anything
 
-1. **`TRIAL-N1B-WHERE-DOES-THE-IC-LIVE-1`** — the highest-value open item. Decile
-   IC decomposition + top-150-only IC. If the learned rankers' advantage sits in
-   the bottom deciles (the §28 hypothesis), a long-only book structurally cannot
-   collect it, and a symmetric regression loss is the wrong objective.
-2. **`TRIAL-PF7B-TRIGGER-PENALTY-1`** — amended and ready; all arms through G7.
-3. **T4b selection bootstrap** — amended, implementation frozen, coverage matrix
-   first.
-4. **`TRIAL-PF8-TRIGGER-CONFOUND-1`** — the path-geometry placebo is the sharp test.
-5. **`TRIAL-N3B-FRESH-ENTRANT-CONFOUND-1`** — half-year placebo; I predict it fires.
-6. **An impact term for G7**, or CAPACITY-EDGE-1 stays blocked.
-7. **N4 LLM-VETO-CAL-1** — blocked on an EDGAR retrieval build, not on a decision.
-8. `TRIAL-IMAGE-RANK-1` — backlog, gated on N1b.
+* **The book is `confirmed: false`.** Reconstructed from the January 2026 PDF;
+  no share counts, no cash. Every dollar figure carries a banner.
+* **The analyst layer is Yahoo-only and has no target history.** ΔTarget over
+  7/30/90 days — the mandate's central signal — **does not exist yet**; it is
+  approximated by a 4-row rating-trend table. B1 is the real gate.
+* **`TARGET_HAIRCUT = 0.35` is fitted to nothing** and every probability the PM
+  prints depends on it.
+* **No catalyst calendar at all.** For a book with three pre-revenue clinical
+  names this is the largest gap in the product.
+* **The N1B phase axis is not trustworthy** — twelve phases returned an
+  identical excess CAGR, contradicting NIGHT-7's 2.45 pt/yr date-luck range. No
+  phase claim may be made until it is resolved.
+* **Every capacity number remains a delay-only lower bound** until G8 is pointed
+  at the book (CANON §17).
+
+## Queue
+
+1. **B1 — the analyst data spine.** Call Finnhub / FMP / Polygon / EODHD /
+   Alpha Vantage for target history and print status codes and payloads. Nothing
+   in B4 is honest without it.
+2. **The relabelling successor** — train on the arithmetic objective the book is
+   actually paid in, rather than a demeaned log return. Registered by the N1B
+   conclusion, not yet written.
+3. **B5 catalyst calendar** — earnings, PDUFA, offerings, lockups.
+4. **B7 reconstruction dataset** — the 25k→45k process as data, preserving the
+   dated snapshots rather than refreshing them.
+5. Fit the haircut once the journal has ~50 resolved instructions.
+6. Resolve the phase axis.
+7. **Background:** G8 capacity ladder, PF8 trigger confound, T4b coverage
+   matrix, N3b. Displaced by the pivot, not by a finding.
 
 ## Decisions that are Murat's
 
-Unchanged from NIGHT-7B. Nothing new tonight requires him: no lane, no flag, no
-capital, no key, no claim that leaves the repository.
+Two inputs only he can give, and both gate real work: **actual holdings**
+(tickers, shares, cost basis, cash) and the **trade history** behind the
+25k→45k year. Both are private operational data — gitignored, per
+`docs/BUILD1/PRIVATE_DATA_POLICY.md`. No lane, flag, capital or key decision is
+outstanding.

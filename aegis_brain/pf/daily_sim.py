@@ -37,6 +37,7 @@ import numpy as np
 import pandas as pd
 
 from aegis_brain.config import MODULE_ROOT
+from aegis_brain.pf import impact as impact_mod
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,11 @@ PERF_DELIST = range(400, 592)
 #: those as delistings would liquidate live positions at an invented price. A
 #: real delisting is dlstcd >= 200.
 FIRST_REAL_DELIST_CODE = 200
+
+#: Last-resort daily volatility when a book trades before any history exists.
+#: ~32%/yr. Only reachable on the very first order of a sample; counted and
+#: printed as `impact_warmup_orders` so it can never be silent.
+DEFAULT_DAILY_SIGMA = 0.02
 
 
 @dataclass
@@ -72,6 +78,17 @@ class SimConfig:
     #: Shumway (1997) imputation when a performance delisting has no DLRET
     missing_delist_return: float = -0.30
     seed: int = 20260809
+    #: G8 price impact. **0.0 is G7** and reproduces every published G7 number
+    #: bit for bit — the impact arithmetic is skipped entirely, not multiplied by
+    #: zero. Any positive value makes the run G8 and the receipt says so. See
+    #: `aegis_brain/pf/impact.py` for the law and for what it does not model.
+    impact_coef: float = 0.0
+    #: exponent on execution urgency; 0.0 means horizon is NOT priced (declared)
+    impact_urgency_exp: float = 0.0
+
+    @property
+    def execution_model(self) -> str:
+        return "G8" if self.impact_coef > 0 else "G7"
 
 
 @dataclass
@@ -212,6 +229,19 @@ def simulate(targets: list[dict], data: DailyData,
     cfg = cfg or SimConfig()
     days = data.ret.index.sort_values()
     tgt = sorted(targets, key=lambda t: t["effective"])
+    # ── G8 price impact, off by default ──────────────────────────────────
+    # Charged on the METAORDER at creation and amortised across its fills, so
+    # working an order down over more days does not escape it. That carry-
+    # forward escape is precisely why G7 returned 31.00 bps at every liquidity
+    # rung NIGHT-7 tried. At impact_coef == 0 nothing below executes.
+    g8 = cfg.impact_coef > 0
+    adv_tr = sigma_tr = None
+    order_impact_bps: pd.Series = pd.Series(dtype=float)
+    impact_total = 0.0
+    impact_warmup_orders = 0
+    if g8:
+        adv_tr = impact_mod.trailing_adv(data.dvol)
+        sigma_tr = impact_mod.trailing_sigma(data.ret)
     ti = 0
     want: pd.Series = pd.Series(dtype=float)
     val: dict[int, float] = {}
@@ -275,6 +305,31 @@ def simulate(targets: list[dict], data: DailyData,
             idx = sorted(set(want.index) | set(val))
             cur = pd.Series({p: val.get(p, 0.0) for p in idx}, dtype=float)
             pending = (want * nav).reindex(idx).fillna(0.0) - cur
+            if g8 and len(pending):
+                # WARM-UP, not missing data. A trailing window is undefined for
+                # the first few days of any sample; charging those orders the
+                # untradeable-name rate would make the opening trade — the
+                # largest one in the run — dominate every impact number. Fall
+                # back to the day's own volume, count it, and print the count.
+                # A name with no volume TODAY either is still the expensive case.
+                adv = adv_tr.loc[day].reindex(pending.index)
+                today = data.dvol.loc[day].reindex(pending.index)
+                warm = adv.isna() & today.notna() & (today > 0)
+                impact_warmup_orders += int(warm.sum())
+                adv = adv.where(~warm, today)
+                sig = sigma_tr.loc[day].reindex(pending.index)
+                fb = sig.median()
+                if not np.isfinite(fb):
+                    fb = data.ret.loc[:day].tail(60).std().median()
+                if not np.isfinite(fb):
+                    fb = DEFAULT_DAILY_SIGMA
+                sig = sig.fillna(float(fb))
+                order_impact_bps = pd.Series(
+                    impact_mod.square_root_impact_bps(
+                        pending.abs().to_numpy(), adv.to_numpy(),
+                        sig.to_numpy(), cfg.impact_coef,
+                        urgency_exp=cfg.impact_urgency_exp),
+                    index=pending.index, dtype=float)
 
         if len(pending):
             adv = data.dvol.loc[day].reindex(pending.index)
@@ -298,6 +353,12 @@ def simulate(targets: list[dict], data: DailyData,
                 bps = hs + cfg.slippage_bps + cfg.commission_bps
                 notional = fill.abs()
                 cost = float((notional * bps / 1e4).sum())
+                if g8:
+                    imp_bps = order_impact_bps.reindex(fill.index).fillna(
+                        impact_mod.MAX_IMPACT_BPS)
+                    imp = float((notional * imp_bps / 1e4).sum())
+                    cost += imp
+                    impact_total += imp
                 # traded at the open, marked at the close: the traded notional
                 # earns (close/open - 1) on the buy side and forgoes it on the
                 # sell side
@@ -343,6 +404,14 @@ def simulate(targets: list[dict], data: DailyData,
             "cost_dollars": round(cost_total, 0),
             "cost_bps_of_traded": round(cost_total / traded_total * 1e4, 1)
             if traded_total else None,
+            "execution_model": cfg.execution_model,
+            "impact_dollars": round(impact_total, 0),
+            "impact_warmup_orders": impact_warmup_orders,
+            "impact_bps_of_traded": (round(impact_total / traded_total * 1e4, 2)
+                                     if traded_total else None),
+            "explicit_bps_of_traded": (
+                round((cost_total - impact_total) / traded_total * 1e4, 2)
+                if traded_total else None),
             "execution_drift_dollars": round(exec_drift_total, 0),
             "days_with_capped_orders": capped_days,
             "stale_liquidations": stale_liquidations,
