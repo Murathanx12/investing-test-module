@@ -276,8 +276,40 @@ paper plus an open dataset is a citable asset — and it is what opens Path A la
 
 The honest asymmetry: Path A's output is uncertain and years away; Path B's is
 nearly finished, unusual, and worth more at 18 than 1%/yr on a small account.
-**Recommendation: Path B as the primary track, forward lanes continuing untouched
-so Path A stays available.** Murat decides.
+
+### DECIDED 2026-08-10 — BOTH, on these terms (Murat, verbatim intent)
+
+Murat: run both. The product should "make revenue and stand as a
+commercial/open-source product to help people and help me especially with my
+investments"; Path B proceeds in parallel because a ground-breaking paper is
+worth pursuing at HKU. Fallback to "portfolio project" only if the system
+genuinely fails to beat the S&P **and** scores below Murat's own investing.
+
+The brain's binding translation, so both tracks stay honest:
+
+1. **The product track sells the product scoreboard, never the research one.**
+   What it can claim today, with receipts: the craftsmanship ledger (§7 —
+   clock, churn, date-luck, fees: arithmetic), the discipline layer, and full
+   transparency including the DSR number. It never claims "beats the S&P" —
+   that claim sits at P ≈ 0.55 and §13 makes overclaiming a legal risk, not
+   just a scientific one. Revenue framing: people pay for implementation
+   quality, honesty and tooling — the same things AVUV charges 25bps for —
+   not for a prediction.
+2. **The paper track needs a named paper.** Next action: worker drafts three
+   one-page abstracts — (a) the honest-factory methods paper (pre-registration
+   + hash anchor + 148-row failure taxonomy + self-applied DSR), (b) the
+   backtest-cost-bias measurement (2.4pt/yr, measured twice), (c) the
+   pre-registered LLM-selection negative result (16,320 graded decisions,
+   leakage-controlled) — Murat picks one with an HKU supervisor.
+3. **The personal benchmark is already answerable.** "Scores lower than me" is
+   the product board's easiest win: Murat's own record shows excellent buys
+   and exits that gave back most of the gains (MRVL 40→80, MU 100→200, NVDA
+   20→100); the exit sweep showed the discipline layer's value is precisely
+   that it *prevents* those sells. Beat-the-S&P stays an open research
+   question; beat-undisciplined-selling is already banked arithmetic.
+4. **Forward lanes untouched** (inception 2026-06-08, no skill claims before
+   24 months). They serve both tracks and are the only path to Path A's
+   missing evidence.
 
 ## 13. Regulatory guardrail
 
