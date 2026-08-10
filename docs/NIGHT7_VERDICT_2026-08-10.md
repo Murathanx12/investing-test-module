@@ -8,22 +8,37 @@
 
 ## The headline
 
-**The exit layer is not where the money is either — and the trailing stop, which
-the monthly panel ranked FIRST, loses 3.08%/yr once execution is measured
-instead of modelled.**
+**No tested exit rule demonstrated an incremental benefit — and the trailing
+stop, which the monthly panel ranked FIRST, loses 3.08%/yr once execution is
+measured instead of modelled.**
+
+*(Wording corrected after review: five arms failing to separate is evidence
+about **these five rules on this book**, not a proof that exit policy is
+irrelevant. The trailing-stop **implementation** is rejected outright; the
+question of whether a stop **trigger** carries information is reopened as T2c
+below.)*
 
 Second headline, and the more consequential one for the programme:
 
-**The survivor does not survive trial-count accounting.** Under the most
-strategy-favourable defensible assumption, the probability that
-`PF-PROF-COMPOSITE-150`'s true excess Sharpe is positive — after accounting for
-the search that found it — is **0.549**. A coin flip.
+**The survivor's excess Sharpe is not distinguishable from the best of its own
+search.** Its annualised excess Sharpe is **0.449**; the expected maximum of 179
+pure-noise draws over the same window is **0.431**. The Deflated Sharpe statistic
+is **0.549** — which does **not** mean "a 55% chance the alpha is real" (see the
+correction in §T4).
 
 Third, unglamorous and immediately usable:
 
 **Rebalance-date luck is worth a 2.45 percentage-point/yr range** (+2.24% to
 +4.69% depending purely on which month you rebalance in). That is **three times
-the entire spread across all five exit rules**, and it can be removed for free.
+the entire spread across all five exit rules**, and it appears **cheap to
+diversify away**.
+
+*(Wording corrected after review, twice over: (a) the 2.45 pt/yr figure is a
+max-minus-min **descriptive range** across twelve highly dependent cohorts — it
+is not a confidence interval; (b) "free" was quoted from the **monthly panel's**
+turnover number, which is precisely what CANON §15 — written the same night —
+forbids. The G7 measurement that settles it is `runs/NIGHT7/T1b_ENSEMBLE_G7.json`
+and is reported in §T3b.)*
 
 ---
 
@@ -184,9 +199,47 @@ The survivor's own annualised excess Sharpe is **0.449** (as banked) / **0.444**
 (shippable annual). The expected maximum of 179 pure-noise draws over the same
 window is **0.431**. **We beat noise-selected-179-times by 0.018 of Sharpe.**
 
-> **The honest label, unchanged and now quantified: factor harvest plus an
-> unproven residual. `P(true excess Sharpe > 0) ≈ 0.55` after the search is
-> accounted for.** The brain's prediction #2 was correct, and understated.
+> **The honest label, unchanged: factor harvest plus an unproven residual. The
+> historical survivor does not establish unique alpha once the search is
+> accounted for.** The brain's prediction #2 was correct.
+
+### CORRECTION (external review, 2026-08-10) — what DSR 0.549 does and does not mean
+
+Three reviewers read this section; one caught a real error in it, and the
+correction is load-bearing enough to sit inside the result rather than in a
+footnote.
+
+**Wrong (as originally written here): "P(true excess Sharpe > 0) ≈ 0.55."**
+DSR is not a Bayesian posterior over the strategy's true alpha. It is a
+probabilistic-Sharpe-style statistic evaluating an observed Sharpe against a
+*selection-adjusted benchmark Sharpe* under a sampling model. Calling it a
+posterior gives it more epistemic content than it has.
+
+**Right:** *the historical survivor does not establish unique alpha after
+accounting for the search.* That is the claim the arithmetic supports.
+
+**And a second guard-rail, from our own record.** GATE-M1 (2026-08-06) measured
+this exact gate and found **DSR ≥ 0.95 has almost no power against realistic
+injected edges** — the ratified ladder had a *measured 0% probability* of
+adopting a true α=0.6 constant edge. NEGATIVE_RESULTS records the same. So DSR
+must not be re-armed here as a universal kill gate; the JSON has always carried
+`status: REPORTED-NEVER-DECIDING`, and this prose now matches it.
+
+**DSR < 0.95 does NOT prove the strategy is false.** It says the historical
+evidence, discounted for the search, is not exceptional. Those are different
+claims and only the second is ours.
+
+**The right way to settle it is not to argue about N.** A reviewer's proposal —
+adopted and registered as **T4b** — is an empirical selection-bias bootstrap:
+block-bootstrap the *same* time blocks across all candidates so their real
+cross-correlation and time dependence survive, impose the null, and build the
+empirical distribution of the best statistic in each bootstrapped universe. That
+answers "how often would a null factory of *our* candidates produce a winner this
+good?" directly, in the White Reality Check / Hansen SPA tradition, instead of
+debating whether N is 179 or 40 or 5. Note that **179 can be simultaneously too
+high and too low**: too high because many candidates are correlated variants, too
+low because rank-shape, clock, frequency and exit branches were all subsequently
+explored on the same history.
 
 This does not retract NIGHT-4's decomposition (the +4.23% was real and was then
 spanned by a self-built profitability factor). It removes the last basis for
@@ -282,8 +335,12 @@ cost model I already had was the right one.
    Every high-turnover candidate in the graveyard was judged on that panel. This
    cuts **toward** the REJECTED column, and it means the resurrection queue should
    be re-read: high-turnover corpses are *more* dead, not less.
-2. **The survivor's label is now a number.** `P(true excess Sharpe > 0) ≈ 0.55`.
-   Any document that implies more must be corrected — including the product note.
+2. **The survivor's label is now bounded.** The historical record does not
+   establish unique alpha once the search is counted; the excess Sharpe (0.449)
+   sits essentially on the expected maximum of its own null (0.431). Any document
+   implying more must be corrected — including the product note. This is *not*
+   a proof the strategy is false, and DSR is not re-armed as a kill gate
+   (GATE-M1 measured that gate as nearly powerless).
 3. **Implementation is measurably worth more than selection.** Date luck
    (2.45 pt/yr range, removable free) and churn (2.4 pt/yr, avoidable) both exceed
    the entire measured spread across five exit rules (0.79 pt/yr) and the

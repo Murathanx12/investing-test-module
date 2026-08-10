@@ -168,6 +168,73 @@ class LearningSample:
             "someone who assumed it was allowed.")
 
 
+# ── channels ────────────────────────────────────────────────────────────────
+# External review (2026-08-10) found a real loophole: `set_weight()` raising is
+# necessary but not sufficient, because a VETO is itself a portfolio decision —
+# a discrete transition of a name from "eligible" to weight zero. An LLM that
+# cannot set weights but can delete holdings still moves the book.
+#
+# So the channels are named and only ONE of them is a portfolio action, and that
+# one is owned by deterministic code.
+CHANNELS = ("narrative", "measurement", "hypothesis", "veto_proposal",
+            "portfolio_action")
+LLM_CHANNELS = ("narrative", "measurement", "hypothesis", "veto_proposal")
+
+# Frozen reason vocabulary. A free-text veto cannot be scored, and an unscoreable
+# veto is an opinion with a portfolio consequence.
+VETO_REASONS = (
+    "going_concern_language",
+    "restatement_risk",
+    "customer_concentration_removed",
+    "litigation_disclosure_new",
+    "supply_chain_disclosure_new",
+    "auditor_change",
+    "guidance_withdrawn",
+    "related_party_expansion",
+)
+
+
+@dataclass(frozen=True)
+class VetoProposal:
+    """An LLM's request to exclude a name. A PROPOSAL — never an action.
+
+    It carries a frozen reason code, a calibrated probability, provenance and a
+    resolution date, so it can be Brier-scored like any other forecast. Until the
+    veto channel's forward calibration clears a registered threshold, applying
+    one to the production book is refused in code, not in policy.
+    """
+
+    subject_id: str
+    reason_code: str
+    probability: float          # P(the flagged failure occurs by resolves_at)
+    resolves_at: str
+    rationale: str
+    provenance: ProvenanceStamp
+    channel: str = "veto_proposal"
+
+    def __post_init__(self) -> None:
+        if self.reason_code not in VETO_REASONS:
+            raise ValueError(
+                f"reason_code {self.reason_code!r} is not in the frozen "
+                f"vocabulary {VETO_REASONS} — a free-text veto cannot be scored")
+        if not 0.0 <= float(self.probability) <= 1.0:
+            raise ValueError("probability outside [0, 1]")
+        if not self.rationale.strip():
+            raise ValueError("a veto proposal without a rationale is a mood")
+        if self.channel != "veto_proposal":
+            raise FirewallViolation("VetoProposal cannot claim another channel")
+
+    def apply_to_book(self, *_a, **_k):
+        raise FirewallViolation(
+            "a veto proposal is not a portfolio action. Excluding a name is a "
+            "weight decision and belongs to deterministic code, which may only "
+            "honour this proposal once the veto channel's forward calibration "
+            "has cleared its registered threshold.")
+
+    def brier(self, occurred: bool) -> float:
+        return float((self.probability - (1.0 if occurred else 0.0)) ** 2)
+
+
 @dataclass(frozen=True)
 class Adjudication:
     """Layer 3 OUTPUT. Read-only. Scored on calibration, never on P&L.
@@ -198,3 +265,18 @@ class Adjudication:
         raise FirewallViolation(
             "Layer 3 cannot change weights. Learning happens in Layer 2 under "
             "purged CV, and nowhere else.")
+
+    def to_veto_proposal(self, reason_code: str, resolves_at: str
+                         ) -> "VetoProposal":
+        """Turn a VETO verdict into a scoreable proposal — the only exit path.
+
+        A VETO that never becomes a VetoProposal never reaches anything, by
+        construction: there is no other method on this class that returns
+        something the engine will read.
+        """
+        if self.verdict != "VETO":
+            raise ValueError("only a VETO verdict becomes a veto proposal")
+        return VetoProposal(
+            subject_id=self.subject_id, reason_code=reason_code,
+            probability=self.probability, resolves_at=resolves_at,
+            rationale=self.rationale, provenance=self.provenance)

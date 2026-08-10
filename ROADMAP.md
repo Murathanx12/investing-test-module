@@ -164,7 +164,7 @@ successes on the other board.
 | asks | is there incremental information after known factors? | would a real person end up with more money? |
 | metrics | factor-residual alpha, incremental IC, MDE, placebo, era stability, forward evidence | terminal wealth, drawdown, cost, tax, capacity, usability |
 | bar | t > 3 after trial-count deflation (Harvey-Liu-Zhu) | beat the accessible alternative net of everything |
-| our status | **NOT MET** — DSR ≈ 0.55 at N=179 (NIGHT-7 T4) | **partially met and improving** |
+| our status | **NOT MET** — the survivor does not establish unique alpha once the search is counted (NIGHT-7 T4; DSR is a diagnostic, never a kill gate — GATE-M1 measured that gate as nearly powerless) | **partially met and improving** |
 | evidence type | inference (t-stats, needs decades) | arithmetic (costs, dates, fees — needs no t-stat) |
 
 **They are never mixed in a single sentence.** A claim on the product board never
@@ -186,7 +186,7 @@ inference** — which is exactly why they are worth more than another t-stat.
 | capacity below AVUV's floor | plausible, **not yet measured** | — | OPEN (ADV/price-impact test) |
 | tax-loss harvesting | **1.10%/yr gross, 0.85% wash-sale-constrained** (Chaudhuri-Burnham-Lo FAJ 2020) | verified | **US-TAXABLE USERS ONLY — worth ≈0 to a HK-resident account. Never in our own target.** |
 
-Against a *selection* residual whose probability of being positive is 0.55, the
+Against a *selection* residual the historical record cannot establish, the
 implementation ledger is the stronger asset and should be the product's spine.
 
 ## 8. LLM role — settled (NIGHT-3 measured it, NIGHT-7 built the guard)
@@ -248,7 +248,7 @@ Standing product sentence, now carrying T4's number:
 > Against the fund actually running our strategy (AVUV), we have **not shown an
 > edge** (+1.46%/yr, t −0.02, 39 months). Against value ETFs and the Ken French
 > proxy the convergent estimate is **~+2%/yr at t≈1.2**. After trial-count
-> deflation, `P(true excess Sharpe > 0) ≈ 0.55`. What we *can* demonstrate is
+> deflation, the historical record does not establish unique alpha. What we *can* demonstrate is
 > implementation: clock, churn, date luck and fees — arithmetic, not inference.
 
 ## 11. Excluded, permanently
@@ -291,7 +291,7 @@ The brain's binding translation, so both tracks stay honest:
    What it can claim today, with receipts: the craftsmanship ledger (§7 —
    clock, churn, date-luck, fees: arithmetic), the discipline layer, and full
    transparency including the DSR number. It never claims "beats the S&P" —
-   that claim sits at P ≈ 0.55 and §13 makes overclaiming a legal risk, not
+   that claim is not established by the historical record and §13 makes overclaiming a legal risk, not
    just a scientific one. Revenue framing: people pay for implementation
    quality, honesty and tooling — the same things AVUV charges 25bps for —
    not for a prediction.

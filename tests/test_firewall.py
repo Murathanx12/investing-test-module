@@ -8,12 +8,15 @@ from __future__ import annotations
 import pytest
 
 from aegis_brain.firewall import (
+    CHANNELS,
+    LLM_CHANNELS,
     Adjudication,
     Extraction,
     ExtractionRequest,
     FirewallViolation,
     LearningSample,
     ProvenanceStamp,
+    VetoProposal,
 )
 
 
@@ -153,3 +156,61 @@ def test_adjudication_probability_is_brier_scoreable():
                      provenance=stamp())
     brier = (a.probability - 1.0) ** 2      # resolved TRUE
     assert 0.0 <= brier <= 1.0
+
+
+# ── the veto channel (external review 2026-08-10) ───────────────────────────
+# A veto moves the book even though it never calls set_weight(). These tests
+# close that loophole.
+def _veto() -> VetoProposal:
+    return VetoProposal(
+        subject_id="x", reason_code="customer_concentration_removed",
+        probability=0.7, resolves_at="2016-06-30T00:00:00Z",
+        rationale="the customer-concentration paragraph was deleted",
+        provenance=stamp())
+
+
+def test_veto_proposal_cannot_be_applied_to_the_book():
+    with pytest.raises(FirewallViolation):
+        _veto().apply_to_book({"x": 0.0})
+
+
+def test_veto_reason_code_must_be_in_the_frozen_vocabulary():
+    with pytest.raises(ValueError):
+        VetoProposal(subject_id="x", reason_code="i_dont_like_it",
+                     probability=0.7, resolves_at="2016-06-30T00:00:00Z",
+                     rationale="vibes", provenance=stamp())
+
+
+def test_veto_proposal_cannot_claim_another_channel():
+    with pytest.raises(FirewallViolation):
+        VetoProposal(subject_id="x", reason_code="auditor_change",
+                     probability=0.5, resolves_at="2016-06-30T00:00:00Z",
+                     rationale="r", provenance=stamp(),
+                     channel="portfolio_action")
+
+
+def test_veto_is_brier_scoreable_both_ways():
+    v = _veto()
+    assert v.brier(True) == pytest.approx((0.7 - 1.0) ** 2)
+    assert v.brier(False) == pytest.approx(0.7 ** 2)
+
+
+def test_only_a_veto_verdict_becomes_a_proposal():
+    a = Adjudication(subject_id="x", verdict="FLAG", probability=0.3,
+                     rationale="thin", provenance=stamp())
+    with pytest.raises(ValueError):
+        a.to_veto_proposal("auditor_change", "2016-06-30T00:00:00Z")
+
+
+def test_veto_verdict_converts_and_stays_unappliable():
+    a = Adjudication(subject_id="x", verdict="VETO", probability=0.8,
+                     rationale="auditor resigned mid-year", provenance=stamp())
+    p = a.to_veto_proposal("auditor_change", "2016-06-30T00:00:00Z")
+    assert p.channel == "veto_proposal"
+    with pytest.raises(FirewallViolation):
+        p.apply_to_book()
+
+
+def test_portfolio_action_is_not_an_llm_channel():
+    assert "portfolio_action" in CHANNELS
+    assert "portfolio_action" not in LLM_CHANNELS
