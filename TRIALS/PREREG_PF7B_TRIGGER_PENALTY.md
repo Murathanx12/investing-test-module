@@ -76,6 +76,86 @@ grid, not a search**):
 
 ## 7. Why this is worth running
 
-Because the vehicle is free. Every other candidate for improving the book costs
-turnover, and NIGHT-7 measured what turnover costs. This one changes which names
-a rebalance we are already paying for happens to pick.
+Because the vehicle adds no new trading DATES. Every other candidate for
+improving the book adds rebalances, and NIGHT-7 measured what that costs. This
+one changes which names a rebalance we are already paying for happens to pick.
+
+---
+
+# AMENDMENT 1 — 2026-08-10, before any compute
+
+**Origin:** second external review pass. **Registered predictions in §5 are
+UNCHANGED.** What changes is a verdict label that overclaimed, a decision rule
+that was not directional, a cost premise that was assumed rather than measured,
+and a battery of confounds that had not been named.
+
+## A1.1 A pass here is not CONFIRMED
+
+§6 already says, correctly, that the trigger evidence and this test use the same
+history, so a pass is evidence about implementability and **not** independent
+confirmation. §4 then labelled a pass `CONFIRMED`. Those two sentences cannot
+both stand.
+
+**Renamed: the positive state is `DELIVERY_PASS` (implementable in sample).**
+`CONFIRMED` in taxonomy v2 is reserved for evidence from data that was genuinely
+inaccessible during discovery — an untouched holdout, or forward record. This
+trial has neither and cannot mint one.
+
+## A1.2 The decision rule is now directional
+
+§4 read `|t| ≥ 2.0` and `|effect| ≥ 1.0%/yr`, which on a literal reading would
+label −2.0%/yr at t −3.0 a pass. The hypothesis is that the penalty **helps**.
+
+| outcome | state |
+|---|---|
+| effect ≥ **+1.0%/yr** and NW(12) t ≥ **+2.0** | `DELIVERY_PASS` |
+| effect ≤ **−1.0%/yr** and NW(12) t ≤ **−2.0** | `REJECTED` — the penalty is harmful; the trigger information does not transfer, or transfers with the wrong sign |
+| anything else | `UNRESOLVED`, MDE printed |
+
+## A1.3 "Zero incremental turnover" and "free" are withdrawn
+
+§2 claimed zero incremental turnover; §5.1 simultaneously predicted P1 would
+raise turnover. The prereg contradicted itself, and the earlier of the two
+sentences is the one that was wrong. A swap at an already-scheduled rebalance
+still crosses a spread, still pays impact, and swaps a name of one liquidity for
+a name of another.
+
+The defensible claim is: **no additional rebalance DATES, and an incremental
+turnover cost that must be measured rather than assumed.**
+
+**Consequently the turnover-invariant escape hatch in §4 is removed. Every arm
+(P0–P3) goes through G7 regardless of what the monthly panel's turnover
+difference is.** The panel-vs-G7 gap was measured at ~2.4 pts/yr twice
+independently (NIGHT-6, NIGHT-7); a 0.05 turnover threshold read off the
+instrument that is known to understate is not a safe gate. G7 already exists, so
+there is no cost to simply using it.
+
+## A1.4 Momentum was one confound. It was not the only one.
+
+A 20% peak drawdown while held is not only a momentum sort — it also
+mechanically selects on realised volatility, on distance-from-high, on beta, on
+deteriorating liquidity, and on whatever fundamental deterioration drove the
+fall. Surviving a momentum control is necessary and nowhere near sufficient.
+
+Registered as **`TRIAL-PF8-TRIGGER-CONFOUND-1`**, to run beside this trial. The
+write-up of either may not assert a *mechanism* until it lands:
+
+1. Incremental association after within-month controls for: trailing 12m
+   realised volatility, idiosyncratic volatility, distance-from-52w-high, beta,
+   log size, ADV, Corwin-Schultz spread, industry, initial composite rank at
+   entry, and the change in the profitability/value components since entry.
+2. **The path-geometry placebo, which is the sharp test.** Among held names
+   matched on trailing return *and* trailing volatility, does the *path* — having
+   actually breached 20% below a running peak — still forecast worse forward
+   returns than a matched name that reached the same endpoint without breaching?
+   If yes, the finding is about path dependence and is genuinely interesting. If
+   no, the trigger is a coarse proxy for return-and-volatility and should be
+   replaced by those two variables directly, which are cheaper and better
+   measured.
+
+## A1.5 Ledger
+
+`TRIAL-PF8-TRIGGER-CONFOUND-1` is a separate registration carrying its own
+branch count. This amendment adds **0 branches** to PF7B-TRIGGER-PENALTY (the P0–P3
+grid is unchanged); removing the turnover escape hatch removes one decision
+point rather than adding one.

@@ -1,0 +1,204 @@
+{
+  "schema": "aegis-citations-v1",
+  "why": "NIGHT-7 T1 established this programme's citation failure mode, and it is not fabrication. Five external reviews quoted numbers that were REAL and published, stripped of the qualifier that made them true: a long-short alpha applied to a long-only book, a rebalancing premium measured against buy-and-hold quoted as alpha against a rebalanced benchmark, a 131.83% return quoted without its Sharpe of 0.31. Prose cannot enforce a qualifier. This file makes the qualifier a REQUIRED FIELD, so a citation without one fails to load.",
+  "required_fields": ["id", "claim", "source", "verdict", "qualifier", "transfers_to_aegis"],
+  "verdict_codes": {
+    "V": "verified as quoted",
+    "V-C": "verified with a correction to the number",
+    "V-M": "the number is real but was used misleadingly",
+    "P": "partially verified",
+    "U": "could not verify — may not be quoted",
+    "X": "failed verification — invented"
+  },
+  "citations": [
+    {
+      "id": "LAZY-PRICES-188BPS",
+      "claim": "up to 188 bps/month alpha from year-over-year filing text change",
+      "value": 0.0188, "units": "per_month",
+      "source": "Cohen, Malloy & Nguyen, Lazy Prices, JF 75(3) 2020, 1371-1415 (NBER w25084)",
+      "verdict": "V",
+      "qualifier": "LONG-SHORT: shorts 'changers' and buys 'nonchangers'. Sample 1995-2014. The figure is the spread, not a long-leg return.",
+      "transfers_to_aegis": false,
+      "why_not": "the book is long-only. Aegis's own §28 finding is that 99.9%/88% of a spread lives in the short leg a long-only book cannot hold; the derived long-leg prior is roughly x0.30."
+    },
+    {
+      "id": "SELLING-FAST-BUYING-SLOW",
+      "claim": "professional managers show skill in buying; selling underperforms random selling",
+      "source": "Akepanidtaworn, Di Mascio, Imas & Schmidt, JF 78(6) 2023, 3055-3098",
+      "verdict": "V",
+      "qualifier": "783 portfolios, avg $573M, 4.4M trades, 16 years. Mechanism is asymmetric attention. The DIRECTION is verified; the '90-120bps/day earnings-season' magnitude circulating in reviews is NOT in the reachable text.",
+      "transfers_to_aegis": true,
+      "how": "supports studying exit rules at all. It does NOT license a specific exit magnitude, and NIGHT-7's G7 result (-3.08%/yr for a trailing stop) is evidence about vehicles, not about the paper."
+    },
+    {
+      "id": "BESSEMBINDER-4PCT",
+      "claim": "about 4% of stocks account for all net stock-market wealth creation",
+      "value": 0.043, "units": "fraction_of_stocks",
+      "source": "Bessembinder, JFE 129(3) 2018, 440-457",
+      "verdict": "V",
+      "qualifier": "4.3% of 25,967 CRSP PERMNOs, measured against one-month T-bills over the full 1926-2016 life of each stock. 42.6% of stocks beat T-bills over their lifetime, so the common 'half fail to beat T-bills' understates it (57.4% fail).",
+      "transfers_to_aegis": true,
+      "how": "argues against concentration in a long-only book and for breadth — consistent with NIGHT-1's own measured finding that breadth beats concentration."
+    },
+    {
+      "id": "CRAFTSMANSHIP-ALPHA",
+      "claim": "implementation decisions beyond the style choice are themselves alpha-generating",
+      "source": "Israel, Jiang & Ross, JPM 44(2) 2018, 23-39 (AQR)",
+      "verdict": "V",
+      "qualifier": "qualitative claim about implementation, not a quantified edge. The paper does not license a bps estimate.",
+      "transfers_to_aegis": true,
+      "how": "the product track's honest framing: craftsmanship and discipline, never a 'beats S&P' claim."
+    },
+    {
+      "id": "TLH-CHAUDHURI",
+      "claim": "tax-loss harvesting is worth 1.10%/yr gross, 0.85%/yr under the wash-sale rule",
+      "value": 0.0110, "units": "per_year",
+      "source": "Chaudhuri, Burnham & Lo, FAJ June 2020",
+      "verdict": "V-C",
+      "qualifier": "1.10 / 0.85, NOT the 1.08/0.82 that circulated. Assumes 15%/35% long/short-term rates, 1926-2018, top-500 cap universe. It is a TAX effect available only to a taxable account, and depends on the investor's bracket.",
+      "transfers_to_aegis": true,
+      "how": "relevant to the product track for taxable accounts only; it is not alpha and may never be added to a backtested excess return."
+    },
+    {
+      "id": "SPECIALISED-ETF-30PCT",
+      "claim": "specialised ETFs lose about 30% risk-adjusted over their first five years",
+      "value": 0.30, "units": "cumulative_5y",
+      "source": "Ben-David, Franzoni, Kim & Moussawi, RFS 36(3) 2023, 987-1042",
+      "verdict": "V",
+      "qualifier": "driven by OVERVALUATION OF THE UNDERLYING AT LAUNCH, explicitly not by fees or hedging demand. The finding is about entry timing into hyped themes, not about thematic exposure being bad.",
+      "transfers_to_aegis": true,
+      "how": "inverts the naive reading of thematic strategies: the lesson is that narrative-salient ENTRY is the problem. Any thematic work here must test entry timing, not theme selection."
+    },
+    {
+      "id": "HARVEY-LIU-ZHU-T3",
+      "claim": "a new factor needs t > 3.0 given the mining history of the literature",
+      "value": 3.0, "units": "t_statistic",
+      "source": "Harvey, Liu & Zhu, RFS 29(1) 2016, 5-68",
+      "verdict": "V",
+      "qualifier": "the hurdle is for a claim of a NEW FACTOR against the published factor zoo. It is not the hurdle for an implementation choice inside an already-accepted factor, and it is not a portfolio-adoption rule.",
+      "transfers_to_aegis": true,
+      "how": "the bar the survivor is measured against; it is the reason a t of 2 is not a discovery here."
+    },
+    {
+      "id": "DSR-BAILEY-LOPEZ-DE-PRADO",
+      "claim": "the Deflated Sharpe Ratio controls for multiple testing, non-normality and sample length",
+      "source": "Bailey & Lopez de Prado, JPM 40(5) 2014, 94-107",
+      "verdict": "V",
+      "qualifier": "DSR is a PROBABILISTIC-SHARPE statistic against a selection-adjusted benchmark Sharpe. It is NOT a posterior probability that true alpha is positive, and NIGHT-7 stated it that way in error. GATE-M1 additionally measured DSR>=0.95 as nearly powerless on this programme's own ladder, so it may not be re-armed as a kill gate.",
+      "transfers_to_aegis": true,
+      "how": "reported beside, never above, an empirical selection bootstrap."
+    },
+    {
+      "id": "WHITE-REALITY-CHECK",
+      "claim": "a bootstrap test of whether the best model in a specification search genuinely beats a benchmark",
+      "source": "White, Econometrica 68(5) 2000, 1097-1126",
+      "verdict": "V",
+      "qualifier": "the null concerns the BEST MODEL ENCOUNTERED IN THE SEARCH over a FIXED set of alternatives. It does not reproduce an adaptive search whose later branches depended on earlier outcomes, so applying it to recovered finished strategies yields a LOWER BOUND on search burden.",
+      "transfers_to_aegis": true,
+      "how": "T4b's method; registered as a fixed-alternative lower-bound audit for exactly this reason."
+    },
+    {
+      "id": "HANSEN-SPA",
+      "claim": "SPA improves on White's Reality Check by studentising and using a sample-dependent null",
+      "source": "Hansen, JBES 23(4) 2005, 365-380",
+      "verdict": "V",
+      "qualifier": "the improvement comes specifically from the studentised statistic plus recentring that stops poor alternatives setting the null's scale. A demeaned-max bootstrap without that recentring is NOT SPA and may not be labelled as such.",
+      "transfers_to_aegis": true,
+      "how": "required in T4b because this candidate set contains cost-destroyed books at t -8.4."
+    },
+    {
+      "id": "POLITIS-ROMANO-STATIONARY-BOOTSTRAP",
+      "claim": "the stationary bootstrap resamples weakly dependent stationary series with geometric block lengths",
+      "source": "Politis & Romano, JASA 89(428) 1994, 1303-1313",
+      "verdict": "V",
+      "qualifier": "assumes stationarity and weak dependence. Candidates with different inception dates are not a stationary panel; their missing history must be MASKED, never zero-filled, or the fabricated flat months shrink variance and inflate the winner.",
+      "transfers_to_aegis": true,
+      "how": "T4b's resampling scheme, with the same block index applied across all candidates to preserve the cross-section."
+    },
+    {
+      "id": "GLASSERMAN-LIN-ANONYMISED",
+      "claim": "anonymised headlines outperform originals in-sample",
+      "source": "arXiv:2309.17322, Glasserman & Lin",
+      "verdict": "V",
+      "qualifier": "in-sample. The interpretation is that the DISTRACTION effect of the entity name exceeds the look-ahead gain, particularly for larger companies. It is not evidence that anonymisation removes look-ahead.",
+      "transfers_to_aegis": true,
+      "how": "supports entity masking as useful; NIGHT-7 established it is NOT sufficient, because date memory survives it."
+    },
+    {
+      "id": "KIM-MUHN-NIKOLAEV-GPT4",
+      "claim": "GPT-4 achieves 60.35% directional accuracy on one-year-ahead earnings vs 52.71% for analysts",
+      "value": 0.6035, "units": "directional_accuracy",
+      "source": "arXiv:2407.17866",
+      "verdict": "V",
+      "qualifier": "on STANDARDISED AND ANONYMISED financial statements, versus the MEDIAN analyst one month post-release. It is an EARNINGS-DIRECTION task, not a return-prediction task, and it is on par with a purpose-trained ML model rather than beating one.",
+      "transfers_to_aegis": true,
+      "how": "supports the LLM as an extractor/forecaster of INTERMEDIATE quantities. NIGHT-3 separately measured that LLM ordering earns no role in stock selection here (M1 t 0.04, M2 t 0.93)."
+    },
+    {
+      "id": "HASSAN-PRISK",
+      "claim": "firm-level political risk measures are freely downloadable as extractor ground truth",
+      "source": "firmlevelrisk.com (Hassan, Hollander, van Lent, Tahoun), fetched live",
+      "verdict": "V",
+      "qualifier": "free historical download covers 2002-2021q2 only, >11,000 firms, 81 countries. Current data is paywalled via NL Analytics. Ground truth for a REPLICATION test, not a live feed.",
+      "transfers_to_aegis": true,
+      "how": "the cheapest available Layer-1 extractor validation; nothing in the LLM programme is worth building until Layer 1 is calibrated against it."
+    },
+    {
+      "id": "FINSABER",
+      "claim": "reported LLM trading advantages deteriorate under broader cross-section and longer horizons",
+      "source": "arXiv:2505.07078, KDD 2026",
+      "verdict": "V",
+      "qualifier": "20-year multi-source benchmark with survivorship, look-ahead and data-snooping mitigation, 100+ symbols. The finding is about published LLM STRATEGY claims, and reports LLMs as overly conservative in bull and overly aggressive in bear regimes.",
+      "transfers_to_aegis": true,
+      "how": "independent corroboration of NIGHT-3's local negative result."
+    },
+    {
+      "id": "3S-TRADER-131",
+      "claim": "131.83% accumulated return on DJIA constituents",
+      "value": 1.3183, "units": "cumulative",
+      "source": "arXiv:2510.17393",
+      "verdict": "V-M",
+      "qualifier": "AT SHARPE 0.31, which is worse than passive. Quoting the return without the Sharpe inverts the paper's meaning. A review used it as evidence of success; with its qualifier it is evidence of the opposite.",
+      "transfers_to_aegis": false,
+      "why_not": "the number is a cumulative return over an unstated benchmark-free window with a sub-passive Sharpe. It licenses nothing."
+    },
+    {
+      "id": "MAESO-MARTELLINI-REBAL",
+      "claim": "rebalancing is worth more than 100bps annualised",
+      "value": 0.010, "units": "per_year",
+      "source": "Maeso & Martellini, JPM 46(4) 2020, 94-109",
+      "verdict": "V-M",
+      "qualifier": "measured against BUY-AND-HOLD over a 5-year horizon for S&P 500 stocks. It is the volatility-pumping / diversification bonus, NOT alpha against a rebalanced benchmark.",
+      "transfers_to_aegis": false,
+      "why_not": "the Aegis benchmark is CRSP VW total return, which is not a drifting buy-and-hold basket. The premium is already inside the benchmark and cannot be claimed on top of it."
+    },
+    {
+      "id": "FINCAD-LAP-NOLBERT",
+      "claim": "parametric look-ahead survives prompting; date-keyed memory is measurable",
+      "value": -0.671, "units": "backtest_return_reduction",
+      "source": "arXiv:2605.24564 (FinCAD), arXiv:2512.23847 (Lookahead Propensity), arXiv:2509.01110 (NoLBERT)",
+      "verdict": "V",
+      "qualifier": "LAP is a DATE-ONLY recall query: materially positive in-sample, collapsing to about zero after the training cutoff. FinCAD cuts in-sample backtest returns by up to 67.1% on MEMORISED DATES while leaving 2025 out-of-sample within Sharpe 0.10 of baseline.",
+      "transfers_to_aegis": true,
+      "how": "the correction to NIGHT-1. That experiment measured identification of the COMPANY (0/240); LAP measures memory keyed on the DATE. Masking is necessary, not sufficient — CANON 13."
+    },
+    {
+      "id": "CHRONOBERT",
+      "claim": "point-in-time-trained LLMs show lookahead bias is modest",
+      "source": "arXiv:2502.21206 (He, Lv, Manela, Wu)",
+      "verdict": "V",
+      "qualifier": "the finding cuts AGAINST alarm, not for it: real-time outputs achieve Sharpe comparable to a much larger Llama, which the authors read as lookahead bias being modest. Frequently cited here as if it demonstrated the opposite.",
+      "transfers_to_aegis": true,
+      "how": "tempers, and does not license, the leakage panic; the FinCAD/LAP date-memory result is the one that changes our procedure."
+    },
+    {
+      "id": "REVIEW-BPS-TABLES",
+      "claim": "per-idea basis-point estimates offered in external reviews (e.g. '120-310bps vs AVUV', '+1.0-1.5% expected edge', '105 high-turnover ideas', '$935k trading cost')",
+      "source": "none",
+      "verdict": "X",
+      "qualifier": "no source, not derivable from anything in this repository. Our comparable measured figures are $602,509 (NIGHT-6 clock) and $743,599 (NIGHT-7 trailing stop).",
+      "transfers_to_aegis": false,
+      "why_not": "invented precision. Such items may be carried as hypothesis LABELS and never as estimates."
+    }
+  ]
+}
