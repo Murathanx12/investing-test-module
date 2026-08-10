@@ -295,12 +295,11 @@ The brain's binding translation, so both tracks stay honest:
    just a scientific one. Revenue framing: people pay for implementation
    quality, honesty and tooling — the same things AVUV charges 25bps for —
    not for a prediction.
-2. **The paper track needs a named paper.** Next action: worker drafts three
-   one-page abstracts — (a) the honest-factory methods paper (pre-registration
-   + hash anchor + 148-row failure taxonomy + self-applied DSR), (b) the
-   backtest-cost-bias measurement (2.4pt/yr, measured twice), (c) the
-   pre-registered LLM-selection negative result (16,320 graded decisions,
-   leakage-controlled) — Murat picks one with an HKU supervisor.
+2. **The paper track is BACKGROUND (Murat, 2026-08-10): engine and ROI first,
+   paper when the engine work is done.** The three abstract drafts (honest-
+   factory methods / cost-bias measurement / LLM-selection negative result)
+   stay in the queue but yield priority to every ROI-relevant task. The paper's
+   raw material accumulates automatically from doing the engine work honestly.
 3. **The personal benchmark is already answerable.** "Scores lower than me" is
    the product board's easiest win: Murat's own record shows excellent buys
    and exits that gave back most of the gains (MRVL 40→80, MU 100→200, NVDA
