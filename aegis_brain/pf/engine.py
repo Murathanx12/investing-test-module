@@ -39,18 +39,31 @@ logger = logging.getLogger(__name__)
 FLAT_BPS = {"flat25": 25.0, "flat0": 0.0}
 
 
-def _target_weights(score_row: pd.Series, held: pd.Index, spec: StrategySpec
-                    ) -> pd.Series:
-    """Top-N selection with incumbency band, then weighting and the cap."""
+def _target_weights(score_row: pd.Series, held: pd.Index, spec: StrategySpec,
+                    retain: pd.Index | None = None) -> pd.Series:
+    """Top-N selection with incumbency band, then weighting and the cap.
+
+    `retain` (PF-7 exit sweep) is a set of incumbents an exit rule forces the
+    book to keep regardless of rank. They are seated FIRST and displace fresh
+    picks, so the name count never changes — a retention rule must trade less,
+    never hold more. Retained names need a score to be weighted, so any retain
+    entry missing from `score_row` is dropped rather than seated blind.
+    """
     n = min(spec.top_n, len(score_row))
     band_n = max(int(spec.hold_band_mult * n), n)
     band = set(score_row.nlargest(band_n).index)
-    kept = [s for s in held if s in band]
+    forced: list = []
+    if retain is not None and len(retain):
+        keep = score_row.reindex(pd.Index(retain)).dropna()
+        forced = keep.sort_values(ascending=False).index[:n].tolist()
+    fseen = set(forced)
+    kept = [s for s in held if s in band and s not in fseen]
     kept = (score_row.reindex(kept).dropna().sort_values(ascending=False)
-            .index[:n].tolist())
+            .index[: n - len(forced)].tolist())
+    taken = fseen | set(kept)
     fresh = [s for s in score_row.sort_values(ascending=False).index
-             if s not in kept][: n - len(kept)]
-    picks = pd.Index(kept + fresh)
+             if s not in taken][: n - len(forced) - len(kept)]
+    picks = pd.Index(forced + kept + fresh)
 
     if spec.weighting == "ew":
         w = pd.Series(1.0 / len(picks), index=picks)
@@ -73,6 +86,9 @@ def run_book(
     regime_on: pd.Series | None = None,
     delist_stub: pd.DataFrame | None = None,
     holdings_out: list | None = None,
+    exit_rule=None,
+    mom: pd.DataFrame | None = None,
+    phase: int | None = None,
 ) -> dict:
     """Run one strategy. Returns {'monthly': DataFrame, 'diag': dict}.
 
@@ -86,6 +102,12 @@ def run_book(
     invested weights AFTER rebalancing. Costs nothing when omitted, and lets the
     characteristic-matched placebo and the event-time membership profile replay
     the book's actual positions without re-deriving the incumbency-band logic.
+
+    exit_rule: optional aegis_brain.pf.exits.ExitRule (PF-7). When None the loop
+    is byte-identical to the banked path — verified by the A0 reconciliation in
+    scripts/pf7_exit_sweep.py, which runs the baseline BOTH ways and refuses to
+    proceed if the two series differ at all. `mom` (month x permno 12-1
+    momentum) is required only by rules that read momentum.
     """
     ret = panel.monthly_ret
     months = ret.index
@@ -106,7 +128,14 @@ def run_book(
     n_rebal = 0
     n_delist_liq = 0
     n_skipped = 0
+    n_interim_exits = 0
+    n_interim_unreplaced = 0
     since_rebal = 10 ** 6           # force a rebalance on the first tradable month
+
+    tracker = None
+    if exit_rule is not None:
+        from aegis_brain.pf.exits import ExitContext, PeakTracker
+        tracker = PeakTracker()
 
     for test_m in test_months:
         pos = months.get_loc(test_m)
@@ -133,14 +162,81 @@ def run_book(
                                  cost_frame)
                 cash += dead_w
                 w = w.drop(dead)
+                if tracker is not None:
+                    tracker.leave(dead)
                 n_delist_liq += len(dead)
 
         # ── rebalance decision ──────────────────────────────────────────────
         since_rebal += 1
         want_rebal = since_rebal >= spec.rebalance_months
+        if phase is not None:
+            # Clock PHASE (T3 ensemble). Shifting `first_month` does NOT stagger
+            # this book: the small segment is too thin to seat 150 names until
+            # well after 1963, so every start date lands its first rebalance on
+            # the same month and all 12 "cohorts" come out byte-identical. That
+            # is exactly what the first run of T3 produced. Pinning the trade
+            # month modulo the clock is the only construction that actually
+            # staggers.
+            want_rebal = want_rebal and (pos % spec.rebalance_months) == phase
         did_rebal = False            # read by G7; see holdings_out below
         risk_on = True if regime_on is None else bool(
             regime_on.get(formation_m, True))
+
+        # ── exit layer (PF-7) ───────────────────────────────────────────────
+        # Built once per month and shared by both hooks. Costs nothing when no
+        # exit rule is attached, which keeps the banked path exact.
+        ctx = None
+        retain = None
+        if exit_rule is not None:
+            elig_row0 = eligible.loc[formation_m]
+            s0 = score.loc[formation_m]
+            s0 = s0[elig_row0.reindex(s0.index).fillna(False).to_numpy()].dropna()
+            mom_row = (mom.loc[formation_m] if mom is not None
+                       and formation_m in mom.index else pd.Series(dtype=float))
+            ctx = ExitContext(
+                formation_m=formation_m, test_m=test_m, held=w.index,
+                score_row=s0, mom_row=mom_row,
+                peak_dd=tracker.drawdown(), is_rebalance=want_rebal)
+
+            if len(w):
+                sell = pd.Index([x for x in exit_rule.interim(ctx) if x in w.index])
+                if len(sell):
+                    # 1:1 swap: each sold name's weight passes to the highest
+                    # scoring eligible name not already held. Swapping weights
+                    # one-for-one rather than pooling and re-spreading keeps the
+                    # weight VECTOR identical, so the only thing the arm changes
+                    # is which names carry it.
+                    have = set(w.index)
+                    cand = [x for x in s0.sort_values(ascending=False).index
+                            if x not in have][: len(sell)]
+                    n_interim_exits += len(sell)
+                    moved = w.loc[sell]
+                    if len(cand) < len(sell):
+                        n_interim_unreplaced += len(sell) - len(cand)
+                    swap_w = moved.iloc[: len(cand)]
+                    cash += float(moved.iloc[len(cand):].sum())
+                    traded += 2.0 * float(swap_w.sum()) + float(
+                        moved.iloc[len(cand):].sum())
+                    leg = pd.concat([moved.abs(),
+                                     pd.Series(swap_w.to_numpy(), index=cand)])
+                    cost += _cost_of(leg, formation_m, spec, flat_bps, cost_frame)
+                    w = w.drop(sell)
+                    if len(cand):
+                        w = pd.concat([w, pd.Series(swap_w.to_numpy(),
+                                                    index=cand)])
+                    tracker.leave(sell)
+                    tracker.enter(cand)
+                    ctx.held = w.index
+                    # An interim exit IS a trade. G7 reads `rebalanced` to
+                    # decide which months to send to the daily simulator; if
+                    # exit-driven trades did not set it, a high-turnover exit
+                    # arm would be measured with the BASELINE's trade schedule
+                    # and its churn cost would silently vanish. That is the
+                    # house failure mode, and it would have flattered exactly
+                    # the arm most likely to be wrong.
+                    did_rebal = True
+            if want_rebal and risk_on:
+                retain = pd.Index(exit_rule.retain(ctx))
 
         if want_rebal:
             elig_row = eligible.loc[formation_m]
@@ -149,7 +245,7 @@ def run_book(
             if len(s) < spec.min_names:
                 n_skipped += 1
             else:
-                target = (_target_weights(s, w.index, spec) if risk_on
+                target = (_target_weights(s, w.index, spec, retain) if risk_on
                           else pd.Series(dtype=float))
                 allw = w.index.union(target.index)
                 delta = (target.reindex(allw, fill_value=0.0)
@@ -158,6 +254,9 @@ def run_book(
                 cost += _cost_of(delta.abs(), formation_m, spec, flat_bps,
                                  cost_frame)
                 cash = 1.0 - float(target.sum()) if len(target) else 1.0
+                if tracker is not None:
+                    tracker.leave([x for x in w.index if x not in target.index])
+                    tracker.enter([x for x in target.index if x not in w.index])
                 w = target
                 since_rebal = 0
                 n_rebal += 1
@@ -172,6 +271,8 @@ def run_book(
         net = gross - cost
 
         # ── drift weights into next month ───────────────────────────────────
+        if tracker is not None and len(w):
+            tracker.update(r)
         if len(w):
             w = w * (1.0 + r)
         cash = cash * (1.0 + rf_m)
@@ -219,6 +320,10 @@ def run_book(
         "cost_drag_annual_bps": round(
             float(monthly["cost"].sum()) / (len(monthly) / 12) * 1e4, 1),
     }
+    if exit_rule is not None:
+        diag["exit_rule"] = exit_rule.name
+        diag["interim_exits"] = n_interim_exits
+        diag["interim_exits_unreplaced"] = n_interim_unreplaced
     if n_skipped > 0.25 * len(monthly):
         logger.warning("%s: %d/%d months skipped for thin universe",
                        spec.name, n_skipped, len(monthly))
