@@ -162,6 +162,8 @@ class SignalLibrary:
         self._cache: dict[str, pd.DataFrame] = {}
         self._gridder: ScoreGridder | None = None
         self._osap_cols: list[str] | None = None
+        self._ibes_frames: dict[str, pd.DataFrame] | None = None
+        self._ibes_report: dict | None = None
 
     # ── OSAP ────────────────────────────────────────────────────────────────
     def _ensure_osap(self, acronyms: list[str]) -> None:
@@ -186,6 +188,18 @@ class SignalLibrary:
             self._osap_rows = len(keys)
             self._gridder = ScoreGridder(keys, self.panel)
 
+    # ── IBES ────────────────────────────────────────────────────────────────
+    def _ibes(self) -> dict[str, pd.DataFrame]:
+        """All IBES frames at once — one pass over 3.4m rows, not one per key."""
+        if self._ibes_frames is None:
+            from aegis_brain.data import ibes_panel
+
+            self._ibes_report = {}
+            self._ibes_frames = ibes_panel.build(
+                self.panel, report=self._ibes_report)
+            logger.info("ibes panel: %s", self._ibes_report.get("signal_coverage"))
+        return self._ibes_frames
+
     def get(self, key: str) -> pd.DataFrame:
         if key in self._cache:
             return self._cache[key]
@@ -201,6 +215,8 @@ class SignalLibrary:
             frame = self._gridder.grid(col)
         elif key.startswith("native:"):
             frame = _native(self.panel, key)
+        elif key.startswith("ibes:"):
+            frame = self._ibes()[key]
         elif key == "insider:cluster12m":
             frame = _insider_cluster(self.panel)
         elif key == "insider:tieaware12m":
