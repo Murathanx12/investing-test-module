@@ -73,22 +73,50 @@ def rank_frames(lib, keys, elig) -> dict[str, pd.DataFrame]:
     return out
 
 
-def stack(feats: dict[str, pd.DataFrame], months, label: pd.DataFrame | None):
-    """Long (month, permno) matrix for a set of months."""
-    keys = list(feats)
-    cols, idx = [], None
-    for k in keys:
-        f = feats[k].loc[months]
-        s = f.stack(future_stack=True)
-        idx = s.index if idx is None else idx
-        cols.append(s.to_numpy(dtype=np.float32))
-    X = np.column_stack(cols)
-    y = (label.loc[months].stack(future_stack=True).to_numpy(dtype=np.float32)
-         if label is not None else None)
-    return X, y, idx
+class Table:
+    """The long (month, permno) design matrix, built ONCE.
+
+    The first version rebuilt it inside every one of the 50 refits, and stacked
+    the panel's full ~30,000 columns rather than the ~1,500 eligible names. That
+    run used 6.5 GB and 27% of one core: it was paging, not computing. Restricted
+    to eligible rows and built once, the same matrix is ~1M rows and slicing a
+    training window is a boolean mask.
+    """
+
+    def __init__(self, feats: dict[str, pd.DataFrame], months,
+                 elig: pd.DataFrame, label: pd.DataFrame | None):
+        self.keys = list(feats)
+        mi = {m: i for i, m in enumerate(months)}
+        rows_m, rows_p, blocks, ys = [], [], [], []
+        cols = np.asarray(elig.columns)
+        for m in months:
+            live = elig.loc[m].to_numpy()
+            if not live.any():
+                continue
+            idx = np.flatnonzero(live)
+            blocks.append(np.column_stack(
+                [feats[k].loc[m].to_numpy(dtype=np.float32)[idx]
+                 for k in self.keys]))
+            rows_m.append(np.full(len(idx), mi[m], dtype=np.int32))
+            rows_p.append(cols[idx])
+            if label is not None:
+                ys.append(label.loc[m].to_numpy(dtype=np.float32)[idx])
+        self.X = np.vstack(blocks)
+        self.month_code = np.concatenate(rows_m)
+        self.permno = np.concatenate(rows_p)
+        self.y = np.concatenate(ys) if label is not None else None
+        self.months = list(months)
+
+    def window(self, upto_code: int):
+        m = self.month_code <= upto_code
+        return self.X[m], (self.y[m] if self.y is not None else None)
+
+    def span(self, lo_code: int, hi_code: int):
+        m = (self.month_code >= lo_code) & (self.month_code < hi_code)
+        return self.X[m], self.month_code[m], self.permno[m]
 
 
-def fit_predict(kind, feats, months, label, fit_months, rng):
+def fit_predict(kind, table: "Table", fit_months, rng, template: pd.DataFrame):
     """Expanding-window walk-forward. Returns a month x permno score frame."""
     from lightgbm import LGBMRegressor
     from sklearn.impute import SimpleImputer
@@ -96,17 +124,18 @@ def fit_predict(kind, feats, months, label, fit_months, rng):
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
 
-    any_frame = next(iter(feats.values()))
-    pred = pd.DataFrame(np.nan, index=any_frame.index,
-                        columns=any_frame.columns, dtype=np.float32)
-    mlist = list(months)
+    pred = pd.DataFrame(np.nan, index=template.index, columns=template.columns,
+                        dtype=np.float32)
+    mlist = table.months
+    code = {m: i for i, m in enumerate(mlist)}
     for i, f in enumerate(fit_months):
         # labels must be fully observed AND embargoed: a model fitted at f may
         # only see months whose forward-12m window closed before f
-        train_months = [m for m in mlist if m <= f - pd.DateOffset(months=PURGE)]
-        if len(train_months) < MIN_TRAIN_MONTHS:
+        cutoff = f - pd.DateOffset(months=PURGE)
+        train_codes = [code[m] for m in mlist if m <= cutoff]
+        if len(train_codes) < MIN_TRAIN_MONTHS:
             continue
-        X, y, _ = stack(feats, train_months, label)
+        X, y = table.window(max(train_codes))
         ok = np.isfinite(y) & np.isfinite(X).any(axis=1)
         X, y = X[ok], y[ok]
         if len(y) > MAX_TRAIN_ROWS:
@@ -117,31 +146,29 @@ def fit_predict(kind, feats, months, label, fit_months, rng):
 
         if kind == "gbm":
             model = LGBMRegressor(**GBM_PARAMS)
-            model.fit(X, y)
         else:
             model = make_pipeline(
                 SimpleImputer(strategy="median"), StandardScaler(),
                 MLPRegressor(hidden_layer_sizes=(16,), activation="relu",
                              early_stopping=True, validation_fraction=0.15,
                              max_iter=60, random_state=SEED))
-            model.fit(X, y)
+        model.fit(X, y)
 
         # predict every month until the next refit; the model stays valid
         # because its training labels closed before f
-        nxt = fit_months[i + 1] if i + 1 < len(fit_months) else mlist[-1] + \
-            pd.DateOffset(days=1)
-        span = [m for m in mlist if f <= m < nxt]
-        if not span:
+        hi = code[fit_months[i + 1]] if i + 1 < len(fit_months) else len(mlist)
+        Xp, mc, pn = table.span(code[f], hi)
+        if not len(Xp):
             continue
-        Xp, _, idxp = stack(feats, span, None)
         keep = np.isfinite(Xp).any(axis=1)
         p = np.full(len(Xp), np.nan, dtype=np.float32)
         if keep.sum():
             p[keep] = model.predict(Xp[keep])
-        s = pd.Series(p, index=idxp).unstack()
+        s = pd.Series(p, index=pd.MultiIndex.from_arrays(
+            [[mlist[c] for c in mc], pn])).unstack()
         pred.loc[s.index, s.columns] = s.to_numpy(dtype=np.float32)
         print(f"    {kind} fit {f.date()}  train {len(y):,} rows  "
-              f"predict {len(span)} months", flush=True)
+              f"predict {hi - code[f]} months", flush=True)
     return pred
 
 
@@ -168,7 +195,7 @@ def paired(a: pd.Series, b: pd.Series, lags: int = 12) -> dict:
         "mean_monthly": round(float(d.mean()), 6),
         "annualized_pct": round(float(d.mean()) * 12, 4),
         "t_newey_west": D.nw_t(pd.Series(d.to_numpy()), lags=lags),
-        "mde_annualized": D.mde_annualized(d * 12),
+        "mde_annualized": D.mde_annualized(d),
         "correlation": round(float(a.corr(b)), 4),
     }
 
@@ -209,16 +236,21 @@ def main() -> int:
     print(f"refits: {len(fit_months)}  {fit_months[0].date()} -> "
           f"{fit_months[-1].date()}", flush=True)
 
+    tmpl = ret.loc[usable]
+    e = elig.reindex(index=usable, columns=ret.columns).fillna(False)
+    print("  building design matrices once...", flush=True)
+    tab_narrow = Table(feats_narrow, usable, e, label)
+    tab_wide = Table(feats_wide, usable, e, label)
+    print(f"  narrow {tab_narrow.X.shape}, wide {tab_wide.X.shape}", flush=True)
+
     scores = {"R0_composite": composite_score(f.lib, d["signals"], elig)[0]}
     print("  fitting R1 (gbm, narrow)...", flush=True)
-    scores["R1_gbm_narrow"] = fit_predict("gbm", feats_narrow, usable, label,
-                                          fit_months, rng)
+    scores["R1_gbm_narrow"] = fit_predict("gbm", tab_narrow, fit_months, rng,
+                                          tmpl)
     print("  fitting R2 (gbm, wide)...", flush=True)
-    scores["R2_gbm_wide"] = fit_predict("gbm", feats_wide, usable, label,
-                                        fit_months, rng)
+    scores["R2_gbm_wide"] = fit_predict("gbm", tab_wide, fit_months, rng, tmpl)
     print("  fitting R3 (mlp, wide)...", flush=True)
-    scores["R3_mlp_wide"] = fit_predict("mlp", feats_wide, usable, label,
-                                        fit_months, rng)
+    scores["R3_mlp_wide"] = fit_predict("mlp", tab_wide, fit_months, rng, tmpl)
 
     # the arms must share a window: the learned arms cannot score before their
     # first refit, and comparing R0's extra decade to nothing is not a pair

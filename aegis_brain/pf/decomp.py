@@ -114,14 +114,34 @@ def nw_t(x: pd.Series, lags: int = 12) -> float | None:
     return None if r.get("t") is None else round(float(r["t"]), 2)
 
 
+#: Above this, an MDE is not a number, it is a units error. A long-only equity
+#: book cannot have a minimum detectable effect of 100%/yr on a multi-decade
+#: panel, and every time this has fired it has been the same mistake:
+#: pre-annualising the input to a function that annualises.
+_ABSURD_MDE = 1.0
+
+
 def mde_annualized(x: pd.Series, t_bar: float = 2.0) -> float:
     """Minimum effect this series could have detected at t = t_bar, annualized.
+
+    **Pass the MONTHLY series.** This function multiplies by 12 itself. Handing
+    it an already-annualised series inflates the answer twelvefold, which is how
+    NIGHT-7's trigger receipts came to report minimum detectable effects of 43%
+    to 143% per year — numbers absurd enough to be obvious in hindsight and
+    invisible in a JSON blob at the time.
 
     Printed next to every null. A null that does not carry this number is a
     claim of zero, which the standard forbids.
     """
     s = pd.Series(x).dropna()
-    return round(float(t_bar * s.std(ddof=1) / np.sqrt(len(s)) * 12), 4)
+    out = round(float(t_bar * s.std(ddof=1) / np.sqrt(len(s)) * 12), 4)
+    if abs(out) > _ABSURD_MDE:
+        raise ValueError(
+            f"MDE came out {out:.2f} (={out * 100:.0f}%/yr), which is not a "
+            "detectable-effect size — it is a units error. This function "
+            "annualises its input; pass the MONTHLY series, not one already "
+            "multiplied by 12.")
+    return out
 
 
 # ── costs ───────────────────────────────────────────────────────────────────

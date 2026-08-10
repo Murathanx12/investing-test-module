@@ -70,3 +70,24 @@ def test_a_clean_document_is_clean():
 def test_the_referee_states_what_it_cannot_check():
     r = review("nothing to see")
     assert any("HONEST" in s for s in r["not_checked"])
+
+
+# ── the MDE units guard (NIGHT-8) ───────────────────────────────────────────
+def test_mde_annualized_refuses_a_pre_annualised_series():
+    """NIGHT-7's trigger receipts reported MDEs of 43% to 143% per year.
+
+    `mde_annualized` multiplies by 12 itself. Handing it a series already
+    multiplied by 12 inflates the answer twelvefold — absurd in hindsight and
+    invisible inside a JSON blob at the time. It now refuses.
+    """
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    from aegis_brain.pf.decomp import mde_annualized
+
+    rng = np.random.default_rng(0)
+    monthly = pd.Series(rng.normal(0.0, 0.02, 400))
+    assert 0.0 < mde_annualized(monthly) < 0.1
+    with pytest.raises(ValueError, match="units error"):
+        mde_annualized(monthly * 12)

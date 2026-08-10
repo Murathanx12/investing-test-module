@@ -180,7 +180,7 @@ def main() -> int:
                 "annualized_diff_pct": round(float(np.expm1(s.mean() * (12.0 / k))), 4)
                 if len(s) else None,
                 **tstat(s, k),
-                "mde_annualized": D.mde_annualized(s * (12.0 / k))
+                "mde_annualized": D.mde_annualized(s / k)
                 if len(s) > 2 else None,
             }
         out[f"{k}m"] = row

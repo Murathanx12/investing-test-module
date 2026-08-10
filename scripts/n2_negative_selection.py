@@ -69,7 +69,7 @@ def paired(a: pd.Series, b: pd.Series) -> dict:
     return {"months": int(len(d)),
             "annualized_pct": round(float(d.mean()) * 12, 4),
             "t_newey_west": D.nw_t(pd.Series(d.to_numpy()), lags=12),
-            "mde_annualized": D.mde_annualized(d * 12),
+            "mde_annualized": D.mde_annualized(d),
             "correlation": round(float(a.corr(b)), 4)}
 
 

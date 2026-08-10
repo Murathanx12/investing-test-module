@@ -197,7 +197,7 @@ def main() -> int:
                 float(np.expm1(mean_log * (12.0 / k))), 4) if len(s) else None,
             "t_stat": round(float(s.mean() / s.std(ddof=1) * np.sqrt(len(s))), 3)
             if len(s) > 2 else None,
-            "mde_annualized": D.mde_annualized(s * (12.0 / k)) if len(s) > 2 else None,
+            "mde_annualized": D.mde_annualized(s / k) if len(s) > 2 else None,
         }
         print(f"   +{k:2d}m: diff {results[f'{k}m']['annualized_diff_pct']} "
               f"t {results[f'{k}m']['t_stat']} "

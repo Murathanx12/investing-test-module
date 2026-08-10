@@ -99,7 +99,7 @@ def within_month(holdings: list[dict], ret: pd.DataFrame) -> dict:
             entry.update({
                 "annualized_diff_pct": round(float(s.mean()) * 12, 4),
                 "t_newey_west": D.nw_t(pd.Series(s.to_numpy()), lags=12),
-                "mde_annualized": D.mde_annualized(s * 12)})
+                "mde_annualized": D.mde_annualized(s)})
         else:
             entry["note"] = "fewer than 24 usable months — not interpreted"
         out[lab] = entry
