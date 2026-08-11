@@ -219,6 +219,35 @@ def build(panel, *, report: dict | None = None) -> dict[str, pd.DataFrame]:
     # A5 — dispersion, as a FILTER only (its picker version is adjudicated).
     out["ibes:tgt_disp_low"] = -(stdev / mean_tgt.where(mean_tgt > 0))
 
+    # ── ANALYST-IDENT-1 diagnostics (TRIALS/PREREG_ANALYST_IDENT_1.md) ─────
+    #
+    # A2 and A3 disagreed in SIGN in the small segment, so under the parent's
+    # registered rule the object is not identified. The successor hypothesis
+    # the parent wrote down: `numup1m`/`numdown1m` count analyst ACTIONS, while
+    # a change in `meanptg` mixes actions with COVERAGE CHURN — an analyst
+    # initiating coverage at a high target moves the mean with nobody having
+    # revised anything, and the contamination scales as 1/numest, so it bites
+    # hardest exactly where coverage is thin. That is small caps.
+    #
+    # These frames split A3 on whether the analyst COUNT held still across the
+    # same 3-month window the signal differences over. They are diagnostics,
+    # never production signals: no `allowed_in_pm` entry references them.
+    churn_free = (numest == numest.shift(3)) & numest.notna() & numest.shift(3).notna()
+    out["ibes:tgt_rev_3m_nochurn"] = out["ibes:tgt_rev_3m"].where(churn_free)
+    out["ibes:tgt_rev_3m_churn"] = out["ibes:tgt_rev_3m"].where(
+        ~churn_free & numest.notna() & numest.shift(3).notna())
+    # P4 placebo: A2 is blind to churn BY CONSTRUCTION (it counts actions), so
+    # the same purge must leave it materially unchanged. If it does not, the
+    # purge is selecting on something other than churn and the design is void.
+    out["ibes:tgt_rev_breadth_nochurn"] = out["ibes:tgt_rev_breadth"].where(churn_free)
+    rep["ident1_churn"] = {
+        "churn_free_share": round(float(
+            churn_free.sum().sum()
+            / max(1, int((numest.notna() & numest.shift(3).notna()).sum().sum()))), 4),
+        "note": ("share of name-months where the analyst COUNT is unchanged "
+                 "over the 3m window A3 differences over"),
+    }
+
     rep["ptgsumu"] = Coverage(
         "ptgsumu", len(ptg), len(ptg), rate, int(mean_tgt.notna().any(axis=1).sum()),
         float(mean_tgt.notna().sum(axis=1).mean())).as_dict()
@@ -247,6 +276,15 @@ def build(panel, *, report: dict | None = None) -> dict[str, pd.DataFrame]:
     for key, frame in out.items():
         cov = float(frame.notna().sum(axis=1).mean())
         rep.setdefault("signal_coverage", {})[key] = round(cov, 1)
+        # ANALYST-IDENT-1's frames are deliberate SUBSAMPLES, so thin coverage
+        # is the measurement, not a fault — a purge that removes most of the
+        # panel is a POWER_FAILED verdict for that trial, adjudicated in its own
+        # runner against its registered retention floor. Exempting them here
+        # keeps the production floor exactly as strict as it was.
+        if key.endswith(("_nochurn", "_churn")):
+            rep.setdefault("diagnostic_coverage", {})[key] = round(cov, 1)
+            out[key] = frame.replace([np.inf, -np.inf], np.nan).astype(np.float32)
+            continue
         if cov < MIN_NAMES_PER_MONTH:
             raise IbesDataError(
                 f"{key}: {cov:.0f} names/month, floor {MIN_NAMES_PER_MONTH}. "
