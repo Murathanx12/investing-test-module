@@ -95,6 +95,78 @@ def _paired_block_bootstrap(net: np.ndarray, bench: np.ndarray, *,
     }
 
 
+
+#: z(0.975) + z(0.80) — the two-sided 80%-power constant. An effect below
+#: `MDE_Z` standard errors was unlikely to be found even if it were real.
+MDE_Z = 2.8
+SIG_Z = 1.96
+
+
+def _power_block(excess: pd.Series, gross_excess: pd.Series | None = None) -> dict:
+    """CANON §19 — every arm reports its own 80%-power MDE beside its effect.
+
+    NIGHT-10 measured 21 configurations across two independent audits and found
+    that NOT ONE reported an effect above its own detection threshold: the
+    standard shape (EW top-50, monthly, 2002-2022) resolves 6.3 to 19.9 %/yr,
+    roughly double the largest credible equity anomaly. A kill from such a
+    design is absence of evidence, and this programme recorded it identically to
+    evidence of absence for 195 experiments.
+
+    Making that a rule was not enough — the corpse check only started working
+    when it became `lint_prereg.py`. So the number is computed here, on every
+    card, whether or not anyone remembers to ask for it.
+
+    The effect compared against the MDE is the ARITHMETIC annualised mean of the
+    monthly excess series, because that is the quantity whose standard error is
+    being estimated. The headline `excess_cagr_net` is geometric and is NOT the
+    same functional; both are reported so the comparison cannot be made in the
+    wrong units by accident.
+    """
+    e = excess.dropna()
+    n = len(e)
+    if n < 12:
+        return {"status": "TOO_SHORT", "n_months": n,
+                "reading": f"{n} months is too few to estimate a standard error"}
+    sd_m = float(e.std(ddof=1))
+    se_ann = 12.0 * sd_m / np.sqrt(n)
+    eff_ann = 12.0 * float(e.mean())
+    mde = MDE_Z * se_ann
+    sig = SIG_Z * se_ann
+    detectable = bool(abs(eff_ann) >= mde)
+    significant = bool(abs(eff_ann) >= sig)
+    out = {
+        "status": "OK",
+        "n_months": n,
+        "arithmetic_excess_annual": round(eff_ann, 5),
+        "se_annual": round(se_ann, 5),
+        "sig_threshold_annual": round(sig, 5),
+        "mde_80pct_power_annual": round(mde, 5),
+        "significant_at_5pct": significant,
+        "above_80pct_power_mde": detectable,
+        "effect_over_mde": round(abs(eff_ann) / mde, 3) if mde > 0 else None,
+    }
+    if gross_excess is not None:
+        g = gross_excess.dropna()
+        if len(g) >= 12:
+            out["gross_arithmetic_excess_annual"] = round(
+                12.0 * float(g.mean()), 5)
+    if detectable:
+        out["reading"] = (
+            f"this design detects {100*mde:.1f}%/yr at 80% power and the arm "
+            f"shows {100*eff_ann:+.1f}%/yr — large enough for this design to "
+            f"have found it reliably")
+    else:
+        out["reading"] = (
+            f"NOT RELIABLY DETECTABLE BY THIS DESIGN: it resolves "
+            f"{100*mde:.1f}%/yr at 80% power and the arm shows "
+            f"{100*eff_ann:+.1f}%/yr"
+            + (" — significant, but in the region where significant findings "
+               "systematically overstate their effects (CANON §19)"
+               if significant else
+               " — a null here is NOT evidence of absence (CANON §19)"))
+    return out
+
+
 def scorecard(monthly: pd.DataFrame, bench: pd.Series, *, diag: dict,
               spec_dict: dict, ew_universe: pd.Series | None = None,
               factors: pd.DataFrame | None = None, rf: pd.Series | None = None,
@@ -169,6 +241,7 @@ def scorecard(monthly: pd.DataFrame, bench: pd.Series, *, diag: dict,
             "gross_cagr": round(annualize(gross), 4),
             "cost_drag_cagr": round(annualize(gross) - cagr, 4),
         },
+        "power": _power_block(excess, gross.reindex(net.index) - b),
         "robustness": _robustness(net, b),
         "regimes_gate": _regime_table(net, b, GATE_BLOCKS),
         "regimes_full": _regime_table(net, b, FULL_BLOCKS),
