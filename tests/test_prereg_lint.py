@@ -68,6 +68,25 @@ def test_declaring_a_new_instrument_clears_the_resurrection():
     assert res["matches"][0]["declared_new_instrument"].startswith("the CRSP")
 
 
+def test_a_hyphenated_ident_can_be_declared():
+    """Nearly every registry ident contains hyphens (TRIAL-COND-VT). The
+    original corpse-group regex stopped at the first hyphen, so declaring one
+    parsed as corpse="TRIAL" and the block silently survived (NIGHT-13)."""
+    hyphenated = corpse(
+        "TRIAL-COND-VT", "REJECTED",
+        "volatility managed momentum scaling exposure by inverse realised "
+        "variance in the small capitalisation segment, adequately powered and "
+        "refuted at the three percent bar")
+    res = lint(
+        "We propose volatility managed momentum, scaling exposure by inverse "
+        "realised variance, in the small capitalisation segment.\n"
+        "Resurrects: TRIAL-COND-VT — new instrument: keyed to the book's own "
+        "path on a daily clock rather than the index on a month-end clock\n",
+        corpus=[hyphenated, UNDERPOWERED, UNRELATED])
+    assert res["verdict"] == "PASS"
+    assert res["matches"][0]["declared_new_instrument"].startswith("keyed to")
+
+
 def test_trying_again_is_not_a_new_instrument():
     """The escape hatch requires naming the instrument, not asserting merit."""
     res = lint("volatility managed momentum scaling exposure by inverse "

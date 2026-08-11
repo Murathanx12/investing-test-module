@@ -49,7 +49,11 @@ HARVEST = {"FACTOR_EXPLAINED"}
 #: corpse and what instrument changed. Without the instrument clause it does not
 #: count — "we are trying again" is not a new instrument.
 RESURRECT_RE = re.compile(
-    r"^\s*Resurrects:\s*(?P<corpse>[^\n—-]+?)\s*[—-]+\s*new instrument:\s*"
+    # The corpse group must admit hyphens: nearly every ident in the registry
+    # contains them (TRIAL-COND-VT), and the original [^\n—-] class made those
+    # idents undeclarable — a declared resurrection parsed as corpse="TRIAL"
+    # and silently failed to lift the block (found NIGHT-13).
+    r"^\s*Resurrects:\s*(?P<corpse>[^\n—]+?)\s*[—-]+\s*new instrument:\s*"
     r"(?P<instrument>.+)$", re.IGNORECASE | re.MULTILINE)
 
 _WORD = re.compile(r"[a-z][a-z_0-9]{2,}")
