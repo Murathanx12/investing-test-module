@@ -1,4 +1,81 @@
-# STATUS — handoff after NIGHT-10 (2026-08-11)
+# STATUS — handoff after NIGHT-11 (2026-08-11)
+
+**Read `aegis-finance/docs/SESSION_2026-08-11_NIGHT11.md` first**, then
+`docs/REVINFO_1_VERDICT_2026-08-11.md` and
+`aegis-finance/docs/ROADMAP_OPTIMUS_BRAIN_NIGHT11.md`.
+
+## THE HEADLINE
+
+**The programme has its first licensed Layer-1 evidence, and the instrument that
+produced it has had its own promise verified against known answers.**
+
+* **REVINFO-1** — analyst-revision information is REAL in **small caps out to
+  about six months**. `tgt_rev_breadth` small **+9.36 %/yr at t 4.87** against
+  its own MDE of 5.76, decaying 7.32 / 5.45 / 2.95 at h=3/6/12.
+  `eps_rev_breadth`, never Layer-1 tested before, is the most persistent
+  (t 5.10 / 4.71 / 3.65). **7 of 32 INFORMATION_PRESENT, 21 UNRESOLVED, 4
+  NO_INFORMATION. Not one large-cap arm clears its MDE at any horizon.**
+
+* **The instrument is calibrated.** Power at its own MDE under the significance
+  rule measured **81.0%** against a target of 80 — the CANON §19 promise,
+  checked against planted effects for the first time. 0.0% false positives,
+  0.000 %/yr bias. `docs/INSTRUMENT_INFORMATION_CALIBRATION_2026-08-11.md`.
+
+**This licenses a Layer-2 test and NOTHING else.** The spread is dollar-neutral
+and Round 16 measured 88–99.9% of a comparable spread in the short leg a
+long-only book cannot hold. **The short-leg decomposition is the cheapest next
+test and it can kill the whole family.**
+
+## THREE THINGS THAT WERE WRONG AND ARE NOW MEASURED
+
+1. **The MDE and the t-stat used different standard errors** (P0-A). Fixed.
+   ANALYST-IBES-1's detection range **6.3–19.9 → 6.47–24.82 %/yr**; 0 of 10 arms
+   above their MDE before and after, so the NIGHT-10 finding got STRONGER.
+
+2. **The external reviews' 4–10x power gain does not exist.** Measured on the
+   real panel: **0.98x to 2.11x, median 1.63x** — and **0.98x/0.99x in large/mid,
+   i.e. none at all**. A test asserting >2.0 failed at 1.31 and the failure is
+   kept in the test file. An 8 %/yr MDE becomes ~5: it reopens some corpses and
+   does not make the standard design adequate.
+
+3. **The new instrument's own verdict rule was wrong** and real data caught it.
+   `NO_INFORMATION` labelled arms at **t = 2.21** and **t = 2.72** "evidence of
+   absence". It is now a one-sided equivalence bound; re-running the grid changed
+   **7 of 32 verdicts — 5 false kills prevented, 2 kills correctly ISSUED.**
+
+## THE CONSTRAINT THE RESCUE QUEUE MUST BE BUILT AROUND
+
+The control arm `tgt_upside` (PERVERSE/CLOSED at −16.70 %/yr through a top-50
+book) reads **−0.16 %/yr, t −0.03** cross-sectionally, and **+1.18 at the decile
+level**. Its perversity lives in the extreme top ~3% where lottery junk sits.
+The revision signals do the opposite — they STRENGTHEN as the instrument
+concentrates (+9.36 breadth → +13.21 decile), so their information is broad.
+
+⇒ **a corpse killed by a concentrated top-50 book is NOT automatically
+re-testable by a cross-sectional instrument.** Every graveyard rescue carries
+BOTH a cross-sectional and a tail-concentrated arm, or the queue will exonerate
+tail-perverse signals by averaging their perversity away.
+
+## NEXT, IN ORDER
+
+1. The half-life as a **paired difference** (CANON §18). No half-life number may
+   be quoted until then — the decay is monotone in every arm but untested.
+2. **The short-leg decomposition** — highest information per unit of compute.
+3. Layer 2, the decision boundary. This one **accrues** to the denominator.
+4. The rescue queue, with both arms.
+5. The roadmap: belief state, prediction ledger, category routing, LLM
+   specialists, seeding the shadow books.
+
+## STILL OWED BY MURAT
+
+cash · QUBT 300 vs 200 · rulings on five kill conditions · `confirmed: true` ·
+**a real `ANTHROPIC_API_KEY`** (still EMPTY — every LLM finding to date is a
+finding about DeepSeek) · seeding the shadow books · the graceful-degradation
+ruling (refusal → market-weight core + evidence-scaled tilts).
+
+---
+
+# Previous handoff — NIGHT-10 (2026-08-11)
 
 **Read `aegis-finance/docs/HANDOFF_NIGHT10.md` first.**
 
