@@ -1,4 +1,83 @@
-# STATUS — handoff after ARENA-1 (2026-08-11)
+# STATUS — handoff after NIGHT-10 (2026-08-11)
+
+**Read `aegis-finance/docs/HANDOFF_NIGHT10.md` first.**
+
+## THE HEADLINE
+
+**Across 21 configurations, ZERO reported an effect above their own 80%-power
+MDE.** The standard adjudication shape this programme uses — EW top-50, monthly,
+2002–2022 — resolves **6.3 to 19.9 %/yr**, roughly double the largest credible
+equity anomaly.
+
+* **ANALYST-IBES-1** re-run through the parent's own Factory (8 of 10 arms
+  reproduce their published gross excess to **0.00 points**; the two
+  `tgt_upside` arms do not and their readings are WITHHELD): 0 of 10 above MDE,
+  1 of 10 significant at 5%.
+* **HERESY-1** (research-only forever, control reproduced its kill): **11 of
+  11** forbidden configurations below their MDE, across **6 distinct** closed
+  signals.
+
+A kill from such a design is **absence of evidence**, and this graveyard has
+recorded it identically to **evidence of absence** for 195 experiments.
+
+**Nothing is reopened.** Affected corpses get a `kill_power: INADEQUATE`
+annotation and nothing else. Reopening one needs its own pre-registration, the
+corpse as a control arm, and an instrument whose MDE clears the effect sought.
+A multi-instrument kill is not overturned by one underpowered arm.
+
+## The small-cap "disagreement" was never a disagreement
+
+ANALYST-IBES-1 moved small to UNRESOLVED because A2 (+6.05 %/yr) and A3
+(−0.73 %/yr) disagreed in sign. Tested on the **paired** monthly series
+(correlation 0.578): mean difference **+3.70 %/yr, SE 3.60, t = 1.03.**
+
+⇒ **CANON §18**: a registered prediction that two constructions AGREE is a claim
+about their DIFFERENCE and must be tested as one.
+
+**ANALYST-IDENT-1 → POWER_FAILED** before any arm ran: registered MDE target
+4.0 %/yr, realised **10.8**, against a disputed gap of 6.8.
+
+## Also on disk
+
+* **`lint_batch()`** — `lint()` could never ask whether a batch is as many ideas
+  as it claims. Ten LLM hypotheses each passed against 306 priors while 37 of
+  their 45 mutual pairs sat at or above the 0.30 block threshold: **one
+  connected component**. Calibrated first (8 real preregs → 6 groups; the only
+  merge was the three genuine 13D/G variants). ⇒ **CANON §20**.
+* **A correction.** The published "+4.87 %/yr false-discovery bar" does not
+  trace to its receipt: `null_calibration` says **+2.73** (one seed), three null
+  seeds give 2.73 / 4.16 / 7.43, and +4.87 is the real-data equal-weight control
+  — the same genome as the separately-published "4th of 384". Two of the four
+  headline numbers are one measurement counted twice. **ARENA-1's null survives
+  at every candidate bar** (Bonferroni p_adj 1.000), and everything else in it
+  validated on disk.
+
+## Where the code is
+
+* **Aegis module `main` `463bd0d`** — HERESY-1, ANALYST-IDENT-1, the power
+  audits, `lint_batch`.
+* **aegis-finance `main` `3847b2b`** — the registry-disciplined recommendation
+  engine, the Investment Committee page, portfolio factory, capital frontier,
+  LLM research roles, CANON §18–20.
+* Holdout unread. No lane seeded, no flag flipped, no `paper_nav` touched, no
+  capital, no order path. **LLM spend $0.0067 of $30.**
+* Suite: **3,278 passed, 3 skipped.**
+
+## What Murat owes
+
+cash · QUBT 300-vs-200 ($893 of NAV, both carried) · rulings on 5 proposed kill
+conditions (ABSI/AMSC/HUBS/KYTX/SLDP) · `confirmed: true` on the book.
+**New: `ANTHROPIC_API_KEY` is present in `.env` but empty**, so the Claude path
+was unavailable all night.
+
+## What Optimus wants next
+
+**Raise instrument power before searching again** — everything else is
+downstream of a detection threshold that cannot see the effects being hunted.
+
+---
+
+## Previous status (ARENA-1, 2026-08-11)
 
 **Read `aegis-finance/docs/HANDOFF_ARENA1.md` first.** It carries the four
 numbers, the one thing Murat has to do, and the contradiction the product now
