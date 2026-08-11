@@ -17,11 +17,28 @@ import pandas as pd
 
 
 def newey_west_tstat(x: pd.Series, lags: int = 6) -> dict:
-    """Mean of x and its Newey-West (HAC) t-stat — the honest t on a return series."""
+    """Mean of x, its Newey-West (HAC) t-stat, and **the standard error behind it**.
+
+    The SE is returned because significance and POWER must be computed from the
+    same variance estimator. NIGHT-10 shipped a CANON §19 power block whose MDE
+    divided by `sigma/sqrt(n)` — the IID standard error — while every t-stat on
+    the same scorecard was HAC. Monthly excess-return series are autocorrelated,
+    so the two disagree, and the published detection thresholds (6.3 to 19.9
+    %/yr) were computed on the wrong one. A caller that wants an MDE cannot get
+    the right one without this field, so it is no longer optional.
+
+    `se_iid` is returned alongside so the divergence is visible rather than
+    inferred. A large `se_hac / se_iid` means positive serial correlation is
+    eating the effective sample size; a ratio well BELOW 1 means the Bartlett
+    sum found net-negative autocovariance, which in short samples is more often
+    an artifact than a free gain in power — see `hac_ratio` handling in
+    `aegis_brain.pf.scorecard._power_block`.
+    """
     x = pd.Series(x).dropna().astype(float)
     n = len(x)
     if n < 12 or x.std(ddof=1) == 0:
-        return {"mean": float(x.mean()) if n else float("nan"), "t": None, "n": n}
+        return {"mean": float(x.mean()) if n else float("nan"), "t": None,
+                "n": n, "se": None, "se_iid": None, "lags": lags}
     mu = x.mean()
     e = (x - mu).values
     # long-run variance of the mean via Bartlett-weighted autocovariances
@@ -32,7 +49,8 @@ def newey_west_tstat(x: pd.Series, lags: int = 6) -> dict:
         cov = np.dot(e[L:], e[:-L]) / n
         lrv += 2.0 * w * cov
     se = np.sqrt(max(lrv, 1e-16) / n)
-    return {"mean": float(mu), "t": float(mu / se), "n": n, "lags": lags}
+    return {"mean": float(mu), "t": float(mu / se), "n": n, "se": float(se),
+            "se_iid": float(x.std(ddof=1) / np.sqrt(n)), "lags": lags}
 
 
 def factor_alpha(port_excess: pd.Series, factors: pd.DataFrame,

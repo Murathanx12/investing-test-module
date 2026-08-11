@@ -102,7 +102,8 @@ MDE_Z = 2.8
 SIG_Z = 1.96
 
 
-def _power_block(excess: pd.Series, gross_excess: pd.Series | None = None) -> dict:
+def _power_block(excess: pd.Series, gross_excess: pd.Series | None = None,
+                 *, lags: int = 12) -> dict:
     """CANON §19 — every arm reports its own 80%-power MDE beside its effect.
 
     NIGHT-10 measured 21 configurations across two independent audits and found
@@ -121,27 +122,60 @@ def _power_block(excess: pd.Series, gross_excess: pd.Series | None = None) -> di
     being estimated. The headline `excess_cagr_net` is geometric and is NOT the
     same functional; both are reported so the comparison cannot be made in the
     wrong units by accident.
+
+    **Which standard error (the NIGHT-10 defect).** As shipped, this block
+    divided by the IID standard error while every t-stat on the same card was
+    Newey-West. That is not a rounding difference: the two answer different
+    questions about the same series, and a design's power was being certified by
+    an estimator the same design refused to trust for significance.
+
+    Both are now computed. The rule for choosing between them follows from what
+    each number is FOR:
+
+      * `significant_at_5pct` uses the HAC standard error, because that is the
+        honest inferential SE on an autocorrelated series.
+      * `mde_80pct_power_annual` uses the **larger** of HAC and IID, because an
+        MDE is what licenses a NULL. Understating it overstates the kill. When
+        the Bartlett sum comes out net-negative the HAC SE falls below IID, and
+        adopting it would let finite-sample noise in the autocovariances buy
+        power that no extra data was collected to earn.
+
+    `mde_estimator` records which one was binding, so no reader has to guess.
     """
     e = excess.dropna()
     n = len(e)
     if n < 12:
         return {"status": "TOO_SHORT", "n_months": n,
                 "reading": f"{n} months is too few to estimate a standard error"}
+    nw = newey_west_tstat(e, lags=lags)
     sd_m = float(e.std(ddof=1))
-    se_ann = 12.0 * sd_m / np.sqrt(n)
+    se_iid_ann = 12.0 * sd_m / np.sqrt(n)
+    se_hac_ann = (12.0 * float(nw["se"])) if nw.get("se") else se_iid_ann
+    hac_ratio = se_hac_ann / se_iid_ann if se_iid_ann > 0 else float("nan")
+
+    # MDE takes the conservative SE; significance takes the HAC one. See above.
+    se_mde = max(se_hac_ann, se_iid_ann)
     eff_ann = 12.0 * float(e.mean())
-    mde = MDE_Z * se_ann
-    sig = SIG_Z * se_ann
+    mde = MDE_Z * se_mde
+    sig = SIG_Z * se_hac_ann
     detectable = bool(abs(eff_ann) >= mde)
     significant = bool(abs(eff_ann) >= sig)
     out = {
         "status": "OK",
         "n_months": n,
         "arithmetic_excess_annual": round(eff_ann, 5),
-        "se_annual": round(se_ann, 5),
+        "se_annual": round(se_mde, 5),
+        "se_annual_iid": round(se_iid_ann, 5),
+        "se_annual_hac": round(se_hac_ann, 5),
+        "hac_over_iid": round(hac_ratio, 3),
+        "hac_lags": lags,
+        "mde_estimator": "HAC" if se_hac_ann >= se_iid_ann else "IID (HAC fell below it)",
         "sig_threshold_annual": round(sig, 5),
         "mde_80pct_power_annual": round(mde, 5),
+        "mde_80pct_power_annual_iid": round(MDE_Z * se_iid_ann, 5),
+        "mde_80pct_power_annual_hac": round(MDE_Z * se_hac_ann, 5),
         "significant_at_5pct": significant,
+        "t_newey_west": round(float(nw["t"]), 3) if nw.get("t") is not None else None,
         "above_80pct_power_mde": detectable,
         "effect_over_mde": round(abs(eff_ann) / mde, 3) if mde > 0 else None,
     }

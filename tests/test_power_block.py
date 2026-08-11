@@ -93,3 +93,100 @@ def test_every_scorecard_carries_a_power_block():
     assert '"power": _power_block' in src, (
         "the power block was removed from the scorecard — CANON §19 is only "
         "enforced if it is computed unconditionally")
+
+
+# ── the HAC correction ──────────────────────────────────────────────────────
+# As shipped on NIGHT-10 this block divided by sigma/sqrt(n) while every t-stat
+# beside it was Newey-West. The two estimators answer different questions about
+# the same series, and the design's power was being certified by the one the
+# design refused to trust for inference. Re-audited: the ten ANALYST-IBES-1 arms
+# move from 6.47-20.66 %/yr to 6.47-24.82 %/yr, HAC/IID ratio up to 1.24.
+
+
+def _ar1(rho: float, sd_m: float = 0.04, n: int = 252, mean_m: float = 0.0,
+         seed: int = 11) -> pd.Series:
+    """AR(1) monthly series with the unconditional sd held at `sd_m`."""
+    rng = np.random.default_rng(seed)
+    idx = pd.date_range("2002-01-31", periods=n, freq="ME")
+    innov = sd_m * np.sqrt(1.0 - rho ** 2)
+    x, prev = np.empty(n), 0.0
+    for i in range(n):
+        prev = rho * prev + rng.normal(0.0, innov)
+        x[i] = prev
+    x = x - x.mean() + mean_m
+    return pd.Series(x, index=idx)
+
+
+def test_newey_west_returns_the_standard_error_behind_its_t():
+    """Power and significance must be computable from the same estimator.
+
+    They could not be before: `newey_west_tstat` returned only `t`, so any
+    caller wanting an MDE had to re-derive an SE, and every one of them
+    re-derived the IID one.
+    """
+    from aegis_brain.harness.benchmark import newey_west_tstat
+    s = _ar1(0.3, mean_m=0.004)
+    nw = newey_west_tstat(s, lags=12)
+    assert nw["se"] is not None and nw["se"] > 0
+    assert nw["se_iid"] == pytest.approx(
+        float(s.std(ddof=1)) / np.sqrt(len(s)), rel=1e-12)
+    assert nw["t"] == pytest.approx(float(s.mean()) / nw["se"], rel=1e-12)
+
+
+def test_positive_autocorrelation_widens_the_detection_threshold():
+    """The defect, as a unit test: a persistent series is harder to resolve
+    than an IID one of the same variance, and the IID formula cannot see it."""
+    out = _power_block(_ar1(0.35))
+    assert out["hac_over_iid"] > 1.15
+    assert out["mde_80pct_power_annual_hac"] > out["mde_80pct_power_annual_iid"]
+    assert out["mde_estimator"] == "HAC"
+    assert out["mde_80pct_power_annual"] == pytest.approx(
+        out["mde_80pct_power_annual_hac"], abs=1e-9)
+
+
+def test_the_mde_never_falls_below_the_iid_threshold():
+    """A below-IID HAC standard error is not banked as free power.
+
+    When the Bartlett sum comes out net-negative — common in finite samples —
+    the HAC SE drops below IID. Adopting it would narrow the MDE, which would
+    license a stronger NULL on the strength of noise in the autocovariances.
+    Three of the ten re-audited arms are in exactly this state.
+    """
+    found_below = False
+    for seed in range(40):
+        out = _power_block(_ar1(-0.05, seed=seed))
+        assert out["mde_80pct_power_annual"] >= (
+            out["mde_80pct_power_annual_iid"] - 1e-9), (
+            "the MDE dipped below the IID threshold — a null licensed by a "
+            "smaller-than-IID HAC SE is licensed by estimation noise")
+        if out["mde_80pct_power_annual_hac"] < out["mde_80pct_power_annual_iid"]:
+            found_below = True
+            assert out["mde_estimator"].startswith("IID")
+    assert found_below, "no below-IID HAC draw appeared; the guard went untested"
+
+
+def test_significance_uses_the_hac_standard_error():
+    """Inference stays HAC even where the MDE takes the conservative one — the
+    two numbers serve different purposes and are allowed to differ."""
+    out = _power_block(_ar1(0.35, mean_m=0.004))
+    assert out["sig_threshold_annual"] == pytest.approx(
+        SIG_Z * out["se_annual_hac"], abs=1e-4)
+    assert out["t_newey_west"] is not None
+
+
+def test_the_power_block_does_not_reintroduce_a_bare_iid_mde():
+    """Source-level guard, matching the one above it.
+
+    The failure was not that someone doubted HAC; it was that the IID formula
+    was the only one written down. If both estimators stop being reported, the
+    next reader has no way to see which one is binding.
+    """
+    import inspect
+    from aegis_brain.pf import scorecard as SC
+    src = inspect.getsource(SC._power_block)
+    assert "newey_west_tstat" in src, (
+        "the power block stopped computing a HAC standard error — its MDE is "
+        "IID again, which is the NIGHT-10 defect")
+    for field in ("mde_80pct_power_annual_iid", "mde_80pct_power_annual_hac",
+                  "mde_estimator"):
+        assert field in src, f"{field} is no longer reported"
