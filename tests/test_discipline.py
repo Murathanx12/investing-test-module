@@ -41,3 +41,85 @@ def test_pbo_recognizes_dominant_config():
     perf[:, 0] += 0.02  # config 0 genuinely dominates
     report = probability_of_backtest_overfitting(perf)
     assert report["pbo"] <= 0.2
+
+
+# ── batch diversity (NIGHT-10) ───────────────────────────────────────────────
+#
+# lint() asks "has this been tried before?" and cannot ask "are these ten
+# proposals actually ten ideas?". Ten LLM hypotheses generated in one call each
+# PASSED against 306 prior experiments (strongest near-match ~0.23) while 37 of
+# their 45 mutual pairs sat at or above the block threshold. The batch was one
+# mechanism in ten costumes and nothing in the machinery could see it.
+
+from aegis_brain.discipline.prereg_lint import lint_batch  # noqa: E402
+
+
+def _doc(topic: str, filler: str = "") -> str:
+    return f"""# PREREG — {topic}
+
+## Mechanism
+{topic} measured across the cross-section of US equities, point in time.
+
+## Economic rationale
+{filler}
+
+## Data
+CRSP monthly panel, {filler}
+
+## Falsification
+The effect vanishes once {filler} is controlled for.
+"""
+
+
+def test_batch_of_near_identical_proposals_is_one_idea():
+    props = {f"H{i}": _doc("cross-sectional drift after an analyst revision "
+                           "event", "analyst revision drift underreaction")
+             for i in range(5)}
+    out = lint_batch(props)
+    assert out["verdict"] == "SINGLE_IDEA"
+    assert out["effective_distinct_ideas"] == 1
+
+
+def test_batch_of_distinct_proposals_is_diverse():
+    props = {
+        "A": _doc("insider open-market purchase clustering",
+                  "insiders trade on private information about cash flows"),
+        "B": _doc("supplier revenue concentration shock propagation",
+                  "customer concentration transmits demand shocks along the chain"),
+        "C": _doc("post-FDA-approval revenue reassessment in biotech",
+                  "binary regulatory outcomes reprice the whole pipeline"),
+    }
+    out = lint_batch(props)
+    assert out["effective_distinct_ideas"] == 3
+    assert out["verdict"] == "DIVERSE"
+
+
+def test_effective_distinct_ideas_is_the_honest_denominator():
+    """Two clones plus one genuine outsider is TWO ideas, not three."""
+    props = {
+        "A": _doc("cross-sectional drift after an analyst revision event",
+                  "analyst revision drift underreaction"),
+        "B": _doc("cross-sectional drift after an analyst revision event",
+                  "analyst revision drift underreaction slightly reworded"),
+        "C": _doc("supplier revenue concentration shock propagation",
+                  "customer concentration transmits demand shocks"),
+    }
+    out = lint_batch(props)
+    assert out["effective_distinct_ideas"] == 2
+    assert out["verdict"] == "PARTIALLY_REDUNDANT"
+    groups = sorted(sorted(g) for g in out["groups"])
+    assert ["A", "B"] in groups and ["C"] in groups
+
+
+def test_batch_reports_every_pair():
+    props = {k: _doc(f"mechanism {k}", k * 4) for k in "ABCD"}
+    out = lint_batch(props)
+    assert out["n_pairs"] == 6
+    assert all(0.0 <= p["cosine"] <= 1.0 for p in out["pairs"])
+    assert out["pairs"] == sorted(out["pairs"], key=lambda p: -p["cosine"])
+
+
+def test_empty_proposal_raises():
+    import pytest
+    with pytest.raises(ValueError):
+        lint_batch({"A": _doc("something real"), "B": "   "})

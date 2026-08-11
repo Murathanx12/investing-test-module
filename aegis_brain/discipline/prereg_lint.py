@@ -353,3 +353,100 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
             "thresholds": {"block_at": block_at, "warn_at": warn_at,
                            "duplicate_at": duplicate_at,
                            "min_shared": min_shared}}
+
+
+def lint_batch(proposals: dict[str, str], *, corpus: list[Corpse] | None = None,
+               block_at: float = 0.30, warn_at: float = 0.18,
+               duplicate_at: float = 0.60) -> dict:
+    """Check a BATCH of proposals against each other, not only against history.
+
+    `lint()` asks "has this been tried before?". It cannot ask "are these ten
+    proposals actually ten ideas?", because it sees one document at a time. A
+    batch generated in one sitting — by an LLM, or by a person on a theme —
+    passes proposal-by-proposal while collectively being a single bet, and the
+    denominator that bet is scored against is then wrong by the batch size.
+
+    Measured 2026-08-11 (NIGHT-10): ten hypotheses generated in one LLM call
+    each PASSED against 306 prior experiments with a strongest near-match of
+    ~0.23, while **37 of their 45 mutual pairs sat at or above this function's
+    block threshold of 0.30**. They resembled each other far more than any of
+    them resembled the entire recorded history of the programme — one mechanism
+    template in ten costumes. Nothing in the machinery could see it.
+
+    Returns per-pair cosines, a per-proposal count of how many batch-mates it
+    blocks against, and an `effective_distinct_ideas` estimate: the number of
+    connected components once every pair at or above `block_at` is joined.
+    That count, not the proposal count, is the honest denominator.
+    """
+    corp = corpus if corpus is not None else load_corpus()
+    idf = _idf(corp)
+    toks = {k: Counter(_tokens(v)) for k, v in proposals.items()}
+    for k, t in toks.items():
+        if not t:
+            raise ValueError(f"empty proposal {k!r} — nothing to check")
+
+    keys = sorted(toks)
+    pairs = []
+    for i, a in enumerate(keys):
+        for b in keys[i + 1:]:
+            pairs.append({"a": a, "b": b,
+                          "cosine": round(_cosine(toks[a], toks[b], idf), 4)})
+    pairs.sort(key=lambda p: -p["cosine"])
+
+    # union-find over the "too similar to be separate ideas" graph
+    parent = {k: k for k in keys}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for p in pairs:
+        if p["cosine"] >= block_at:
+            ra, rb = find(p["a"]), find(p["b"])
+            if ra != rb:
+                parent[ra] = rb
+    groups: dict[str, list[str]] = {}
+    for k in keys:
+        groups.setdefault(find(k), []).append(k)
+
+    per = {k: sum(1 for p in pairs
+                  if (p["a"] == k or p["b"] == k) and p["cosine"] >= block_at)
+           for k in keys}
+    n_block = sum(1 for p in pairs if p["cosine"] >= block_at)
+    n_dupe = sum(1 for p in pairs if p["cosine"] >= duplicate_at)
+    distinct = len(groups)
+
+    if distinct == len(keys):
+        verdict, why = "DIVERSE", (
+            f"all {len(keys)} proposals are mutually distinct at the "
+            f"{block_at} threshold — the batch is as many ideas as it claims.")
+    elif distinct == 1:
+        verdict, why = "SINGLE_IDEA", (
+            f"all {len(keys)} proposals collapse into ONE connected group. "
+            f"This is one idea in {len(keys)} costumes; scoring it as "
+            f"{len(keys)} independent tries would inflate the denominator and "
+            f"understate every best-of-N bar computed from it.")
+    else:
+        verdict, why = "PARTIALLY_REDUNDANT", (
+            f"{len(keys)} proposals collapse into {distinct} distinct "
+            f"group(s). The honest denominator for anything selected out of "
+            f"this batch is {distinct}, not {len(keys)}.")
+
+    return {"verdict": verdict, "why": why,
+            "n_proposals": len(keys),
+            "effective_distinct_ideas": distinct,
+            "groups": [sorted(v) for v in groups.values()],
+            "n_pairs": len(pairs),
+            "n_pairs_at_or_above_block": n_block,
+            "n_pairs_at_or_above_duplicate": n_dupe,
+            "blocking_batchmates_per_proposal": per,
+            "pairs": pairs,
+            "thresholds": {"block_at": block_at, "warn_at": warn_at,
+                           "duplicate_at": duplicate_at},
+            "note": ("This measures WORDING, exactly as lint() does. Two "
+                     "genuinely different mechanisms described in the same "
+                     "house style will score high here; that is a false alarm "
+                     "costing one paragraph of reading, which is the trade this "
+                     "module has always made.")}
