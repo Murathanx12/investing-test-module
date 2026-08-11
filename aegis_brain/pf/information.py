@@ -217,6 +217,67 @@ def _series_stats(x: pd.Series, lags: int, *, annualize_by: float) -> dict:
     }
 
 
+def _leg_block(LL: dict, SL: dict, DIFF: dict, DTOP: dict, DBOT: dict,
+               S: dict, gross_long_weight: float) -> dict:
+    """What survives when the short leg is taken away.
+
+    A long-only book can hold the long leg — `y` is cross-sectionally demeaned,
+    so the long leg already IS an excess return over the equal-weighted eligible
+    universe. It cannot hold the short leg. Round 16 measured 88-99.9% of a
+    comparable spread living in the leg that cannot be held, which is why this
+    block exists and why a Layer-1 pass is not a product.
+
+    The SHARE is descriptive and carries no standard error. The claim that one
+    leg carries more than the other is a claim about their DIFFERENCE and is
+    read off `difference_*` here, never off the share (CANON §18).
+    """
+    lo, sh = LL["mean_ann"], SL["mean_ann"]
+    total = lo + sh
+    share = float(sh / total) if np.isfinite(total) and abs(total) > 1e-12 else None
+    lo_detectable = bool(np.isfinite(lo) and abs(lo) >= LL["mde_ann"])
+    diff_detectable = bool(np.isfinite(DIFF["mean_ann"])
+                           and abs(DIFF["mean_ann"]) >= DIFF["mde_ann"])
+    if lo_detectable:
+        survives = "LONG_LEG_SURVIVES"
+        reading = (f"the long leg alone is {100*lo:+.2f}%/yr against its own MDE "
+                   f"of {100*LL['mde_ann']:.2f} (t {LL['t']:+.2f}): a long-only "
+                   f"book holding the top of this ranking beat the equal-weight "
+                   f"universe by an amount this design can see. Still Layer 1 — "
+                   f"gross of every cost.")
+    elif np.isfinite(lo):
+        survives = "LONG_LEG_UNRESOLVED"
+        reading = (f"the long leg alone is {100*lo:+.2f}%/yr against an MDE of "
+                   f"{100*LL['mde_ann']:.2f} — below what this design resolves. "
+                   f"The dollar-neutral spread is NOT evidence that a long-only "
+                   f"book earns anything, and this arm does not supply it "
+                   f"either. Absence of evidence (CANON §19).")
+    else:
+        survives = "NOT_ESTIMABLE"
+        reading = "the long leg could not be estimated"
+    return {
+        "long_leg_ann": LL["mean_ann"], "long_leg_t": LL["t"],
+        "long_leg_mde_ann": LL["mde_ann"],
+        "short_leg_ann": SL["mean_ann"], "short_leg_t": SL["t"],
+        "short_leg_mde_ann": SL["mde_ann"],
+        "difference_short_minus_long_ann": DIFF["mean_ann"],
+        "difference_t": DIFF["t"], "difference_mde_ann": DIFF["mde_ann"],
+        "difference_is_detectable": diff_detectable,
+        "short_leg_share_of_spread": share,
+        "top_decile_excess_ann": DTOP["mean_ann"], "top_decile_t": DTOP["t"],
+        "top_decile_mde_ann": DTOP["mde_ann"],
+        "bottom_decile_excess_ann": DBOT["mean_ann"], "bottom_decile_t": DBOT["t"],
+        "legs_sum_to_spread": bool(
+            np.isfinite(total) and np.isfinite(S["mean_ann"])
+            and abs(total - S["mean_ann"]) < 1e-9),
+        "mean_gross_long_weight": gross_long_weight,
+        "verdict": survives,
+        "reading": reading,
+        "note": ("share is descriptive and has no SE; the claim that one leg "
+                 "carries more is read off difference_*, which is a paired "
+                 "monthly series with its own SE (CANON §18)"),
+    }
+
+
 def cross_sectional_information(
     signal: pd.DataFrame,
     monthly_ret: pd.DataFrame,
@@ -257,6 +318,7 @@ def cross_sectional_information(
         months = months[::horizon]
 
     lam, ics, dec, ls, counts = [], [], [], [], []
+    lleg, sleg, dtop, dbot, lgross = [], [], [], [], []
     keep_months = []
     for m in months:
         s_row = sig.loc[m].dropna()
@@ -285,10 +347,22 @@ def cross_sectional_information(
         top = y[bucket == q - 1].mean()
         bot = y[bucket == 0].mean()
         dec.append(float(top - bot))
+        dtop.append(float(top))
+        dbot.append(float(bot))
         # breadth-weighted dollar-neutral spread: weight proportional to the
         # normal score, scaled so each side sums to 1.
         w = z / z.abs().sum() * 2.0
         ls.append(float((w * y).sum()))
+        # THE LEGS. `y` is cross-sectionally demeaned, so the long leg is
+        # already an excess return over the equal-weighted eligible universe —
+        # which is exactly the object a long-only book can hold. The short leg
+        # is what it cannot. They sum to the spread by construction, and that
+        # identity is asserted in the tests rather than assumed here.
+        wl = w.where(w > 0, 0.0)
+        ws = w.where(w < 0, 0.0)
+        lleg.append(float((wl * y).sum()))
+        sleg.append(float((ws * y).sum()))
+        lgross.append(float(wl.sum()))
         counts.append(len(y))
         keep_months.append(m)
 
@@ -316,6 +390,20 @@ def cross_sectional_information(
     D = _series_stats(di, lags, annualize_by=ann)
     S = _series_stats(si, lags, annualize_by=ann)
     I = _series_stats(ii, lags, annualize_by=1.0)   # a correlation is not annualisable
+
+    # THE LEG DECOMPOSITION — the question a long-only product actually faces.
+    # Round 16 measured 88-99.9% of a comparable spread living in the short leg.
+    # `LL` is the long-only-implementable excess over the equal-weight universe;
+    # `SL` is the part that requires shorting. Their MEANS are not a claim: that
+    # one leg carries more than the other is a claim about their DIFFERENCE, so
+    # `DIFF` is estimated as a paired monthly series with its own SE (CANON §18).
+    ll_s = pd.Series(lleg, index=keep_months)
+    sl_s = pd.Series(sleg, index=keep_months)
+    LL = _series_stats(ll_s, lags, annualize_by=ann)
+    SL = _series_stats(sl_s, lags, annualize_by=ann)
+    DIFF = _series_stats(sl_s - ll_s, lags, annualize_by=ann)
+    DTOP = _series_stats(pd.Series(dtop, index=keep_months), lags, annualize_by=ann)
+    DBOT = _series_stats(pd.Series(dbot, index=keep_months), lags, annualize_by=ann)
 
     # The verdict is taken on the long-short spread, because that is the field
     # in %/yr and the one an economic threshold can be stated against.
@@ -401,6 +489,8 @@ def cross_sectional_information(
                 round(upper_abs, 6) if np.isfinite(upper_abs) else None),
             "significant_at_5pct": significant,
             "equivalent_to_zero": equivalent_to_zero,
+            "long_only_decomposition": _leg_block(LL, SL, DIFF, DTOP, DBOT,
+                                                  S, float(np.mean(lgross))),
             "powered_to_issue_a_kill": bool(
                 np.isfinite(upper_abs)
                 and upper_abs < LARGEST_CREDIBLE_EFFECT_ANN),

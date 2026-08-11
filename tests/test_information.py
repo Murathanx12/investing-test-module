@@ -231,3 +231,62 @@ def test_eligibility_is_respected():
     elig.iloc[:, 100:] = False
     out = cross_sectional_information(sig, ret, eligible=elig)
     assert out.mean_names_per_month == pytest.approx(100, abs=1)
+
+
+# ── the leg decomposition: what a long-only book can actually hold ──────────
+def _legs(out):
+    return out.diagnostics["long_only_decomposition"]
+
+
+def test_the_legs_sum_to_the_spread_exactly():
+    """An identity, not an estimate. If the legs stop summing to the spread the
+    decomposition is measuring something other than the spread it decomposes,
+    and every share quoted from it would be wrong by an unknown amount."""
+    out = cross_sectional_information(*_frames(effect=0.004), name="planted")
+    legs = _legs(out)
+    assert legs["legs_sum_to_spread"] is True
+    assert legs["long_leg_ann"] + legs["short_leg_ann"] == pytest.approx(
+        out.long_short_spread_ann, abs=1e-9)
+
+
+def test_a_symmetric_effect_splits_roughly_evenly_between_the_legs():
+    """The planted effect here is linear in the signal and symmetric, so neither
+    leg should carry the spread on its own. This is the CONTROL for the real
+    finding: when a real signal comes back 90/10, that asymmetry is a property
+    of the data and not of the estimator."""
+    out = cross_sectional_information(*_frames(effect=0.004), name="planted")
+    share = _legs(out)["short_leg_share_of_spread"]
+    assert 0.3 < share < 0.7
+
+
+def test_a_long_only_verdict_is_never_issued_from_the_dollar_neutral_spread():
+    """The whole point. A spread can clear its MDE while the long leg does not,
+    and in that case the long-only answer is UNRESOLVED — never a pass inherited
+    from the spread."""
+    out = cross_sectional_information(*_frames(effect=0.004), name="planted")
+    legs = _legs(out)
+    assert out.verdict == "INFORMATION_PRESENT"
+    if abs(legs["long_leg_ann"]) < legs["long_leg_mde_ann"]:
+        assert legs["verdict"] == "LONG_LEG_UNRESOLVED"
+    else:
+        assert legs["verdict"] == "LONG_LEG_SURVIVES"
+
+
+def test_the_leg_difference_is_tested_as_a_difference_not_read_off_the_share():
+    """CANON §18. The share has no standard error; the difference does, and it
+    is estimated from the paired monthly series so the legs' common market
+    exposure cancels instead of being carried into the comparison."""
+    out = cross_sectional_information(*_frames(effect=0.004), name="planted")
+    legs = _legs(out)
+    assert legs["difference_mde_ann"] > 0
+    assert legs["difference_t"] is not None
+    # and the difference must not be a restatement of the two MDEs added up
+    assert legs["difference_mde_ann"] < (
+        legs["long_leg_mde_ann"] + legs["short_leg_mde_ann"])
+
+
+def test_a_signal_that_knows_nothing_gives_neither_leg_an_edge():
+    out = cross_sectional_information(*_frames(effect=0.0), name="noise")
+    legs = _legs(out)
+    assert legs["verdict"] == "LONG_LEG_UNRESOLVED"
+    assert abs(legs["long_leg_ann"]) < legs["long_leg_mde_ann"]
