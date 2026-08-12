@@ -582,6 +582,81 @@ def run_learn(D: dict, h: int = PRIMARY_H, do_mlp: bool = True) -> dict:
     return res
 
 
+def contrast(a_vals, b_vals, D, m1, m2, label) -> dict:
+    """CANON §18: a claim that two CELLS differ is tested as a DIFFERENCE.
+
+    Reading two conditional rows and saying "this one is bigger" is not a
+    measurement. Both cells are reduced to per-date means, the two paired
+    differences are differenced again, and THAT series gets its own SE and its
+    own MDE. A difference-of-differences below its own ruler is not a finding.
+    """
+    di, nd = D["date_ix"], D["n_dates"]
+    d1 = (per_date_mean(a_vals[m1], di[m1], nd)[0]
+          - per_date_mean(b_vals[m1], di[m1], nd)[0])
+    d2 = (per_date_mean(a_vals[m2], di[m2], nd)[0]
+          - per_date_mean(b_vals[m2], di[m2], nd)[0])
+    yv = np.full(nd, np.nan)
+    yv[:] = D["dec_dates"].year.to_numpy()
+    r = paired(d1 - d2, yv)
+    r["label"] = label
+    r["cell_1_pp"] = round(float(np.nanmean(d1)) * 100, 4)
+    r["cell_2_pp"] = round(float(np.nanmean(d2)) * 100, 4)
+    r["n_states_cell_1"] = int(m1.sum())
+    r["n_states_cell_2"] = int(m2.sum())
+    r["verdict"] = verdict(r)
+    return r
+
+
+def run_contrasts(D: dict) -> dict:
+    """The five questions restated as §18-compliant differences of differences."""
+    S = D["states"]
+    gain = S["gain_since_entry"].to_numpy()
+    dd = S["dd_from_peak"].to_numpy()
+    rev = S["rev_score"].to_numpy()
+    age = S["days_since_rdq"].to_numpy()
+    sue = S["sue"].to_numpy()
+    mom = S["mom_12_1"].to_numpy()
+    res, n = {}, 0
+    for h in HORIZONS:
+        o = D["out"][h]
+        H, C, T = o[:, A["HOLD"]], o[:, A["SELL_CASH"]], o[:, A["TRIM_25"]]
+        B = o[:, A["SELL_BENCH"]]
+        specs = [
+            ("Q1 (HOLD-TRIM25 | gain>50%) - (| gain<0)", H, T,
+             gain > 0.50, gain < 0),
+            ("Q1 (HOLD-TRIM25 | gain>100%) - (| gain<0)", H, T,
+             gain > 1.00, gain < 0),
+            ("Q1 (HOLD-TRIM25 | winner & mom>0) - (winner & mom<=0)", H, T,
+             (gain > 0.50) & (mom > 0), (gain > 0.50) & (mom <= 0)),
+            ("Q1 (HOLD-SELL_BENCH | gain>50%) - (| gain<0)", H, B,
+             gain > 0.50, gain < 0),
+            ("Q2 (HOLD-CASH | 0-5d after earnings) - (| >60d)", H, C,
+             age <= 5, age > 60),
+            ("Q2 (HOLD-CASH | 0-20d after earnings) - (| >60d)", H, C,
+             age <= 20, age > 60),
+            ("Q2 (HOLD-CASH | SUE>0) - (| SUE<=0)", H, C, sue > 0, sue <= 0),
+            ("Q2 (HOLD-CASH | 0-5d & SUE>0) - (| 0-5d & SUE<=0)", H, C,
+             (age <= 5) & (sue > 0), (age <= 5) & (sue <= 0)),
+            ("Q3 (HOLD-CASH | dd<-25%) - (| dd>-10%)", H, C,
+             dd <= -0.25, dd > -0.10),
+            ("Q3 (HOLD-CASH | dd<-50%) - (| dd>-10%)", H, C,
+             dd <= -0.50, dd > -0.10),
+            ("Q3 (HOLD-CASH | rev<0) - (| rev>0)", H, C, rev < 0, rev > 0),
+            ("Q3 (HOLD-CASH | dd<-25% & rev<0) - (| dd<-25% & rev>0)", H, C,
+             (dd <= -0.25) & (rev < 0), (dd <= -0.25) & (rev > 0)),
+            ("Q3 (HOLD-CASH | dd<-25% & rev<0) - (| dd>-10% & rev<0)", H, C,
+             (dd <= -0.25) & (rev < 0), (dd > -0.10) & (rev < 0)),
+        ]
+        for label, a, b, m1, m2 in specs:
+            if m1.sum() < 5000 or m2.sum() < 5000:
+                continue
+            res.setdefault(str(h), {})[label] = contrast(a, b, D, m1, m2,
+                                                         f"{label} @{h}")
+            n += 1
+    res["n_configs"] = n
+    return res
+
+
 def run_robust(D: dict) -> dict:
     """Cost sensitivity, and the assertion block the verdict rests on.
 
@@ -648,7 +723,8 @@ def run_robust(D: dict) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", default="all",
-                    choices=["baselines", "questions", "learn", "robust", "all"])
+                    choices=["baselines", "questions", "contrasts", "learn",
+                             "robust", "all"])
     ap.add_argument("--no-mlp", action="store_true")
     a = ap.parse_args()
     # the learn stage needs only the primary horizon; loading all six costs
@@ -668,6 +744,11 @@ def main() -> int:
         (FACT / "exit_lab_1_questions.json").write_text(json.dumps(q, indent=2))
         total += n
         print(f"questions: {n} configurations", flush=True)
+    if a.stage in ("contrasts", "all"):
+        r = run_contrasts(D)
+        (FACT / "exit_lab_1_contrasts.json").write_text(json.dumps(r, indent=2))
+        total += r["n_configs"]
+        print(f"contrasts: {r['n_configs']} configurations", flush=True)
     if a.stage in ("robust", "all"):
         r = run_robust(D)
         (FACT / "exit_lab_1_robust.json").write_text(json.dumps(r, indent=2))
