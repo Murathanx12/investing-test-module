@@ -344,3 +344,50 @@ Filled after the run, never edited. Receipts to
 `aegis-finance/docs/GRAND_ARENA_EXPOSURE.md`; artifacts
 `data/factory/exposure_arena_1_*.json`; runner
 `scripts/run_exposure_arena_1.py` (+ `exposure_arena_core.py`).
+
+---
+
+## 11. Clarifications made BEFORE any path was computed (2026-08-12)
+
+Recorded as an amendment rather than an edit, in the manner of EXIT-LAB-1 §3a.
+Nothing below was decided after seeing a result; each is forced by something
+already frozen above.
+
+**11.1 — `missed-upside` and `avoided-loss` are defined on EXCESS returns.**
+§6 items 7-8 were written against `r_t`, but §6 also freezes a runtime
+assertion that `netCAGR(X) - netCAGR(FULL) == avoided - missed - costs`. With
+cash earning `rf` (§4) that identity holds only on excess returns:
+`net_X - net_FULL = -(1 - w)(r - rf) - cost`. The identity is the binding
+clause, so `missed = Σ_{r>rf} (1-w)(r-rf)` and `avoided = Σ_{r<rf} (1-w)(rf-r)`,
+both annualised. The assertion is checked in arithmetic (not log) terms, where
+it is exact.
+
+**11.2 — Controller E's volatility reference is `rolling(1260, min_periods=252)`.**
+§3 freezes a 252-day warm-up as "the longest trailing window any controller
+uses". Controller E as specified in §7 uses a trailing 5-year median, which is
+1,260 days. Rather than lengthen the warm-up for every arm (which would shorten
+every other controller's sample to suit one of them), E's reference is a
+1,260-day rolling median with a 252-day minimum, so it exists exactly when the
+frozen warm-up ends and becomes the declared 5-year median once 5 years exist.
+Causal either way.
+
+**11.3 — Controller G is scored on its own shorter window, and so is everything
+it is compared to.** §7.1 freezes a first training block ending 1955-12-31, so G
+has no out-of-fold predictions before 1956. Every matched control is by
+construction computed on its own arm's evaluation window, so G's primary metric
+is unaffected. In addition, the report prints **every rule-based controller
+re-scored on G's window** so the comparison across controller families is
+like-for-like.
+
+**11.4 — Controller G's schedule on BED-3.** BED-3 is 23 years long and cannot
+carry a 30-year first training block. On BED-3 only: first training block
+2002-01-02 → 2011-12-31, retrain every 3 calendar years, identical 42-trading-day
+purge and embargo, identical families, identical frozen exposure mapping. Forced
+by the bed's length, declared before the run, and counted in the denominator.
+
+**11.5 — The frontier grid is extended by the controllers' own realised means.**
+§5 already requires this ("and, per bed, additionally at the exact realised
+`w̄_X` of every controller once known"). Recorded again here because it is the
+one place the frontier is touched after controllers run: the frontier
+*function* is frozen and on disk first; only the *evaluation points* are added,
+and each is a deterministic function of a controller's realised mean.
