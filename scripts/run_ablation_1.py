@@ -282,11 +282,26 @@ def main() -> int:
     ap.add_argument("--K", type=int, default=K_PRIMARY)
     ap.add_argument("--perm", type=int, default=N_PERM)
     ap.add_argument("--out", default=str(OUT))
+    # The historical harness (`scripts.arena_llm_hist`) APPENDS to the live
+    # calls file while this runs, so reading it directly makes the run
+    # unreproducible: the 21:13 run saw 7,215 calls, forty minutes later the
+    # same command would have seen 15,691. Point --calls at a frozen snapshot
+    # and the run is a function of its inputs again.
+    ap.add_argument("--calls", default=str(CALLS))
+    ap.add_argument("--exclude-famous", action="store_true",
+                    help="drop the decision months inside the leakage "
+                         "canary's famous-event windows (post-hoc "
+                         "sensitivity, NOT the pre-registered primary)")
+    ap.add_argument("--only-famous", action="store_true",
+                    help="the complement: keep ONLY the flagged months. "
+                         "n is tiny and the MDEs say so; this exists to put "
+                         "the point estimate of the contaminated subset "
+                         "beside the clean one.")
     a = ap.parse_args()
     t0 = time.time()
 
-    calls = pd.read_json(CALLS, lines=True)
-    print(f"{len(calls)} calls on disk", flush=True)
+    calls = pd.read_json(a.calls, lines=True)
+    print(f"{len(calls)} calls on disk ({Path(a.calls).name})", flush=True)
     ps = per_spec_frame(calls)
     _raw = per_spec_frame_raw(calls)
     _raw = _raw[_raw["arm"] == "swarm"]
@@ -305,6 +320,46 @@ def main() -> int:
     LC, dec_ix, mkt_log = load_lc()
     dec_dates = pd.DatetimeIndex(
         np.load(AUX, allow_pickle=False)["dec_dates"].astype("datetime64[ns]"))
+
+    # ── leakage: the canary says recall is CONCENTRATED, not uniform ────────
+    # LLM-LEAKAGE-PROBE-1's positive control (32e23a6) got recall==YES on 7 of
+    # 10 famous moves with 7/7 correct direction, and 0 of 419 on ordinary
+    # securities on ordinary dates. So historical grading is usable EXCEPT
+    # inside the windows the model demonstrably remembers. These are the
+    # canary's own in-window items; the TSLA one returned UNPARSEABLE and is
+    # treated as famous anyway, because a truncated reply is not a NO.
+    FAMOUS = {"2020-02-19": "COVID top (SPY, recall YES)",
+              "2020-03-23": "COVID bottom (SPY, recall YES)",
+              "2020-08-31": "TSLA split peak (recall UNPARSEABLE, treated "
+                            "as famous)",
+              "2021-01-27": "GME squeeze peak (recall YES)",
+              "2022-02-02": "META -26% day (recall YES)",
+              "2023-03-08": "SVB collapse (recall YES)",
+              "2023-05-24": "NVDA print (recall YES)"}
+    fam_ts = pd.to_datetime(sorted(FAMOUS))
+    # A decision at T forecasts [T, T+1m]. Contaminated = the event falls in
+    # that forward window, or the decision sits in its immediate aftermath.
+    # +/-45 calendar days covers both sides of a one-month forward window.
+    famous_drop = [k for k in dates_k
+                   if (abs((fam_ts - dec_dates[k]).days) <= 45).any()]
+    famous_meta = {
+        "windows": FAMOUS, "half_width_days": 45,
+        "months_flagged": len(famous_drop), "months_total": len(dates_k),
+        "flagged_dates": [str(dec_dates[k].date()) for k in famous_drop],
+        "applied": ("exclude" if a.exclude_famous
+                    else ("only" if a.only_famous else False)),
+        "note": ("PRIMARY runs on ALL months with these flagged; "
+                 "--exclude-famous reruns the same code with them dropped, "
+                 "as a post-hoc sensitivity."),
+    }
+    print(f"famous-event windows: {len(famous_drop)}/{len(dates_k)} decision "
+          f"months flagged, applied={a.exclude_famous}", flush=True)
+    if a.exclude_famous:
+        dates_k = [k for k in dates_k if k not in set(famous_drop)]
+        print(f"  -> {len(dates_k)} months remain", flush=True)
+    elif a.only_famous:
+        dates_k = [k for k in dates_k if k in set(famous_drop)]
+        print(f"  -> {len(dates_k)} FLAGGED months only", flush=True)
 
     regime = {k: ("risk_on" if (float(mkt.loc[k, "mkt_ret_252"]) > 0
                                 and float(mkt.loc[k, "mkt_dd_252"]) > -0.10)
@@ -570,6 +625,9 @@ def main() -> int:
         "score_distribution": dist,
         "cell_coverage": coverage,
         "narrow_domain": narrow,
+        "famous_event_windows": famous_meta,
+        "calls_file": Path(a.calls).name,
+        "n_calls": int(len(calls)),
         "effective_distinct_ideas": s20,
         "call_census": census, "rejections": rej,
         "declared_non_run": DECLARED_NON_RUN,
