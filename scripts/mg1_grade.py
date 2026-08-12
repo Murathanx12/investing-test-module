@@ -145,11 +145,19 @@ class Ridge:
 # ── the H1 engine ───────────────────────────────────────────────────────────
 
 def walk_forward(df: pd.DataFrame, base: list[str], sem: list[str],
-                 dates: list) -> dict:
+                 dates: list, purge: int = 0) -> dict:
     """Per-date squared-error improvement from adding `sem` to `base`.
 
     Fitted on cut dates strictly before the graded one. Nothing is graded
     until MIN_TRAIN_DATES prior dates exist.
+
+    `purge` drops the last `purge` training dates before each fit. It exists
+    because cut dates are one quarter apart while the label window is two
+    quarters long: the training row at `t - 1 quarter` carries an outcome
+    measured over `(t-63, t+63]`, which reaches INSIDE the test window. Both
+    arms are fitted on the same rows so the leak is shared, but a shared leak
+    is not a harmless one, and CLAUDE.md's rule is purged CV with an embargo.
+    `purge=2` removes the overlap entirely at 126-day horizons.
     """
     y = df["rho_fwd"].to_numpy(dtype=np.float64)
     Xb = df[base].to_numpy(dtype=np.float64)
@@ -161,7 +169,8 @@ def walk_forward(df: pd.DataFrame, base: list[str], sem: list[str],
     for k, t in enumerate(dates):
         if k < C.MIN_TRAIN_DATES:
             continue
-        tr = d_at < t
+        cutoff = dates[k - purge] if purge and k - purge >= 0 else t
+        tr = d_at < cutoff
         te = d_at == t
         if tr.sum() < 1000 or te.sum() < 100:
             continue
