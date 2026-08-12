@@ -78,7 +78,12 @@ def load_lc():
     LC, _, _ = build_position_factors(z["RET"], z["first_obs"], z["last_obs"],
                                       z["delist_day"], rf)
     aux = np.load(AUX, allow_pickle=False)
-    return LC, aux["dec_ix"].astype(int), np.log1p(mk)
+    # cum_series, NOT log1p. `exante` differences this to recover daily log
+    # returns; handed the daily series it differenced them AGAIN and produced
+    # an ex-ante beta of ~0.56 for a RANDOM 20-name equal-weight portfolio
+    # whose realised monthly beta is 1.20. The symptom that exposed it was
+    # beta-matching levering long-only equity books to 1.4-2.0x gross.
+    return LC, aux["dec_ix"].astype(int), cum_series(mk)
 
 
 def exante(LC, dec_ix, mkt_log, k: int, cols: np.ndarray,

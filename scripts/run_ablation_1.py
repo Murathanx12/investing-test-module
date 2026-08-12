@@ -41,6 +41,9 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+_AF = Path("C:/Users/mrthn/aegis-finance")
+if str(_AF) not in sys.path:
+    sys.path.insert(0, str(_AF))
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from aegis_brain.config import MODULE_ROOT
@@ -158,6 +161,22 @@ def swarm_score(sc: pd.DataFrame, src: str, drop_roles,
     return g
 
 
+def per_spec_frame_raw(calls: pd.DataFrame) -> pd.DataFrame:
+    """Every directional forecast, un-aggregated — the horizon cuts need it."""
+    rows = []
+    for r in calls.itertuples():
+        for f in (r.forecasts or []):
+            sgn = {"return_sign": 1.0, "beats_benchmark": 1.0,
+                   "drawdown_exceeds": -1.0}.get(f["observable"], 0.0)
+            if sgn == 0.0:
+                continue
+            rows.append({"arm": r.arm, "specialist": r.specialist,
+                         "date_ix": r.date_ix, "permno": r.permno,
+                         "dir_mean": sgn * (2.0 * float(f["probability"]) - 1.0),
+                         "horizon_days": int(f["horizon_days"])})
+    return pd.DataFrame(rows)
+
+
 def per_spec_frame(calls: pd.DataFrame) -> pd.DataFrame:
     """One row per (arm, date, name, specialist) — the level ablations act on."""
     rows = []
@@ -229,7 +248,8 @@ def summarise(fr: pd.DataFrame, mkt, dec_dates) -> dict:
     }
 
 
-def rank_ic(scores: dict, by_date, dates_k, dec_dates) -> dict:
+def rank_ic(scores: dict, by_date, dates_k, dec_dates,
+            min_names: int = 8) -> dict:
     """Per-date Spearman IC of the score against the forward month, with MDE."""
     from scipy.stats import spearmanr
     ics, yy = [], []
@@ -240,15 +260,19 @@ def rank_ic(scores: dict, by_date, dates_k, dec_dates) -> dict:
         d = by_date[k]
         v = s.reindex(d.index)
         m = np.isfinite(v.to_numpy()) & np.isfinite(d["fwd_ret_1m"].to_numpy())
-        if m.sum() < 8 or np.nanstd(v.to_numpy()[m]) == 0:
+        if m.sum() < min_names or np.nanstd(v.to_numpy()[m]) == 0:
             continue
         ic = spearmanr(v.to_numpy()[m], d["fwd_ret_1m"].to_numpy()[m]).statistic
         if np.isfinite(ic):
             ics.append(float(ic))
             yy.append(dec_dates[k].year)
     r = ruler(np.array(ics), np.array(yy), periods=1)
+    mde = r.get("mde_ann_pct")
     return {"mean_ic": round(float(np.mean(ics)), 4) if ics else None,
-            "n_dates": len(ics), "ic_mde": r.get("mde_ann_pct"),
+            "n_dates": len(ics),
+            # in IC UNITS, not percent: `ruler` annualises and scales by 100,
+            # which is right for a return series and wrong for a correlation.
+            "ic_mde": (round(mde / 100.0, 4) if mde is not None else None),
             "t": r.get("t"), "detectable": r.get("detectable"),
             "blocks": r.get("blocks"), "halves_agree": r.get("halves_agree")}
 
@@ -256,12 +280,18 @@ def rank_ic(scores: dict, by_date, dates_k, dec_dates) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--K", type=int, default=K_PRIMARY)
+    ap.add_argument("--perm", type=int, default=N_PERM)
+    ap.add_argument("--out", default=str(OUT))
     a = ap.parse_args()
     t0 = time.time()
 
     calls = pd.read_json(CALLS, lines=True)
     print(f"{len(calls)} calls on disk", flush=True)
     ps = per_spec_frame(calls)
+    _raw = per_spec_frame_raw(calls)
+    _raw = _raw[_raw["arm"] == "swarm"]
+    ps_h = {"short": _raw[_raw["horizon_days"] <= 20],
+            "long": _raw[_raw["horizon_days"] > 20]}
     sc_all = score_frame(calls)
 
     panel = pd.read_parquet(PANEL)
@@ -369,7 +399,7 @@ def main() -> int:
     pool_vals = np.array([float(base[k].loc[p]) for k, p in pool_keys])
     rng = np.random.default_rng(PERM_SEED)
     perm_excess, perm_ic = [], []
-    for i in range(N_PERM):
+    for i in range(a.perm):
         v = rng.permutation(pool_vals)
         sh: dict[int, dict] = {}
         for (k, p), val in zip(pool_keys, v):
@@ -383,12 +413,12 @@ def main() -> int:
         if i < 40:                       # IC permutation is the expensive one
             perm_ic.append(rank_ic(sco, by_date, dates_k, dec_dates)["mean_ic"])
         if (i + 1) % 25 == 0:
-            print(f"  shuffled {i+1}/{N_PERM} ({time.time()-t0:.0f}s)",
+            print(f"  shuffled {i+1}/{a.perm} ({time.time()-t0:.0f}s)",
                   flush=True)
     pe = np.array(perm_excess, dtype=float)
     obs = results["full"]["raw"]["excess_cagr_pct"]
     shuffled = {
-        "n_permutations": N_PERM,
+        "n_permutations": a.perm,
         "observed_full_excess_cagr_pct": obs,
         "shuffled_mean_pct": round(float(pe.mean()), 3),
         "shuffled_sd_pct": round(float(pe.std(ddof=1)), 3),
@@ -423,6 +453,68 @@ def main() -> int:
         nets[f"timeshift_{kk_shift}"] = fr
         pairs[f"full_minus_timeshift_{kk_shift}"] = paired(
             "full", f"timeshift_{kk_shift}")
+
+    # ── NARROW DOMAIN: where, if anywhere, does the LLM carry information? ──
+    # A4/§8: "LLM helps only in a narrow domain or horizon" is a SUCCESS, not a
+    # consolation, so the subsets are cut and reported whether or not the
+    # overall answer is a null. All cuts are pre-declared: market-cap quintile
+    # (the panel's own stratification), horizon band (the score is already
+    # split at 20 trading days), and role.
+    narrow: dict = {"by_size_quintile": {}, "by_horizon_band": {},
+                    "by_role": {}}
+    g_all = swarm_score(ps, "swarm", None)
+    llm_by = {int(k): v.set_index("permno")["score"]
+              for k, v in g_all.groupby("date_ix")}
+    qcut = {}
+    for k in dates_k:
+        d = by_date[k]
+        r = d["mcap"].rank(method="first", pct=True)
+        qcut[k] = np.clip((r * 5).astype(int), 0, 4)
+    for half, lo, hi in (("small_half", 0.0, 0.5), ("large_half", 0.5, 1.0)):
+        sub = {}
+        for k in dates_k:
+            s_k = llm_by.get(k)
+            if s_k is None:
+                continue
+            r = by_date[k]["mcap"].rank(method="first", pct=True)
+            m = (r > lo) & (r <= hi)
+            sub[k] = s_k.reindex(by_date[k].index).where(m.to_numpy())
+        narrow.setdefault("by_size_half", {})[half] = rank_ic(
+            sub, by_date, dates_k, dec_dates, min_names=12)
+    for q in range(5):
+        sub = {}
+        for k in dates_k:
+            s_k = llm_by.get(k)
+            if s_k is None:
+                continue
+            m = qcut[k] == q
+            sub[k] = s_k.reindex(by_date[k].index).where(m.to_numpy())
+        narrow["by_size_quintile"][f"Q{q+1}"] = rank_ic(
+            sub, by_date, dates_k, dec_dates, min_names=6)
+    for band in ("short", "long"):
+        col = f"dir_mean"
+        hz = ps_h[band] if band in ps_h else None
+        if hz is None:
+            continue
+        gg = (hz.groupby(["date_ix", "permno"])["dir_mean"].mean()
+              .reset_index())
+        sub = {int(k): v.set_index("permno")["dir_mean"]
+               for k, v in gg.groupby("date_ix")}
+        narrow["by_horizon_band"][band] = rank_ic(sub, by_date, dates_k,
+                                                  dec_dates)
+    for role in SWARM_ROLES:
+        v = ps[(ps["arm"] == "swarm") & (ps["specialist"] == role)]
+        sub = {int(k): g.set_index("permno")["dir_mean"]
+               for k, g in v.groupby("date_ix")}
+        narrow["by_role"][role] = rank_ic(sub, by_date, dates_k, dec_dates)
+    narrow["by_role"]["generic_analyst"] = rank_ic(
+        {int(k): g.set_index("permno")["dir_mean"]
+         for k, g in ps[ps["arm"] == "generic"].groupby("date_ix")},
+        by_date, dates_k, dec_dates)
+    narrow["by_role"]["randtext_analyst"] = rank_ic(
+        {int(k): g.set_index("permno")["dir_mean"]
+         for k, g in ps[ps["arm"] == "randtext"].groupby("date_ix")},
+        by_date, dates_k, dec_dates)
 
     # ── §20 and the call census ─────────────────────────────────────────────
     from backend.services.llm_swarm import effective_distinct_ideas
@@ -462,6 +554,7 @@ def main() -> int:
         "arms": results, "rank_ic": ic_out, "paired": pairs,
         "shuffled_placebo": shuffled, "time_shifted": tshift,
         "score_distribution": dist,
+        "narrow_domain": narrow,
         "effective_distinct_ideas": s20,
         "call_census": census, "rejections": rej,
         "declared_non_run": DECLARED_NON_RUN,
@@ -475,8 +568,8 @@ def main() -> int:
                  "come out otherwise.")},
         "wall_seconds": round(time.time() - t0, 1),
     }
-    OUT.write_text(json.dumps(out, indent=2, default=str))
-    print(f"wrote {OUT} ({time.time()-t0:.0f}s)")
+    Path(a.out).write_text(json.dumps(out, indent=2, default=str))
+    print(f"wrote {a.out} ({time.time()-t0:.0f}s)")
     return 0
 
 
