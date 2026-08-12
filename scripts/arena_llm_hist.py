@@ -116,11 +116,15 @@ RANDTEXT_SEED = 20260812
 _lock = threading.Lock()
 _seen_pred: set[str] = set()
 
-FF12_NAMES = {1: "Consumer nondurables", 2: "Consumer durables",
-              3: "Manufacturing", 4: "Energy", 5: "Chemicals",
-              6: "Business equipment", 7: "Telecoms", 8: "Utilities",
-              9: "Wholesale/retail", 10: "Healthcare", 11: "Finance",
-              12: "Other"}
+#: FF12 is ZERO-indexed in `wg1_features.ff12_of`, with 11 = Other. A
+#: one-indexed reading here printed "Finance" for an air-ambulance operator in
+#: the smoke run, which is the kind of wrong label a language model would
+#: cheerfully reason from.
+FF12_NAMES = {0: "Consumer nondurables", 1: "Consumer durables",
+              2: "Manufacturing", 3: "Energy", 4: "Chemicals",
+              5: "Business equipment", 6: "Telecoms", 7: "Utilities",
+              8: "Wholesale/retail", 9: "Healthcare", 10: "Finance",
+              11: "Other"}
 
 
 # ── the price frames the snapshots are computed from ────────────────────────
@@ -217,11 +221,7 @@ def randomise(snap: dict, pool: list[dict], rng: np.random.Generator) -> dict:
 
 # ── one unit of work ────────────────────────────────────────────────────────
 
-def work(arm: str, role: str, snap: dict, date_ix: int, permno: int,
-         spec_registry: dict) -> dict:
-    prev = SPECIALISTS.get(role)
-    if prev is None:
-        raise KeyError(role)
+def work(arm: str, role: str, snap: dict, date_ix: int, permno: int) -> dict:
     res = run_cell(role, snap, made_at=f"{snap['as_of']}T00:00:00+00:00")
     row = res.as_row()
     row.update({"arm": arm, "date_ix": int(date_ix), "permno": int(permno),
@@ -324,6 +324,7 @@ def main() -> int:
     SPECIALISTS[RANDTEXT.name] = RANDTEXT
 
     n_ok = n_abst = n_zero = n_fail = 0
+    harness_errors: dict[str, int] = {}
     stopped = None
     t1 = time.time()
     with OUT_CELLS.open("a", encoding="utf-8") as fh, \
@@ -338,7 +339,17 @@ def main() -> int:
                     f.cancel()
                 break
             except Exception as exc:                             # noqa: BLE001
+                # NEVER silently. The smoke run lost 24 of 24 calls to a
+                # TypeError (one missing positional argument) and the counter
+                # reported them as vendor failures — a harness bug wearing the
+                # costume of flaky infrastructure. Every distinct exception is
+                # printed once and all of them are counted by type.
                 n_fail += 1
+                key = f"{type(exc).__name__}: {exc}"[:200]
+                harness_errors[key] = harness_errors.get(key, 0) + 1
+                if harness_errors[key] == 1:
+                    print(f"  HARNESS ERROR ({i}/{len(jobs)}): {key}",
+                          flush=True)
                 continue
             with _lock:
                 fh.write(json.dumps(row, default=str) + "\n")
@@ -362,6 +373,7 @@ def main() -> int:
         "randtext_subsample": len(rt_keys),
         "calls_queued": len(jobs), "ok": n_ok, "abstained": n_abst,
         "zero_yield": n_zero, "failed": n_fail,
+        "harness_errors": harness_errors,
         "wall_minutes": round((time.time() - t1) / 60, 1),
         "stopped_by_governor": stopped,
         "label": "ARCHITECTURE_RESULT_ONLY",
