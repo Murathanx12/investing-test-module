@@ -150,6 +150,13 @@ def decile_spread(score: np.ndarray, y: np.ndarray, t: np.ndarray,
 
     Turnover is measured against the previous month's actual membership, so a
     fast signal pays for its own churn rather than being charged a guess.
+
+    The turnover returned is TWO-SIDED PER LEG — the symmetric difference over
+    the leg size — so it runs 0 to 2 and reaches 2 when a leg is completely
+    replaced (100% sold, 100% bought). The cost charge is
+    `2 (legs) x turnover x cost_bps`, which for a fully-replaced long-short book
+    at 65 bps is 2 x 2 x 65 = 260 bps per month. Naming it `1way` would have
+    made a correct charge look like a doubled one.
     """
     df = pd.DataFrame({"t": t, "score": score, "y": y})
     gross, net, turns = {}, {}, []
@@ -183,7 +190,12 @@ def score_feature_corr(score: np.ndarray, panel: pd.DataFrame,
     a forest, an evolved weight vector and a bandit, which is the point: the
     recovery test must not depend on a learner exposing coefficients.
     """
-    cols = cols or [c for c in FEATURES if not c.startswith("sec_")]
+    # market-level columns are CONSTANT within a month, so their
+    # cross-sectional correlation is undefined rather than zero. Including them
+    # put NaN into the receipt and into the JSON artifact; excluding them says
+    # the true thing, which is that this probe cannot see them.
+    cols = cols or [c for c in FEATURES
+                    if not c.startswith(("sec_", "m_"))]
     d = panel if mask is None else panel[mask]
     s = pd.Series(score if mask is None else score[mask], index=d.index)
     out = {}
@@ -361,20 +373,37 @@ def learn_hmm_regime(tr, te, seed):
     mk_tr = tr.groupby("t")[["mkt", "m_vol"]].first()
     mk_te = te.groupby("t")[["mkt", "m_vol"]].first()
     obs_tr = mk_tr.to_numpy()
-    try:
-        hmm = GaussianHMM(n_components=2, covariance_type="diag", n_iter=100,
-                          random_state=seed)
-        hmm.fit(obs_tr)
-        st_tr = hmm.predict(obs_tr)
-    except Exception as exc:                                # pragma: no cover
-        logger.warning("HMM failed (%s) — falling back to a pooled ridge", exc)
+    # FIVE RESTARTS, selected on the TRAINING log-likelihood. Baum-Welch is EM
+    # and EM finds local optima: on this world a single arbitrary seed landed at
+    # 52% state accuracy — chance — while the best of five reached 70%, and the
+    # spread across seeds was the entire difference between "HMMs cannot find
+    # this regime" and "HMMs can". Restart selection uses training likelihood
+    # only, so nothing about the test period enters the choice.
+    hmm, best_ll = None, -np.inf
+    for r in range(5):
+        try:
+            h = GaussianHMM(n_components=2, covariance_type="diag", n_iter=200,
+                            random_state=seed + 977 * r)
+            h.fit(obs_tr)
+            ll = float(h.score(obs_tr))
+        except Exception as exc:                            # pragma: no cover
+            logger.warning("HMM restart %d failed: %s", r, exc)
+            continue
+        if np.isfinite(ll) and ll > best_ll:
+            hmm, best_ll = h, ll
+    if hmm is None:                                         # pragma: no cover
+        logger.warning("every HMM restart failed — falling back to a pooled ridge")
         return learn_ridge(tr, te, seed)
+    st_tr = hmm.predict(obs_tr)
 
-    # filtered state on test: refit nothing, decode the growing prefix
+    # FILTERED state on test: the forward posterior at the end of each growing
+    # prefix. Not the smoothed path — a smoothed state uses the future to label
+    # the present, which would make the regime world recoverable for a reason
+    # that does not exist in production.
     full = np.vstack([obs_tr, mk_te.to_numpy()])
     st_te = np.empty(len(mk_te), dtype=int)
     for i in range(len(mk_te)):
-        st_te[i] = hmm.predict(full[: len(obs_tr) + i + 1])[-1]
+        st_te[i] = int(hmm.predict_proba(full[: len(obs_tr) + i + 1])[-1].argmax())
 
     smap_tr = dict(zip(mk_tr.index, st_tr))
     smap_te = dict(zip(mk_te.index, st_te))

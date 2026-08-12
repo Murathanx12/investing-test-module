@@ -191,8 +191,8 @@ def verdict_xs(world, ic: dict, mech: dict, net: dict | None) -> tuple[str, str]
             return "PARTIAL", "gross edge detected but the wrong feature carries it"
         return "RECOVERED", (
             f"gross IC {ic['mean']:+.4f} > MDE {ic['mde']:.4f}, and the net "
-            f"spread {net['mean']:+.4f}/yr does not clear its MDE "
-            f"{net['mde']:.4f} — correctly not tradeable")
+            f"spread {net['mean']:+.4f}/yr (MDE {net['mde']:.4f}) is not "
+            f"detectably POSITIVE — correctly not tradeable")
     if not ic["detected"]:
         return "MISSED", f"IC {ic['mean']:+.4f} below its MDE {ic['mde']:.4f}"
     if mech["ok"]:
@@ -232,6 +232,10 @@ def run_xs_cell(world, learner: str) -> dict:
                           unit="return", annualize=True) if cost else None
     mech = mechanism_check(world, pe, sc)
     v, why = verdict_xs(world, ic, mech, net)
+    # The one number that turns a coarse "do not trade" into a graded one: the
+    # one-way cost at which this learner's own gross spread is exactly eaten.
+    breakeven = (round(float(gross["mean"]) / 12.0 / (2.0 * turn) * 1e4, 1)
+                 if cost and turn and gross.get("mean") else None)
     extra = {}
     if learner == "hmm_regime" and hmm_states and world.world_id == "C":
         st = pe["t"].map(hmm_states)
@@ -243,7 +247,10 @@ def run_xs_cell(world, learner: str) -> dict:
             2.0 * np.sqrt(0.25 / pe["t"].nunique()), 4)
     return {"world": world.world_id, "learner": learner, "kind": "xs",
             "verdict": v, "why": why, "primary": ic, "spread_gross": gross,
-            "spread_net": net, "turnover_1way": round(turn, 3),
+            "spread_net": net,
+            "turnover_two_sided_per_leg": round(turn, 3),
+            "breakeven_one_way_cost_bps": breakeven,
+            "cost_charged_one_way_bps": cost or None,
             "mechanism": mech, "extra": extra,
             "_scores": sc, "_rows": int(len(pe))}
 
@@ -607,6 +614,154 @@ def batch_self_check(cells: list[dict]) -> dict:
     }
 
 
+def _bayes_state_accuracy(world) -> float:
+    """Causal forward-filter accuracy using the TRUE regime parameters.
+
+    Separates "the HMM is a bad estimator here" from "this regime is not
+    knowable from one monthly return at a time". Without it, a fitted HMM at
+    59% could mean either.
+    """
+    from scipy.stats import norm
+    m = world.market
+    st, r = m["true_state"].to_numpy(), m["mkt"].to_numpy()
+    p_stay = world.truth["p_stay"]
+    P = np.array([[p_stay, 1 - p_stay], [1 - p_stay, p_stay]])
+    mu = [float(r[st == 0].mean()), float(r[st == 1].mean())]
+    sd = [float(r[st == 0].std(ddof=1)), float(r[st == 1].std(ddof=1))]
+    f = np.array([0.5, 0.5])
+    hits = []
+    for t in range(len(r)):
+        pri = f @ P if t else np.array([0.5, 0.5])
+        lik = np.array([norm.pdf(r[t], mu[i], sd[i]) for i in (0, 1)])
+        f = pri * lik
+        f = f / f.sum()
+        hits.append(int(f.argmax()) == int(st[t]))
+    return round(float(np.mean(hits)), 4)
+
+
+def ceilings(worlds: dict) -> dict:
+    """What an ORACLE gets on each world, on the same test months.
+
+    Every MISSED cell has two possible readings — the learner failed, or the
+    world was not recoverable by anyone — and only this table tells them apart.
+    The oracle uses truth a learner never sees (the latent state, the gate, the
+    skilled sector) and is therefore a ceiling, not a competitor.
+    """
+    out = {}
+    for wid, w in sorted(worlds.items()):
+        p = w.panel.sort_values(["t", "name"]).reset_index(drop=True)
+        folds = KL.purged_walk_forward(int(p["t"].max()), **SPLIT)
+        tt = set(np.concatenate([f.test_t for f in folds]).tolist())
+        pe = p[p["t"].isin(tt)].reset_index(drop=True)
+        y, t = pe["y"].to_numpy(), pe["t"].to_numpy()
+
+        def blk(score, cost=0.0, label="oracle_ic"):
+            ic = KL.effect_block(KL.monthly_ic(score, y, t), label=label,
+                                 unit="spearman ic")
+            g, n, turn = KL.decile_spread(score, y, t, cost_bps=cost)
+            return {"ic": ic,
+                    "spread_gross": KL.effect_block(
+                        g, label="oracle_spread_gross", unit="return",
+                        annualize=True),
+                    "spread_net": (KL.effect_block(
+                        n, label="oracle_spread_net", unit="return",
+                        annualize=True) if cost else None),
+                    "turnover_two_sided_per_leg": round(turn, 3),
+                    "breakeven_one_way_cost_bps": (
+                        round(float(g.mean()) / (2.0 * turn) * 1e4, 1)
+                        if turn else None)}
+
+        if wid == "A":
+            out[wid] = blk(pe["f_mom"].to_numpy())
+        elif wid == "B":
+            out[wid] = blk(-pe["f_mom"].to_numpy())
+        elif wid == "C":
+            s = np.where(pe["true_state"] == 0, pe["f_mom"], pe["f_val"])
+            out[wid] = blk(s)
+            out[wid]["pooled_ridge_equivalent"] = blk(
+                (pe["f_mom"] + pe["f_val"]).to_numpy() / 2)["ic"]
+            out[wid]["bayes_filtered_state_accuracy"] = _bayes_state_accuracy(w)
+            out[wid]["state_accuracy_note"] = (
+                "the Bayes filter uses the TRUE transition matrix and the TRUE "
+                "emission parameters on market returns alone. It is the ceiling "
+                "any fitted HMM is trying to reach; chance is 0.50")
+        elif wid == "E":
+            out[wid] = blk((pe["f_mom"] * (pe["f_rev"] > 0)).to_numpy())
+        elif wid == "F":
+            out[wid] = blk((pe["f_mom"] * np.where(pe["f_val"] < 0.8, 1, -1)).to_numpy())
+        elif wid in ("G", "H"):
+            col, sec = w.truth["specialist"], w.truth["skilled_sector"]
+            out[wid] = blk((pe[col] * (pe["sector_id"] == sec)).to_numpy())
+        elif wid == "I":
+            # POSITIVE CONTROL FOR THE TRIPWIRE. A CORRECT-NULL in world I only
+            # means something if the world could have produced a false positive
+            # under the defect it was built to catch. So the defect is run
+            # deliberately: align the score with the SAME month's return, the
+            # exact off-by-one a misaligned harness makes, and report what that
+            # would have printed. A check that did not run is not a check that
+            # passed.
+            same = pe.groupby("name")["y"].shift(1)
+            k = same.notna().to_numpy()
+            leak = KL.effect_block(
+                KL.monthly_ic(pe.loc[k, "f_mom"].to_numpy(), same[k].to_numpy(),
+                              pe.loc[k, "t"].to_numpy()),
+                label="same_month_ic_if_misaligned", unit="spearman ic")
+            out[wid] = {"ic": blk(pe["f_mom"].to_numpy())["ic"],
+                        "leakage_tripwire_if_misaligned_by_one_month": leak,
+                        "note": ("there is no ceiling: the forward IC of the "
+                                 "apparent signal IS the null. The tripwire row "
+                                 "is what a one-month misalignment would have "
+                                 "printed instead — if it is large and the "
+                                 "learners still returned nothing, the null "
+                                 "verdicts are informative rather than vacuous")}
+        elif wid == "J":
+            out[wid] = blk(pe["f_rev"].to_numpy(),
+                           cost=w.meta.get("cost_bps_one_way", 0.0))
+        elif wid == "D":
+            m = KL._mkt_frame(w)
+            mf = KL.purged_walk_forward(int(m["t"].max()), **SPLIT)
+            keep = m["t"].isin(set(np.concatenate([f.test_t for f in mf]).tolist()))
+            me = m[keep].reset_index(drop=True)
+            ym = me["y_mkt"].to_numpy()
+            pr = 1.0 / (1.0 + np.exp(-(-1.2 + 1.2 * me["m_precursor"].to_numpy())))
+            wt = np.clip(1.0 - 1.2 * pr, 0.0, 1.0)
+            wo = np.where(me["y_shock"] == 1, 0.0, 1.0)
+            out[wid] = {
+                "population_form_probabilistic_policy": KL.effect_block(
+                    pd.Series((wt - wt.mean()) * ym), label="oracle_timing_gain",
+                    unit="return", annualize=True),
+                "perfect_foresight_policy": KL.effect_block(
+                    pd.Series((wo - wo.mean()) * ym), label="foresight_gain",
+                    unit="return", annualize=True),
+                "note": ("the probabilistic row is the honest ceiling — it uses "
+                         "the true functional form on the OBSERVABLE precursor. "
+                         "The foresight row uses the realised event and exists "
+                         "only to show how much of the gap is irreducible")}
+        elif wid == "K":
+            logs = KL.build_k_logs(w, seed=SEED)
+            R = logs[["r_hold", "r_cash", "r_replace"]].to_numpy()
+            tb = logs["true_best"].map({"hold": 0, "cash": 1, "replace": 2}).to_numpy()
+            by = pd.DataFrame({"t": logs["t"], "hold": R[:, 0], "cash": R[:, 1],
+                               "rep": R[:, 2],
+                               "rule": R[np.arange(len(R)), tb]}).groupby("t").mean()
+            out[wid] = {k: KL.effect_block(by[k] - by["hold"],
+                                           label=f"{k}_vs_always_hold",
+                                           unit="return", annualize=True)
+                        for k in ("rule", "rep", "cash")}
+        elif wid == "L":
+            m = KL._mkt_frame(w)
+            mf = KL.purged_walk_forward(int(m["t"].max()), **SPLIT)
+            keep = m["t"].isin(set(np.concatenate([f.test_t for f in mf]).tolist()))
+            me = m[keep]
+            out[wid] = {"note": ("no ceiling exists — the correct answer is "
+                                 "zero. What matters is how TIGHT the null is"),
+                        "test_months": int(len(me)),
+                        "mde_of_a_half_amplitude_timing_policy": round(float(
+                            2.0 * np.std(0.25 * me["y_mkt"], ddof=1)
+                            / np.sqrt(len(me)) * 12), 5)}
+    return out
+
+
 def aggregate(worlds: dict, ver: dict) -> None:
     cells = list(load_done().values())
     matrix: dict[str, dict[str, str]] = {}
@@ -645,6 +800,7 @@ def aggregate(worlds: dict, ver: dict) -> None:
         },
         "worlds": {w: {**worlds[w].as_dict(), "verification": ver[w]}
                    for w in worlds} if worlds else {},
+        "oracle_ceilings": ceilings(worlds) if worlds else {},
         "recovery_matrix": matrix,
         "verdict_counts": counts,
         "negative_controls": {
