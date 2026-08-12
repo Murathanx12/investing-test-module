@@ -301,6 +301,44 @@ never `np.random.seed`.
 ## 10. Result
 
 Filled after the run, never edited. Receipts:
-`data/factory/winner_genome_1_*.json` (untracked, as `/data/` is gitignored);
-writeup `aegis-finance/docs/NIGHT14_WINNER_GENOME.md`;
+`data/factory/winner_genome_1_results.json`,
+`winner_genome_1_perturbation.json`, `wg1_arm_matrices.npz` (untracked, as
+`/data/` is gitignored); writeup `aegis-finance/docs/NIGHT14_WINNER_GENOME.md`;
 runner `scripts/run_winner_genome_1.py`.
+
+**Run 2026-08-12. 220 evaluable windows of the 231-block tiling (the first 11
+lack the 252-day formation history), 2,600 teams per arm per window, median
+universe 1,500 names, 72 arm × parameter configurations executed, 1 skipped.
+Trial verdict: DISPERSION_ONLY.**
+
+| family | Δmedian vs its vol-matched control (pp) | MDE | t | verdict |
+|---|---:|---:|---:|---|
+| F1 momentum+volume+clean price action | +0.079 | 0.402 | +0.55 | UNRESOLVED |
+| F2 bet-on-volatility | −0.023 | 0.033 | −1.94 | UNRESOLVED |
+| F3 quality momentum | −0.033 | 0.392 | −0.24 | UNRESOLVED |
+| F4 concentrated sector | −0.010 | 0.116 | −0.24 | DISPERSION_ONLY |
+| F5 speculative underdogs | −0.080 | 0.314 | −0.71 | DISPERSION_ONLY |
+
+**H1 (selection shifts the median): not supported at this instrument's
+resolution — no family clears its own MDE, in any regime block, in either
+sample half.** H2 (dispersion, not selection) is the supported reading: F4
+Δp95 +1.82 / Δp5 −2.00 (MDEs 0.48 / 0.40) and F5 Δp95 +0.58 / Δp5 −0.56 (MDEs
+0.44 / 0.34) are symmetric tail widenings at an unmoved centre; on the maximum,
+only F4 raises it detectably (Δmax +1.92, MDE 1.09) while F1 and F3 *lower* it
+(−3.02 / −7.26 against MDEs 1.99 / 2.29). **H3 (advantage survives re-sizing):
+vacuous in the direction registered — all 30 family-minus-control comparisons
+across the six budgets stay below their own MDE, so there was no advantage to
+survive.** The sizing rules themselves are not a null: inverse-volatility
+dominated the tournament 20% cap on compound return, drawdown,
+return-per-unit-volatility and ruin probability in all five families.
+
+Assertions all PASS: 1,601 delisting terminations (survivorship path fired),
+volatility-match histogram gap 0.07 pp (bound 2.0), 0 cap violations,
+perturbation proof bit-identical on block 120, F3 Compustat coverage 96.5%
+mean. Run repeated end to end from the same seeds after adding the
+reported-never-deciding per-window maximum; every deciding number reproduced
+exactly.
+
+**Registered prior was LOW for H1 (~20%) and HIGH for H2 (~70%). The outcome
+matched the registered prior**, which is worth stating because it is the one
+case where being right is not evidence of anything.

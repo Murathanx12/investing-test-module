@@ -104,7 +104,9 @@ def main() -> int:
         f"{k}: dmedian {v['delta_median_pp']:+.3f}pp (MDE "
         f"{v['delta_median_mde_pp']:.3f}, t {v['delta_median_t']:+.2f}), "
         f"dp95 {v['delta_p95_pp']:+.3f}pp (MDE {v['delta_p95_mde_pp']:.3f}), "
-        f"max-over-2600 {v['max_over_teams_pct']:+.1f}%, p5 "
+        f"dmax {v['delta_max_pp']:+.2f}pp (MDE {v['delta_max_mde_pp']:.2f}), "
+        f"median max-over-2600-per-window "
+        f"{v['leaderboard_max_over_2600_per_window']['median_pct']:+.1f}%, p5 "
         f"{v['p5_pct']:+.1f}%, P(win) {v['p_produces_winner']:.3f} -> "
         f"{v['verdict']}"
         for k, v in r["families"].items())
