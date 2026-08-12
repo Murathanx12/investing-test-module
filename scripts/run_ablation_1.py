@@ -536,6 +536,20 @@ def main() -> int:
         for x in (r.rejections or []):
             rej[x["reason"]] = rej.get(x["reason"], 0) + 1
 
+    # COVERAGE. The random-text arm was subsampled (prereg §5 capped it at
+    # 1,500 calls), so it does not cover every cell. `S.z` fills a missing leg
+    # with 0.0 = NEUTRAL, which means an arm fed a partially-covered LLM leg is
+    # "full with a neutral LLM on the uncovered cells", NOT "full with noise".
+    # Printed, because reading `full_randtext` as a clean placebo without this
+    # number would overstate what it tests.
+    cells_total = int(len(pd.read_parquet(LLM_CELLS)))
+    coverage = {}
+    for arm in ("swarm", "generic", "randtext"):
+        g = swarm_score(ps, arm if arm != "swarm" else "swarm", None)             if arm == "swarm" else swarm_score(ps, arm, None)
+        coverage[arm] = {"cells_scored": int(len(g)),
+                         "cells_total": cells_total,
+                         "coverage": round(len(g) / max(cells_total, 1), 4)}
+
     # per-arm score distribution — the shuffled arm's premise, verified
     dist = {}
     for arm, g in sc_all.groupby("arm"):
@@ -554,6 +568,7 @@ def main() -> int:
         "arms": results, "rank_ic": ic_out, "paired": pairs,
         "shuffled_placebo": shuffled, "time_shifted": tshift,
         "score_distribution": dist,
+        "cell_coverage": coverage,
         "narrow_domain": narrow,
         "effective_distinct_ideas": s20,
         "call_census": census, "rejections": rej,
