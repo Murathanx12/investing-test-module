@@ -338,12 +338,55 @@ chances.
    names to hold, and nothing about intraday execution, tax, liquidity needs or
    any constraint a real saver optimises that this instrument never measured.
 
-## 10. Result
+## 10. Result — filled 2026-08-12 after the run, never edited
 
-Filled after the run, never edited. Receipts to
-`aegis-finance/docs/GRAND_ARENA_EXPOSURE.md`; artifacts
+**Verdict: NO CONTROLLER BEAT MATCHED-AVERAGE-EXPOSURE ON ANY BED THAT COUNTS
+AS A REPLICATION. §A11(3) NOT AWARDED; `breakthrough_eligible: false`.**
+
+* **BED-1 (primary, 25,649 days):** 42 of 45 real configurations NOT DETECTABLE
+  against matched exposure; 29 labelled `DE_RISKING_ONLY`. **Not one
+  pre-registered primary configuration of any family cleared.** Three
+  non-primary variants of family E did: `ma50_trend` +1.598 pp/yr vs MDE 1.143
+  (1.40x), `ma100_trend` 1.19x, `ma200_trend` 1.14x. The family's own
+  pre-registered primary, `ma200_2x2`, is 0.79x — NOT DETECTABLE.
+* **BED-2:** all six E configurations clear (1.03x-1.77x) — but BED-2 is BED-1
+  levered 2.15x, **measured excess-return correlation 1.000000**, so it is the
+  same bed and counts once.
+* **BED-3 (the only structurally different bed):** 44 of 45 NOT DETECTABLE, all
+  six E configurations NEGATIVE (-1.52 to -3.29 pp/yr), and the single
+  detectable non-oracle arm in the entire trial is **`F_EVENT_DAILY`
+  TIMING_HARMFUL at -6.865 pp/yr vs MDE 2.040 (3.37x), 7/7 blocks, both
+  halves**.
+* **H1 REJECTED as a replicated finding** (detected on one bed group only, and
+  reversed on the other). **H2 SPLIT:** matched exposure explains the *wealth*
+  result entirely, but the rule-based controllers cut 98-year drawdown by
+  14-27pp *beyond* matched, above their own MDEs, while the learned controllers
+  draw down 20-22pp *deeper* than matched. **H3 CONFIRMED:** the evolutionary
+  searcher produced the largest learned number in the trial (+5.009 pp/yr on
+  BED-2) at **exactly 1.00x its own MDE** — not detectable — with halves
+  +13.26 then +1.66 and a sign that flips at 4x costs on BED-1. **H4
+  CONFIRMED:** the k=21 oracle is worth +21.563 pp/yr over matched at 10.4x its
+  MDE on BED-1; the best observable controller captured **7.4%** of it. **H5
+  CONFIRMED:** the one family that cleared did not replicate.
+* **Halves decide it:** family E's BED-1 timing content is +3.054 pp/yr in
+  1927-1975 and **+0.032** in 1976-2024 (`ma100_trend`: **+0.002**). The frozen
+  "same sign in both halves" clause was satisfied by rounding dust, and is
+  reported as such. Every decade since 2005 is negative.
+* **§20:** 47 configurations per bed are worth **2.02-2.40 effective distinct
+  arms**.
+* **Search denominator:** 207 scored policies (144 arms + 63 frontier points),
+  99 model fits, 24 perturbation proofs (24/24 identical), 3 look-ahead
+  tripwires (3/3 caught the oracle), 132 cost cells, 288 ruin simulations, 1
+  declared non-run (conservative offline-Q), 0 skipped, 0 voided.
+* **Six defects recorded rather than tidied away**, including an oracle that was
+  a momentum rule (caught by the tripwire), a tripwire assertion that was itself
+  wrong (rebuilt, not dropped), and a breakthrough clause that counted one bed
+  twice (replaced with a measured independence check, which flipped the answer).
+
+Receipts `aegis-finance/docs/GRAND_ARENA_EXPOSURE.md`; artifacts
 `data/factory/exposure_arena_1_*.json`; runner
-`scripts/run_exposure_arena_1.py` (+ `exposure_arena_core.py`).
+`scripts/run_exposure_arena_1.py` (+ `exposure_arena_core.py`,
+`exposure_arena_learn.py`, `exposure_arena_report.py`).
 
 ---
 
