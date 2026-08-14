@@ -39,6 +39,19 @@ SEED_RANDOM_EDGES = MG1.SEED_RANDOM_EDGES
 #: half. Two lags covers that overlap. Identical to MARKET-GRAPH-1 stage 5.
 NW_LAGS = 2
 
+#: Purge depth for the walk-forward ridge fit: drop the last PURGE training cut
+#: dates before each fit. Cut dates are one quarter apart while the label window
+#: is two quarters, so the most recent training date's outcome reaches INSIDE
+#: the test window; 2 removes the overlap outright.
+#:
+#: MARKET-GRAPH-1's HEADLINE arm ran unpurged and its section 8C measured that
+#: purging moves the answer essentially not at all (9.49e-04 against 9.68e-04).
+#: This trial takes the purged setting anyway, because CLAUDE.md's standing rule
+#: is purged CV with an embargo and the measurement says it costs nothing to
+#: obey it. Chosen here, before any covariance matrix exists, for a stated
+#: reason that is not an outcome.
+PURGE = 2
+
 # ── the feature blocks, verbatim from MARKET-GRAPH-1 stage 5 ────────────────
 #: Changing either list would make `model_numeric`/`model_semantic` something
 #: other than the arms whose difference MARKET-GRAPH-1 H1 measured.
@@ -47,19 +60,61 @@ SEM_FEATS = ("has_edge", "log_n_edges", "max_conf")
 
 # ── PSD repair, applied IDENTICALLY in every arm ────────────────────────────
 #: A ridge predicts each entry independently, so the predicted matrix is not
-#: guaranteed positive semi-definite. The repair is: symmetrise, force a unit
-#: diagonal, clip eigenvalues at EIG_FLOOR, rescale back to a unit diagonal.
-#: It is applied to EVERY arm including the context arms, so no arm gets its
-#: own treatment. The pre-repair minimum eigenvalue is recorded per arm.
-EIG_FLOOR = 1e-8
+#: guaranteed positive semi-definite. The repair is: clip entries to
+#: [-CORR_CLIP, CORR_CLIP], symmetrise, force a unit diagonal, floor the
+#: eigenvalues, rescale back to a unit diagonal. Applied to EVERY arm including
+#: the context arms, so no arm gets its own treatment.
+#:
+#: ── AMENDMENT 2026-08-14, recorded rather than quietly applied ─────────────
+#: The first values here were EIG_FLOOR = 1e-8 absolute and no entry clipping.
+#: Both were wrong, and the first gate run proved it from MATRIX DIAGNOSTICS,
+#: which are pre-declared as reported-never-deciding and contain no outcome:
+#:
+#:   calibration ratio (realised / predicted portfolio vol) = 4,519
+#:   mean condition number after repair                     = 7.1e8
+#:   mean pre-repair minimum eigenvalue                     = -0.126
+#:   predicted annualised portfolio vol                     = 0.0013
+#:   realised annualised portfolio vol                      = 0.027
+#:
+#: A matrix that forecasts 0.13% annualised volatility for a portfolio that
+#: realises 2.7% is not a risk model; the run was void on that number alone,
+#: independent of what any arm scored against any other. The mechanism is
+#: exact: the ridge is unconstrained and predicted correlations up to 1.0119,
+#: the assembled matrix had a minimum eigenvalue of -0.344, and flooring those
+#: at 1e-8 does not repair them — it manufactures near-zero-variance directions
+#: that a minimum-variance solve finds and levers into without bound. The
+#: repair ran green and destroyed the object, which is this project's house
+#: failure mode wearing a linear-algebra costume.
+#:
+#: The replacement floor is RELATIVE to the mean eigenvalue of a correlation
+#: matrix, which is exactly 1 by construction, so EIG_FLOOR_REL is "one tenth
+#: of the average eigenvalue". Chosen from the SPECTRUM of the predicted
+#: matrices (min -0.344, 1st percentile +0.120, 10th +0.343, median +0.720,
+#: max 11.3) — a property of the matrices, containing no forward return and no
+#: comparison between arms — so that it removes the pathological tail and
+#: leaves the healthy body of the spectrum untouched. It binds on roughly the
+#: bottom 1% of eigenvalues and on nothing else.
+#:
+#: Because this IS a judgement call, the primary is additionally reported at
+#: EIG_FLOOR_SENSITIVITY. That sensitivity can only DEMOTE a verdict: if the
+#: sign or the detectability of the headline moves across floors, the result is
+#: fragile and must be reported as fragile. It can never promote.
+CORR_CLIP = 0.99
+EIG_FLOOR_REL = 0.10
+EIG_FLOOR_SENSITIVITY = (0.05, 0.10, 0.20)
 
 #: Additional ridge shrink toward the identity, applied identically to every
-#: arm. ZERO on purpose: a non-zero value would be a free parameter sitting
-#: directly in the decision path, and the ridge-predicted matrices are already
-#: smooth functions of three-to-six features and therefore well conditioned.
-#: The `sample` context arm is the only one that would want it, and it is a
-#: context arm precisely because it cannot decide anything.
+#: arm. ZERO on purpose: the eigenvalue floor above already bounds the
+#: conditioning, and a second regulariser would be a free parameter sitting
+#: directly in the decision path with nothing left for it to do.
 SHRINK_TO_IDENTITY = 0.0
+
+#: RUNTIME VOID ASSERTION. If an arm's mean calibration ratio (realised /
+#: predicted portfolio volatility) falls outside this band, that arm's matrices
+#: are numerically degenerate and the arm is VOID — reported as void, never
+#: compared. This exists because the defect above was caught by a human reading
+#: a diagnostic, and a check that depends on somebody looking is not a check.
+CALIBRATION_VOID_BAND = (0.2, 5.0)
 
 # ── the portfolios ──────────────────────────────────────────────────────────
 #: PRIMARY (H1): residual-space global minimum variance, fully invested, no

@@ -1,0 +1,38 @@
+{
+  "run_utc": "2026-08-14T04:46:48.168556+00:00",
+  "what": "true forward correlation written into exactly the edge-carrying entries of the model_numeric matrix; the ceiling on any edge-based correction at this coverage",
+  "primary_residual_gmv": {
+    "n_dates": 34,
+    "mean": 0.0414887818342416,
+    "se_hac": 0.01737980212541948,
+    "se_iid": 0.013562057149246728,
+    "se": 0.01737980212541948,
+    "t": 2.387183785801602,
+    "mde": 0.04866344595117454,
+    "detectable": false,
+    "n_common_dates": 34,
+    "mean_ref": 0.02703719845548214,
+    "mean_arm": 0.06852598028972375,
+    "risk_reduction": -0.0414887818342416,
+    "risk_reduction_pct_of_ref": -153.45074269641728,
+    "detectable_improvement": false
+  },
+  "secondary_longonly_total": {
+    "n_dates": 34,
+    "mean": -0.0003184405985938864,
+    "se_hac": 0.00016768519512802367,
+    "se_iid": 0.00019764842242201686,
+    "se": 0.00019764842242201686,
+    "t": -1.6111466749476773,
+    "mde": 0.0005534155827816472,
+    "detectable": false,
+    "n_common_dates": 34,
+    "mean_ref": 0.1212262343502528,
+    "mean_arm": 0.12090779375165892,
+    "risk_reduction": 0.0003184405985938864,
+    "risk_reduction_pct_of_ref": 0.262682908778501,
+    "detectable_improvement": false
+  },
+  "passed": false,
+  "verdict": "GATE_FAILED \u2014 UNDERPOWERED_BY_CONSTRUCTION: even perfect knowledge on the edge-carrying pairs does not move the portfolio functional by its own MDE. No null from a real arm is a kill; escalate edge count under a new name."
+}
