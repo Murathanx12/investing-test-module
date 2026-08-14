@@ -133,13 +133,37 @@ def shuffled_placebo(rows: list[dict]) -> dict:
                         "and only its noise moved the numbers")}
 
 
+def _population_layer():
+    """The aegis-finance module that owns the two-ledger distinction."""
+    sys.path.insert(0, str(AF))
+    from backend.services import evidence_population as EP    # noqa: PLC0415
+    return EP
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--ledger", default=str(LEDGER))
+    ap.add_argument("--ledger", default=None,
+                    help="override the ledger file; the population still "
+                         "decides which records are read")
+    # NO DEFAULT, DELIBERATELY. "The forward ledger" is two populations with
+    # two purposes — the campaign's ~20,073 records and the deployed product's
+    # own accrual — and a report that does not say which it read is not a
+    # report. Running without this refuses.
+    ap.add_argument("--population", default=None,
+                    help="campaign_forward | live_forward  (REQUIRED)")
     a = ap.parse_args()
 
-    rows = load(Path(a.ledger))
+    EP = _population_layer()
+    try:
+        pop = EP.parse(a.population)
+    except EP.PopulationRequired as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+
+    ledger_path = Path(a.ledger) if a.ledger else EP.ledger_path(pop)
+    lineage = EP.lineage(pop, ledger_path)
+    rows = EP.read_population(pop, ledger_path)
     resolved = [r for r in rows if r.get("resolved_at")]
     due = sorted({r.get("resolves_after") for r in rows
                   if r.get("resolves_after")})
@@ -150,9 +174,19 @@ def main() -> int:
         by_spec[r.get("specialist", "?")].append(r)
 
     out = {
-        "evidence_class": "ABLATION_FWD",
+        "evidence_class": f"ABLATION_FWD / {pop.value.upper()}",
+        "evidence_population": pop.value,
+        "lineage": lineage,
+        "two_ledger_fact": (
+            "There are TWO forward evidence populations and this report used "
+            f"exactly one of them: {pop.value}. CAMPAIGN_FORWARD is the "
+            "research campaign's history, resolved locally and attended; "
+            "LIVE_FORWARD is the deployed product's own accrual, resolved by "
+            "pi_ledger_resolve on the persistent volume. They are never "
+            "pooled — a combined estimate would need a prospectively declared "
+            "pooling rule, and none is registered."),
         "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "ledger": str(a.ledger),
+        "ledger": str(ledger_path),
         "records_total": len(rows),
         "records_resolved": len(resolved),
         "earliest_possible_resolution": earliest,
@@ -175,12 +209,16 @@ def main() -> int:
             "Forward evidence. This is the only class that can certify, and "
             "even here every slice prints its own n and its own MDE."),
     }
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=2))
-    print(json.dumps(out, indent=2) if a.json else
-          f"ABLATION-FWD  status={out['status']}  "
+    # One output file per population. A single ablation_fwd.json overwritten by
+    # whichever population ran last is exactly the ambiguity this fixes.
+    out_path = OUT.with_name(f"ablation_fwd_{pop.value}.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, indent=2, default=str))
+    print(json.dumps(out, indent=2, default=str) if a.json else
+          f"ABLATION-FWD / {pop.value.upper()}  status={out['status']}  "
           f"records={out['records_total']}  resolved={out['records_resolved']}  "
-          f"earliest={out['earliest_possible_resolution']}\n{out['reading']}")
+          f"earliest={out['earliest_possible_resolution']}\n"
+          f"ledger={ledger_path}\n{out['reading']}")
     return 0
 
 
