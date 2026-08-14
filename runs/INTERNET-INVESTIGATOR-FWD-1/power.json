@@ -1,0 +1,397 @@
+{
+  "what": "nights of accrual to reach 80% power on the paired Brier difference between two arms, by how much true-probability variation exists (sigma_pi) and how much of it the investigating arm captures",
+  "seed": 20260814,
+  "n_sims_per_cell": 200,
+  "within_trigger_rho": 0.7,
+  "within_night_rho": 0.2,
+  "cells_per_trigger": 6,
+  "nw_lags": 2,
+  "mde_z": 2.8,
+  "note": "The Brier ceiling column is sigma_pi^2 \u2014 what a PERFECT forecaster beats a constant base rate by. Both arms compete inside that budget; nothing can exceed it.",
+  "grid": [
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.02,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 500
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 250
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 500
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 250
+    },
+    {
+      "sigma_pi": 0.05,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 180
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 350
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 180
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 250
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 120
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 60
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 180
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 60
+    },
+    {
+      "sigma_pi": 0.1,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 40
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": null
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 500
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.35,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 350
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 350
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 180
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.4,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 90
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 120
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 60
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.5,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 40
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 10,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 60
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 20,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 40
+    },
+    {
+      "sigma_pi": 0.15,
+      "capture_a": 0.3,
+      "capture_b": 0.6,
+      "triggers_per_night": 40,
+      "cells_per_trigger": 6,
+      "nights_to_80pct_power": 20
+    }
+  ]
+}
