@@ -355,6 +355,11 @@ def load() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gate-only", action="store_true")
+    ap.add_argument("--floor-sensitivity", action="store_true",
+                    help="re-grade the two decision arms at every floor in "
+                         "EIG_FLOOR_SENSITIVITY. Can only DEMOTE a verdict: if "
+                         "the sign or the detectability of the headline moves "
+                         "across floors, the result is fragile and says so.")
     ap.add_argument("--arms", default="")
     ap.add_argument("--force", action="store_true",
                     help="re-run arms that already have a checkpoint")
@@ -477,7 +482,15 @@ def main() -> int:
     # The gate the pre-registration MEANT: a perfect edge feature inside the
     # real architecture. `oracle_on_edges` cannot answer it because it builds a
     # matrix no predictor could produce.
+    #
+    # Three-valued, not two. An earlier version asked only whether the ceiling
+    # showed a detectable IMPROVEMENT, which cannot express the case that
+    # actually occurred — a perfect feature making the risk model detectably
+    # WORSE — and fell through to a branch recommending escalation.
     gate["architecture_ceiling_detectable"] = bool(gx["detectable_improvement"])
+    gate["architecture_ceiling_negative"] = bool(
+        not gx["detectable_improvement"]
+        and -gx["risk_reduction"] >= gx["mde"])
     if voids:
         gate["verdict"] = ("GATE_VOID — one or more arms are numerically "
                            f"degenerate: {voids}. Nothing may be compared until "
@@ -486,27 +499,43 @@ def main() -> int:
     elif gate["passed"]:
         gate["verdict"] = ("GATE_PASSED — the oracle clears its own MDE, so a "
                            "null from a real arm is informative")
+    elif gate["architecture_ceiling_negative"]:
+        gate["verdict"] = (
+            "GATE_FAILED, AND THE ARCHITECTURE CEILING IS NEGATIVE. Two "
+            "separate things are true and must not be conflated. (1) The "
+            "pre-registered gate was the wrong instrument: oracle_on_edges "
+            "builds a matrix no predictor could emit — realised truth at full "
+            "dispersion in 0.58% of entries, ridge predictions at a quarter of "
+            "that dispersion in the other 99.42% — and a minimum-variance solve "
+            "is detectably HARMED by that inconsistency even though the "
+            "inserted values are correct. (2) oracle_feature, the same perfect "
+            "information fed through the REAL ridge so the matrix is "
+            "scale-consistent, is ALSO detectably worse. So adding any "
+            "edge-restricted feature to a globally-fitted entrywise ridge "
+            "degrades the risk model even when the feature is perfect, and the "
+            "real arms land where that ceiling says they will. Meanwhile "
+            "oracle_full clears its own MDE, so the METRIC is innocent. "
+            "Whether escalating edge count could ever help is NOT answered "
+            "here — it is answered by the headroom test (oracle_full vs the "
+            "trailing sample matrix) in floor_sensitivity.json, and this "
+            "verdict deliberately does not pre-empt it.")
     elif gate["architecture_ceiling_detectable"]:
         gate["verdict"] = (
             "GATE_FAILED AS WRITTEN, BUT THE PRE-REGISTERED GATE WAS THE WRONG "
             "INSTRUMENT. oracle_on_edges builds a matrix no predictor could "
-            "produce — realised truth at full dispersion in 0.58% of entries, "
-            "ridge predictions at a quarter of that dispersion in the other "
-            "99.42% — and a minimum-variance solve is detectably HARMED by that "
-            "inconsistency even though the inserted values are correct. "
-            "oracle_full (consistent everywhere) and oracle_feature (a perfect "
-            "edge feature inside the REAL architecture) both clear their own "
-            "MDEs, so the metric rewards a better matrix and the architecture "
-            "has room. The real arms are informative and are graded.")
+            "produce, at two incompatible dispersion scales. oracle_full and "
+            "oracle_feature both clear their own MDEs, so the metric rewards a "
+            "better matrix and the architecture has room. The real arms are "
+            "informative and are graded.")
     elif gate["metric_responds_to_a_better_matrix"]:
         gate["verdict"] = ("GATE_FAILED — UNDERPOWERED_BY_CONSTRUCTION, and the "
                            "instrument is INNOCENT: oracle_full DOES move the "
                            "portfolio by its own MDE, so the metric can reward "
                            "a better matrix and the binding constraint is edge "
                            "COVERAGE, not edge information. No null from a real "
-                           "arm is a kill; the pre-committed escalation (raise "
-                           "UNIVERSE_N, no new LLM spend) is the right next "
-                           "step, under a new name.")
+                           "arm is a kill; escalating edge count is the "
+                           "candidate next step, under a new name, IF the "
+                           "headroom test says a gap exists to compete for.")
     else:
         gate["verdict"] = ("GATE_FAILED and the INSTRUMENT IS ALSO SILENT — "
                            "not even the full-knowledge oracle moves the "
@@ -521,6 +550,72 @@ def main() -> int:
           flush=True)
 
     if a.gate_only:
+        return 0
+
+    if a.floor_sensitivity:
+        print("\n=== eigenvalue-floor sensitivity (can only DEMOTE) ===",
+              flush=True)
+        sens = {}
+        for f in G.EIG_FLOOR_SENSITIVITY:
+            num = run("model_numeric", f)
+            sem = run("model_semantic", f)
+            # The headroom check, at every floor. The verdict's central claim is
+            # that perfect foresight of the realised forward correlation is
+            # indistinguishable from the trailing sample matrix. The floor caps
+            # how much structure ANY matrix can express, so that claim is only
+            # honest if it survives relaxing the cap.
+            smp = run("sample", f)
+            orc = run("oracle_full", f)
+            sens[str(f)] = {
+                "primary_residual_gmv": paired(num, sem, "vol_realised"),
+                "secondary_longonly_total": paired(num, sem,
+                                                   "lo_vol_realised"),
+                "headroom_oracle_full_minus_sample": paired(
+                    smp, orc, "vol_realised"),
+                "calibration_numeric": num["calibration_ratio"],
+                "calibration_semantic": sem["calibration_ratio"],
+                "void": bool(num["VOID_numerically_degenerate"]
+                             or sem["VOID_numerically_degenerate"]
+                             or smp["VOID_numerically_degenerate"]
+                             or orc["VOID_numerically_degenerate"]),
+            }
+
+        def _label(s: dict) -> str:
+            if s["detectable_improvement"]:
+                return "better"
+            if -s["risk_reduction"] >= s["mde"]:
+                return "worse"
+            return "not_detectable"
+
+        # Three-valued, not two. An earlier version tracked only
+        # `detectable_improvement`, which called a headline "stable" while it
+        # crossed its MDE in the HARMFUL direction at the tightest floor. A
+        # stability check that cannot see one of the three outcomes is not a
+        # stability check.
+        signs = {k: float(np.sign(v["primary_residual_gmv"]["risk_reduction"]))
+                 for k, v in sens.items()}
+        labels = {k: _label(v["primary_residual_gmv"])
+                  for k, v in sens.items()}
+        head = {k: _label(v["headroom_oracle_full_minus_sample"])
+                for k, v in sens.items()}
+        sens["labels_by_floor"] = labels
+        sens["headroom_by_floor"] = head
+        sens["stable_sign"] = bool(len(set(signs.values())) == 1)
+        sens["stable_label"] = bool(len(set(labels.values())) == 1)
+        sens["headroom_absent_at_every_floor"] = bool(
+            set(head.values()) <= {"not_detectable", "worse"})
+        sens["reading"] = (
+            ("STABLE across floors: " if sens["stable_sign"]
+             and sens["stable_label"] else
+             "SIGN-STABLE but the READING moves across floors — the headline's "
+             "detectability depends on a numerical choice, so it is reported as "
+             "fragile in that direction: ")
+            + f"primary {labels}; headroom (oracle_full - sample) {head}.")
+        (OUT / "floor_sensitivity.json").write_text(
+            json.dumps(sens, indent=2, default=str), encoding="utf-8")
+        print(json.dumps({k: v for k, v in sens.items()
+                          if not k.startswith("0.")}, indent=2, default=str))
+        print(f"wrote {OUT / 'floor_sensitivity.json'}")
         return 0
 
     wanted = ([s.strip() for s in a.arms.split(",") if s.strip()]
@@ -548,6 +643,46 @@ def main() -> int:
                 "secondary_longonly_total": paired(ref, res[name],
                                                    "lo_vol_realised"),
             }
+    # ── the verdict, computed from the decision rule, not composed by hand ──
+    # The rule was frozen in `PREREG_GRAPH_COVARIANCE_1.md` before compute. It
+    # is evaluated here so the registry row is a function of the receipt.
+    h1 = report["comparisons"]["model_semantic_minus_numeric"][
+        "primary_residual_gmv"]
+    h2 = report["comparisons"]["model_semantic_minus_numeric"][
+        "secondary_longonly_total"]
+    plac = {n: report["comparisons"][f"{n}_minus_numeric"]["primary_residual_gmv"]
+            for n in PLACEBO_ARMS if f"{n}_minus_numeric" in report["comparisons"]}
+    placebos_clean = all(
+        abs(v["risk_reduction"]) < v["mde"] for v in plac.values())
+
+    if any(v.get("VOID_numerically_degenerate") for v in res.values()):
+        tv = "VOID"
+    elif not gate["passed"] and not gate["metric_responds_to_a_better_matrix"]:
+        tv = "UNDERPOWERED_BY_CONSTRUCTION"
+    elif not placebos_clean:
+        tv = "PLACEBO_CONTAMINATED"
+    elif h1["detectable_improvement"] and h2["detectable_improvement"]:
+        tv = "ADOPTED_INTO_RESEARCH_USE"
+    elif h1["detectable_improvement"]:
+        tv = "LONG_SHORT_ONLY"
+    else:
+        tv = "NOT_DETECTABLE"
+    report["trial_verdict"] = tv
+    report["verdict_line"] = (
+        f"H1 (resid-GMV) {h1['risk_reduction']:+.6f} vs MDE {h1['mde']:.6f} "
+        f"(t {-h1['t']:+.2f}); H2 (long-only) {h2['risk_reduction']:+.6f} vs "
+        f"MDE {h2['mde']:.6f}; placebos clean = {placebos_clean}; gate passed = "
+        f"{gate['passed']}; metric responds to a better matrix = "
+        f"{gate['metric_responds_to_a_better_matrix']}; architecture ceiling "
+        f"negative = {gate.get('architecture_ceiling_negative')}.")
+    report["headline"] = {
+        "h1_primary": h1, "h2_secondary": h2,
+        "placebos_primary": plac,
+        "arm_realised_vol": {k: v.get("mean_vol_realised")
+                             for k, v in res.items()},
+    }
+    print(f"\nTRIAL VERDICT: {tv}\n  {report['verdict_line']}", flush=True)
+
     report["elapsed_min"] = round((time.time() - t0) / 60, 2)
     (OUT / "grade_report.json").write_text(
         json.dumps(report, indent=2, default=str), encoding="utf-8")

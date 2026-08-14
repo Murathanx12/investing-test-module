@@ -1,4 +1,34 @@
-# STATUS — handoff after NIGHT-12 (2026-08-11)
+# STATUS — current pointer (updated 2026-08-14)
+
+**This file's narrative below stops at NIGHT-12 and is kept as history. The
+current state of the programme is:**
+
+- **`aegis-finance/docs/GRAND_ARENA_1_VERDICT.md`** — the campaign verdict
+  (2026-08-12): one clean positive (MARKET-GRAPH-1 H1, a co-movement/risk-model
+  result), LLM role measured at `PRESENTATION_AND_RESEARCH_ASSISTANCE`, no
+  breakthrough awarded under A11.
+- **`aegis-finance/docs/MARKET_GRAPH_1.md`** — the surviving result and its
+  audits.
+- **`aegis-finance/docs/NIGHT14_DISCHARGE.md`** — grading-clock fix; first
+  forward resolutions land **2026-08-16**.
+- **`aegis-finance/docs/ROADMAP_BRAIN_V3_2026-08-14.md`** — the post-arena
+  direction (four tracks, eight experiment families).
+- **`aegis-finance/docs/HANDOFF_OPUS5_2026-08-14.md`** — the active build/research
+  handoff.
+- **`aegis-finance/docs/GRAPH_COVARIANCE_1.md`** — the first Track B descendant,
+  **closed 2026-08-14**. H1/H2 NOT DETECTABLE with all three placebos clean; the
+  power gate failed and the chase produced the finding that matters: **perfect
+  foresight of the realised forward correlation matrix is statistically
+  indistinguishable from the trailing sample matrix** (t = 0.23 against MDE
+  0.0019) while the industry-standard diagonal assumption is 86.6% worse
+  (t = 12.60). There is no headroom for any correlation predictor to occupy at
+  this universe size, so **do not build further "improve the covariance matrix"
+  descendants**. MARKET-GRAPH-1 H1 is untouched — only its route through a
+  min-variance solve is closed. $0 LLM spend.
+
+---
+
+# STATUS — handoff after NIGHT-12 (2026-08-11) [HISTORICAL]
 
 **Read `aegis-finance/docs/SESSION_2026-08-11_NIGHT12.md` first**, then
 `docs/REVINFO_1_SHORT_LEG_2026-08-11.md` and
