@@ -190,3 +190,13 @@ def test_the_permitted_claim_is_about_calibration_not_picking():
 def test_a_verdict_line_claiming_more_than_the_trial_can_support_is_refused(line):
     with pytest.raises(RG.ReadRefused):
         RG.assert_claim_language_permitted(line)
+
+
+def test_the_gate_does_not_round_its_way_to_a_licensed_look():
+    """`int(40.9)` is 40. A truncating coercion would hand a licensed look to a
+    value that is not one, which is the same class of bug as a floor pretending
+    to be a schedule."""
+    for bad in (40.9, 39.5, 120.5, True):
+        with pytest.raises(RG.ReadRefused):
+            RG.check_read(bad)
+    assert RG.check_read(40.0).disposition == RG.READ   # exactly 40 is fine

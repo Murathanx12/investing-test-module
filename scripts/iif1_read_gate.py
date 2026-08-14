@@ -132,6 +132,12 @@ def check_read(n_graded_nights: int) -> ReadDecision:
     Split from `require_read` so a runner can *report* "next licensed look is at
     80" during the blind without the act of asking being a read.
     """
+    # `int(40.9)` is 40, so a truncating coercion here would hand a licensed
+    # look to a value that is not one. A graded-night count is a count.
+    if isinstance(n_graded_nights, bool) or n_graded_nights != int(n_graded_nights):
+        raise ReadRefused(
+            f"graded-night count {n_graded_nights!r} is not an integer. This "
+            f"gate does not round its way to a licensed look.")
     n = int(n_graded_nights)
     looks = licensed_looks()
     final = looks[-1]
