@@ -1,0 +1,32 @@
+{
+  "what": "O'Brien-Fleming interim-look boundaries for the IIF-1 primary, solved by simulation rather than quoted",
+  "looks_graded_nights": [
+    40,
+    80,
+    120
+  ],
+  "information_fractions": [
+    0.3333333333333333,
+    0.6666666666666666,
+    1.0
+  ],
+  "alpha_familywise_two_sided": 0.05,
+  "power_z": 0.842,
+  "obf_multiplier": 2.003234021807657,
+  "critical_z": [
+    3.4697031052214022,
+    2.4534505944060747,
+    2.003234021807657
+  ],
+  "mde_z_by_look": [
+    4.311703105221402,
+    3.295450594406075,
+    2.845234021807657
+  ],
+  "achieved_familywise_alpha": 0.0505375,
+  "single_look_alpha_at_house_constant": 0.0501225,
+  "three_naive_looks_alpha_at_house_constant": 0.10793,
+  "n_sims": 400000,
+  "seed": 20260814,
+  "note": "MDE at look k = mde_z_by_look[k] x max(HAC, IID) SE. A read at a night count NOT in `looks_graded_nights` is not a licensed look and cannot decide anything."
+}

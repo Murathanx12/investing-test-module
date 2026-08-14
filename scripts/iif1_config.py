@@ -95,6 +95,39 @@ NW_LAGS = 2
 #: MDE anyway, so an early read can only mislead.
 MIN_GRADED_NIGHTS_BEFORE_READ = 40
 
+# ── the read SCHEDULE ───────────────────────────────────────────────────────
+#: AMENDED 2026-08-14, BEFORE ANY ACCRUAL, on the referee's condition.
+#:
+#: The original design froze a read FLOOR and nothing else. A floor is not a
+#: schedule: once past 40 nights, repeated looks are optional stopping, and a
+#: trial free to look at 40, 80 and 120 and stop at whichever look is
+#: favourable has three chances to clear a bar built for one.
+#:
+#: Measured, not asserted (`iif1_boundaries.py`, receipt
+#: `runs/INTERNET-INVESTIGATOR-FWD-1/boundaries.json`): three looks at the house
+#: constant spend a family-wise 0.1079 against a single look's 0.0501 — 2.2x the
+#: declared rate.
+#:
+#: So each licensed look carries its OWN MDE constant, on an O'Brien-Fleming
+#: shape solved by simulation to put the family-wise error at 0.05 across all
+#: three. Conservative early, near-nominal at the end: an early peek can only
+#: stop the trial for an effect so large that continuing to spend would be
+#: irresponsible, while the final read — the one the design was powered for —
+#: pays almost nothing for the two peeks (2.845 against the unadjusted 2.80).
+#:
+#: A read at any night count NOT in this table is not a licensed look and cannot
+#: decide anything.
+READ_SCHEDULE = (
+    (40, 4.312),      #: information fraction 0.333, critical z 3.470
+    (80, 3.295),      #: information fraction 0.667, critical z 2.453
+    (120, 2.845),     #: information fraction 1.000, critical z 2.003
+)
+
+#: Cross-check: the last look's constant must be close to the house ruler, or
+#: the shape has been mis-specified and the final read is being over-taxed.
+assert abs(READ_SCHEDULE[-1][1] - MDE_Z) < 0.10
+assert READ_SCHEDULE[0][0] == MIN_GRADED_NIGHTS_BEFORE_READ
+
 # ── budget ──────────────────────────────────────────────────────────────────
 #: Nightly ceiling, enforced by `research_budget.require()` before every wire
 #: request INCLUDING retries, and logged from SERVED responses, never estimated.
