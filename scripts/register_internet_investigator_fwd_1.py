@@ -1,7 +1,8 @@
 """Append the INTERNET-INVESTIGATOR-FWD-1 registration to TRIALS/registry.jsonl.
 
-    python -m scripts.register_internet_investigator_fwd_1              # BEFORE accrual
-    python -m scripts.register_internet_investigator_fwd_1 --verdict    # AFTER 40 nights
+    python -m scripts.register_internet_investigator_fwd_1                      # BEFORE accrual
+    python -m scripts.register_internet_investigator_fwd_1 --amend-read-schedule
+    python -m scripts.register_internet_investigator_fwd_1 --verdict            # ONLY at 40/80/120
 
 The row must exist before the first prediction is emitted -- the registry row
 plus the commit timestamp is the tamper evidence, and for a FORWARD trial it is
@@ -26,6 +27,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from aegis_brain.config import MODULE_ROOT              # noqa: E402
 from aegis_brain.gate.registry import register_trial    # noqa: E402
 from scripts import iif1_config as C                    # noqa: E402
+from scripts import iif1_read_gate as RG                # noqa: E402
 
 RUNS = MODULE_ROOT / "runs" / "INTERNET-INVESTIGATOR-FWD-1"
 RECEIPT = RUNS / "grade_report.json"
@@ -123,7 +125,59 @@ KILL = (
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--verdict", action="store_true")
+    ap.add_argument("--amend-read-schedule", action="store_true",
+                    help="record the pre-accrual read-schedule amendment")
     a = ap.parse_args()
+
+    if a.amend_read_schedule:
+        # The original row froze a read FLOOR at 40 nights and a flat MDE_Z of
+        # 2.80. The referee's condition replaced that with three licensed looks
+        # carrying their own O'Brien-Fleming constants. That is a change to the
+        # DECISION RULE, made before any accrual -- and a decision rule that
+        # lives only in a config file has no tamper evidence. It gets a row.
+        chk = RG.verify_schedule_matches_receipt()
+        row = register_trial(
+            name="AMEND-INTERNET-INVESTIGATOR-FWD-1-READ-SCHEDULE",
+            hypothesis=(
+                "Amendment to INTERNET-INVESTIGATOR-FWD-1, made BEFORE the "
+                "first prediction was emitted (zero graded nights, zero LLM "
+                "spend on the trial). The parent registered a read FLOOR of 40 "
+                "graded nights and the house flat MDE_Z=2.80. A floor is not a "
+                "schedule: unrestricted looks after night 40 are optional "
+                "stopping. Simulation (scripts/iif1_boundaries.py, receipt "
+                "runs/INTERNET-INVESTIGATOR-FWD-1/boundaries.json) measured "
+                "three looks at the flat constant spending a family-wise "
+                "0.1079 against a single look's 0.0501. This amendment freezes "
+                f"exactly three licensed looks at {chk['looks']} graded nights "
+                f"with per-look MDE_Z {[round(z, 3) for z in chk['mde_z']]} on "
+                "an O'Brien-Fleming shape solved to a family-wise "
+                f"{chk['familywise_alpha']:.4f}. Enforced in executable code "
+                "(scripts/iif1_read_gate.py); a read at any other n is "
+                "REFUSED. No other parameter of the parent changes."),
+            expected_effect=json.dumps({
+                "looks_graded_nights": chk["looks"],
+                "mde_z_by_look": chk["mde_z"],
+                "achieved_familywise_alpha": chk["familywise_alpha"],
+                "graded_nights_at_amendment": 0,
+                "llm_spend_at_amendment_usd": 0.0}),
+            kill_condition=(
+                "TERMINAL RULE, frozen here. At look 1 (40) or look 2 (80) "
+                "with |t| below that look's MDE_Z: INTERIM_UNDERPOWERED -- "
+                "carries NO H1 reading, not a win, not a kill, not a trend. At "
+                "look 3 (120) with |t| below 2.845: the pre-registration "
+                "TERMINATES NOT_DETECTABLE (S19: a measured non-detection, "
+                "never a kill). Accrual past 120 graded nights requires a NEW "
+                "prospective pre-registration accruing from its own night one "
+                "-- reading a longer run of THIS trial is optional stopping "
+                "relocated. A read at any n not in (40, 80, 120) decides "
+                "nothing in either direction."),
+        )
+        print(json.dumps({"registered": row["name"],
+                          "at": row["registered_at"],
+                          "looks": chk["looks"],
+                          "mde_z": [round(z, 4) for z in chk["mde_z"]]},
+                         indent=1))
+        return 0
 
     if not a.verdict:
         row = register_trial(
@@ -142,21 +196,60 @@ def main() -> int:
             f"without a receipt is a lie")
     r = json.loads(RECEIPT.read_text(encoding="utf-8"))
     n = int(r.get("n_graded_nights", 0))
-    if n < C.MIN_GRADED_NIGHTS_BEFORE_READ:
+
+    # The read SCHEDULE, not just the floor. Before this call existed, the check
+    # here was `n < 40` -- which refuses 39 and permits 41, 57, 79 and 600. A
+    # trial free to look whenever it likes after night 40 has as many chances as
+    # it has nights to clear a bar built for three.
+    RG.verify_schedule_matches_receipt()
+    try:
+        RG.require_read(n)
+    except RG.ReadRefused as exc:
         raise SystemExit(
-            f"{n} graded nights < {C.MIN_GRADED_NIGHTS_BEFORE_READ} required. "
-            f"Refusing to write a verdict row: the pre-registration forbids "
-            f"reading the primary this early, and a verdict written at n={n} "
-            f"would be peeking with a registry row attached.")
+            f"Refusing to write a verdict row at n={n}.\n{exc}\n"
+            f"Licensed looks: {RG.licensed_looks()}.") from exc
+
+    verdict = r.get("trial_verdict", "")
+    line = r.get("verdict_line", "")
+
+    # The grader and the gate must agree. If the receipt claims a verdict the
+    # terminal rule does not authorise at this look, the receipt is wrong (or
+    # was written by a path that bypassed the gate) and no row is written.
+    t = r.get("primary_t")
+    ruling = RG.classify(n, None if t is None else float(t))
+    if verdict and verdict != ruling["verdict"]:
+        raise SystemExit(
+            f"receipt says verdict={verdict!r} but the frozen terminal rule at "
+            f"n={n} authorises {ruling['verdict']!r}: {ruling['line']}")
+    RG.assert_claim_language_permitted(f"{verdict} {line}")
+
+    # A non-terminal look is recorded, but NOT as a verdict. Every licensed look
+    # leaves a ledger entry -- that is what makes a hidden peek detectable -- and
+    # an interim row that called itself VERDICT would be read as a resolution by
+    # every future corpse check.
+    k = ruling["look"]["look_index"] + 1
+    if ruling["terminal"]:
+        name = "VERDICT-INTERNET-INVESTIGATOR-FWD-1"
+        prefix = "verdict"
+    else:
+        name = f"INTERIM-INTERNET-INVESTIGATOR-FWD-1-LOOK{k}"
+        prefix = ("INTERIM LOOK -- NOT A VERDICT, carries no H1 reading in "
+                  "either direction")
 
     row = register_trial(
-        name="VERDICT-INTERNET-INVESTIGATOR-FWD-1",
-        hypothesis=f"INTERNET-INVESTIGATOR-FWD-1 verdict: {r['trial_verdict']}. "
-                   f"{r.get('verdict_line', '')}",
+        name=name,
+        hypothesis=f"INTERNET-INVESTIGATOR-FWD-1 {prefix}: "
+                   f"{ruling['verdict']} at look {k} of "
+                   f"{len(RG.licensed_looks())} (n={n} graded nights). "
+                   f"{ruling['line']} {line}",
         expected_effect=json.dumps(r.get("headline", {}), default=str),
         kill_condition=KILL,
     )
-    print(json.dumps({"registered": row["name"]}, indent=1))
+    print(json.dumps({"registered": row["name"],
+                      "look": ruling["look"],
+                      "verdict": ruling["verdict"],
+                      "terminal": ruling["terminal"],
+                      "substantive": ruling["substantive"]}, indent=1))
     return 0
 
 

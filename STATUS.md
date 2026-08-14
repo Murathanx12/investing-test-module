@@ -12,7 +12,25 @@ current state of the programme is:**
 - **`aegis-finance/docs/NIGHT14_DISCHARGE.md`** — grading-clock fix; first
   forward resolutions land **2026-08-16**.
 - **`aegis-finance/docs/ROADMAP_BRAIN_V3_2026-08-14.md`** — the post-arena
-  direction (four tracks, eight experiment families).
+  direction. **Five tracks now**: Track E (`TEACHER-LIBRARY-1`, public actors as
+  a data class) was adopted 2026-08-14 and begins **after** IIF-1 Night 1 runs
+  cleanly. Its stated prior is the STOCK Act literature's mean-politician null,
+  not "copy Pelosi"; the 13F-popularity corpse is the mandatory control for H3;
+  its live predecessors (`TRIAL-CONGRESS-IC`, `TRIAL-INSIDER-IC`,
+  `TRIAL-CMP-INSIDER-IC`, `TRIAL-ARK-IC`) are **accruing forward and must not be
+  re-registered or read early**.
+- **`aegis-finance/docs/IIF1_PRE_NIGHT_1_CHECKLIST.md`** — **the active work
+  item.** `INTERNET-INVESTIGATOR-FWD-1` is registered, frozen and
+  CONDITIONALLY GREEN-LIT; all six binding pre-Night-1 orders are built.
+  Primary observable is **magnitude/volatility, not direction** (σ_π 0.0036 vs
+  0.1183 — a direction primary never resolves at any n). Three licensed looks
+  at **40 / 80 / 120** graded nights with O'Brien-Fleming constants **4.312 /
+  3.295 / 2.845**, enforced in `scripts/iif1_read_gate.py`: a read at 41, 79 or
+  119 is refused as firmly as at 39, and 121 is `NEW_PREREG_REQUIRED`. At 120
+  below the bar the pre-registration **terminates** `NOT_DETECTABLE`. Planning
+  number is **$0.928/night** ($37.12 ÷ 40); $12 is a safety stop, not a budget.
+  **One attended item remains:** the read-schedule amendment
+  (`--amend-read-schedule`) is built but not registered.
 - **`aegis-finance/docs/HANDOFF_OPUS5_2026-08-14.md`** — the active build/research
   handoff.
 - **`aegis-finance/docs/GRAPH_COVARIANCE_1.md`** — the first Track B descendant,
