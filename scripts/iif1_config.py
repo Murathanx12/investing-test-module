@@ -142,6 +142,22 @@ NIGHTLY_MAX_CALLS = 3_000
 REQUEST_MODEL = "deepseek-v4-flash"
 TEMPERATURE = 0.0
 
+#: REGISTERED 2026-08-15, BEFORE the first valid night. It was an unregistered
+#: implementation constant of 1600 and it was not a neutral one: on a reasoning
+#: model `max_tokens` bounds thinking plus answer, so cells whose evidence
+#: needed more reasoning were killed before emitting any JSON. Measured live
+#: against the Night-1 snapshot, that was 15/40 of `A_snapshot` and 8/10 of
+#: `B_tools` -- i.e. it silenced the PRIMARY CONTRAST's treatment arm roughly
+#: four times as often as its control, because arms that gather evidence think
+#: longer. A parameter capable of biasing the comparison belongs on the
+#: registered surface where drift is a refusal, not in a module constant.
+#:
+#: 12000 is sized off a measured worst case of 7,186 output tokens on a
+#: tool-bearing cell. Zero valid nights had accrued when this was set, so
+#: nothing is invalidated by registering it now; after the first valid night it
+#: is frozen like everything else here.
+MAX_TOKENS = 12_000
+
 # ── seeds ───────────────────────────────────────────────────────────────────
 SEED = 20260814
 
