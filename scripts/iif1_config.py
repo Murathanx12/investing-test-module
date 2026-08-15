@@ -183,6 +183,51 @@ MAX_TOKENS = 12_000
 EXECUTION_MODE = "cells_sequential_arms_concurrent"
 MAX_ARM_CONCURRENCY = 5
 
+#: How much of that nominal factor the night's own timing guard may CLAIM.
+#:
+#: REGISTERED 2026-08-15, in review, still before the first valid night. When
+#: `MAX_ARM_CONCURRENCY` was registered above, the projection divided the
+#: night's length by the FULL factor of five while its own docstring said it
+#: stayed "deliberately pessimistic" because "a cell ends when its SLOWEST arm
+#: ends, and the slowest of five draws exceeds the mean of five". The comment
+#: described max-of-arms; the code implemented mean-over-five, which is the
+#: optimistic bound and the exact flattering projection the docstring forbids.
+#:
+#: The error is unsafe in three compounding ways, and all three point the same
+#: way: the latency input was the serial MEAN (p90 is 15.6s against a mean of
+#: 8.7s), a cell ends with its slowest arm rather than its average arm, and the
+#: tool-bearing arms are SYSTEMATICALLY the slow ones -- so the max is not a
+#: random draw from the arm distribution. At a plausible ~2.5x real speedup a
+#: night projected at 28 minutes is really about 55, the guard authorises a
+#: start whose last cells land AFTER the opening bell, and unlike a void that
+#: night ACCRUES.
+#:
+#: 2.0 is DECLARED, not measured, and the rehearsal cannot measure it: the
+#: five-arm rehearsal ran against a STUB, and a stub with no latency cannot
+#: test a latency guard. The first real concurrent night records its own
+#: measured efficiency on the receipt; that number either earns a larger value
+#: here or replaces this one. Until it exists, a night is sized as though
+#: concurrency bought half of what it nominally offers.
+DECLARED_CONCURRENCY_EFFICIENCY = 2.0
+
+#: Maximum hours between a night's start and the opening bell it forecasts.
+#:
+#: REGISTERED 2026-08-15, in review, with the exchange-calendar fix. The old
+#: guard built the next open by replacing the clock with 13:30 UTC and adding a
+#: calendar day if it had passed -- so on Saturday 2026-08-15 it returned a
+#: SUNDAY opening bell, and from November it would have been an hour wrong the
+#: other way, because 09:30 New York is 13:30 UTC only under EDT. The bell now
+#: comes from an XNYS session calendar.
+#:
+#: That fix alone would have made a WEEKEND night look excellent -- the next
+#: real session being 26 hours away, the headroom check passes with room for
+#: anything. The trial's premise is a decision taken shortly before the session
+#: it is graded against, so the lead time is itself a registered constraint:
+#: 18h admits a legitimately early start (03:00 UTC is 10.5h before an EDT
+#: bell) and excludes a weekend, a holiday eve, and any run that has drifted
+#: onto the wrong day.
+MAX_PREOPEN_LEAD_HOURS = 18
+
 # ── seeds ───────────────────────────────────────────────────────────────────
 SEED = 20260814
 
