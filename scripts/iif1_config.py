@@ -158,6 +158,31 @@ TEMPERATURE = 0.0
 #: is frozen like everything else here.
 MAX_TOKENS = 12_000
 
+# ── execution mode ──────────────────────────────────────────────────────────
+#: REGISTERED 2026-08-16, BEFORE the first valid night, under the same licence
+#: as MAX_TOKENS above: ZERO valid nights have accrued, so there are no results
+#: this could have been chosen after.
+#:
+#: Cells remain strictly SEQUENTIAL. The five ARMS INSIDE one cell may run
+#: concurrently. The scientific case is the stronger one and it is the reason
+#: this is registered rather than treated as an implementation detail:
+#: cell-major ordering exists precisely so the five arms see the same world
+#: (arm-major order made arm identity a proxy for information age and handed
+#: `B_tools` a systematic advantage over `A_snapshot`), and concurrency makes
+#: the arms MORE simultaneous -- from minutes apart to milliseconds apart. That
+#: sharpens the primary contrast, which means it CHANGES it, which means it
+#: belongs here where drift is a refusal.
+#:
+#: The operational case is secondary but real: 40 cells x 5 arms x ~4.8 calls =
+#: ~960 vendor calls at a measured 8.7s mean is 2.3 hours SERIAL, against a
+#: 13:30 UTC open. A meaningful fraction of forty nights would self-refuse on
+#: the timing guard, and each refusal costs a calendar day.
+#:
+#: `arm_start_skew_ms` is recorded per cell on every receipt, so the claim that
+#: concurrency makes the arms simultaneous is measured rather than assumed.
+EXECUTION_MODE = "cells_sequential_arms_concurrent"
+MAX_ARM_CONCURRENCY = 5
+
 # ── seeds ───────────────────────────────────────────────────────────────────
 SEED = 20260814
 
