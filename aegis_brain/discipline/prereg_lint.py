@@ -31,7 +31,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from aegis_brain.config import MODULE_ROOT
-from aegis_brain.discipline.prereg_power import check_resolvability
+from aegis_brain.discipline.prereg_power import (check_resolvability,
+                                                 check_slice_declaration)
 
 GRAVEYARD = MODULE_ROOT / "runs" / "PF5" / "T4_graveyard_rows.csv"
 REGISTRY = MODULE_ROOT / "TRIALS" / "registry.jsonl"
@@ -272,7 +273,7 @@ def _cosine(a: Counter, b: Counter, idf: dict[str, float]) -> float:
 def lint(proposal: str, *, corpus: list[Corpse] | None = None,
          top_k: int = 5, block_at: float = 0.30, warn_at: float = 0.18,
          duplicate_at: float = 0.60, min_shared: int = 8,
-         require_power: bool = True) -> dict:
+         require_power: bool = True, require_slice: bool = True) -> dict:
     """Check one proposal against everything this programme has already tried.
 
     Returns a verdict of PASS / RESURRECTION / BLOCKED plus the matches, so the
@@ -334,15 +335,22 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     # not improved by being novel, and reporting "PASS" first and the power
     # refusal second is how a reader ends up registering it anyway.
     power = check_resolvability(proposal) if require_power else None
+    slice_decl = check_slice_declaration(proposal) if require_slice else None
+    _common = {"corpus_size": len(corp), "matches": matches,
+               "blocking": blocking, "resurrections": resurrect,
+               "duplicates": dupes, "declared_resurrections": declared,
+               "power": power, "slice": slice_decl,
+               "thresholds": {"block_at": block_at, "warn_at": warn_at,
+                              "duplicate_at": duplicate_at,
+                              "min_shared": min_shared}}
     if power is not None and power["blocked"]:
-        return {"verdict": power["verdict"], "why": power["why"],
-                "corpus_size": len(corp), "matches": matches,
-                "blocking": blocking, "resurrections": resurrect,
-                "duplicates": dupes, "declared_resurrections": declared,
-                "power": power,
-                "thresholds": {"block_at": block_at, "warn_at": warn_at,
-                               "duplicate_at": duplicate_at,
-                               "min_shared": min_shared}}
+        return {"verdict": power["verdict"], "why": power["why"], **_common}
+    # The slice claim runs at registration for the same reason R13 does: the
+    # register can only refuse the trials that call it, and the one that will
+    # not call it is the one that needs refusing.
+    if slice_decl is not None and slice_decl["blocked"]:
+        return {"verdict": slice_decl["verdict"], "why": slice_decl["why"],
+                **_common}
 
     # Order matters: a near-identical rerun of a REFUTED idea is a block, and
     # "duplicate" would be the weaker, less useful thing to say about it.
@@ -373,13 +381,7 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
             "wording against what this programme has recorded, and it knows "
             "nothing about the literature.")
 
-    return {"verdict": verdict, "why": why, "corpus_size": len(corp),
-            "matches": matches, "blocking": blocking,
-            "resurrections": resurrect, "duplicates": dupes,
-            "declared_resurrections": declared, "power": power,
-            "thresholds": {"block_at": block_at, "warn_at": warn_at,
-                           "duplicate_at": duplicate_at,
-                           "min_shared": min_shared}}
+    return {"verdict": verdict, "why": why, **_common}
 
 
 def lint_batch(proposals: dict[str, str], *, corpus: list[Corpse] | None = None,

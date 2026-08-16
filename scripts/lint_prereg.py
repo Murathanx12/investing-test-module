@@ -22,7 +22,13 @@ from aegis_brain.discipline.prereg_lint import lint, load_corpus
 #: fourth verdict cannot silently fail to gate.
 REFUSALS = frozenset({"BLOCKED", "MISSING_POWER_FIELDS",
                       "UNPOWERED_AT_REGISTRATION",
-                      "UNDECLARED_DEPENDENCE_UNIT"})
+                      "UNDECLARED_DEPENDENCE_UNIT",
+                      # R13d, 2026-08-16
+                      "UNMEASURED_CROSS_SECTIONAL_DEPENDENCE",
+                      "AMBIGUOUS_CROSS_SECTIONAL_DECLARATION",
+                      # the slice claim, moved to registration 2026-08-16
+                      "UNDECLARED_SLICE_PURPOSE",
+                      "UNIDENTIFIED_CONFIRMATION_SLICE"})
 
 
 def main() -> int:

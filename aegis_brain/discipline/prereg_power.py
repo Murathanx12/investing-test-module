@@ -86,8 +86,21 @@ TRADING_DAYS_PER_YEAR = 252.0
 #: `dependence_unit`  — one sentence naming what ONE independent observation is.
 #: `cross_sectional_n`— how many co-moving series contribute per episode.
 #: `cluster_size`     — how many correlated events arrive per independent shock.
+#:
+#: R13d adds the pair below, and they are a DIFFERENT object from
+#: `cross_sectional_n`:
+#:
+#: `cross_sectional_k`   — how many co-moving series the design actually holds.
+#: `cross_sectional_rho` — the MEASURED average pairwise correlation of the
+#:                         OUTCOME across them.
+#:
+#: `cross_sectional_n` is a divisor applied to a row count that already counts
+#: every series. `(k, rho)` is a MULTIPLIER applied to a count of independent
+#: time blocks. They answer the same question from opposite sides and a design
+#: may declare one form or the other, never both — see `effective_sample`.
 OPTIONAL_FIELDS = ("outcome_horizon_days", "dependence_unit",
-                   "cross_sectional_n", "cluster_size")
+                   "cross_sectional_n", "cluster_size",
+                   "cross_sectional_k", "cross_sectional_rho")
 
 #: R13c. Below this ratio of available-to-required sample, an undeclared
 #: dependence unit BLOCKS rather than warns.
@@ -132,10 +145,50 @@ def max_independent_events_per_year(horizon_days: float) -> float | None:
     return TRADING_DAYS_PER_YEAR / float(horizon_days)
 
 
+def design_effect_n(k: float, rho_bar: float | None) -> float:
+    """Independent-equivalent count of `k` series correlated at `rho_bar`.
+
+    R13d, added 2026-08-16 after N21. The standard equicorrelated design
+    effect:
+
+        n_eff = k / (1 + (k - 1) * rho_bar)
+
+    It has two properties that matter more than the formula:
+
+    * It is BOUNDED BY `1 / rho_bar`. Eight equity ETFs whose 6-month log
+      growth correlates at 0.488 are worth 1.81 observations, and adding more
+      equity ETFs cannot get past about 2. Widening a co-moving cross-section
+      is not a way to buy power.
+    * It is a MULTIPLIER on the count of independent time blocks, never the
+      whole sample. `k / (1 + (k-1) * rho)` answers "how many series is this
+      cross-section worth **at one moment**". A 20-year design with 40
+      non-overlapping blocks and an effective cross-section of 1.81 has about
+      72 effective observations, not 1.81. Reading the design effect as the
+      total is the mistake this function is documented to prevent, and it was
+      made in this repo on 2026-08-16.
+
+    `rho_bar` MUST be measured on a policy-free surrogate, not assumed.
+    Undeclared returns 1.0 — the conservative reading that the cross-section
+    adds nothing — because an assumed correlation is a free parameter pointing
+    at whichever answer the author needs.
+    """
+    kk = float(k or 1.0)
+    if kk <= 1.0:
+        return 1.0
+    if rho_bar is None:
+        return 1.0
+    r = min(max(float(rho_bar), 0.0), 1.0)
+    if r <= 0.0:
+        return kk
+    return kk / (1.0 + (kk - 1.0) * r)
+
+
 def effective_sample(freq_per_year: float, years: float, *,
                      horizon_days: float | None = None,
                      cross_sectional_n: float | None = None,
-                     cluster_size: float | None = None) -> dict:
+                     cluster_size: float | None = None,
+                     cross_sectional_k: float | None = None,
+                     cross_sectional_rho: float | None = None) -> dict:
     """Reduce a declared event rate to independent observations, step by step.
 
     R13c, added 2026-08-16. **Temporal non-overlap is necessary, not
@@ -154,17 +207,32 @@ def effective_sample(freq_per_year: float, years: float, *,
 
     Every intermediate count is returned rather than just the final one,
     because a single number cannot be argued with and a chain can.
+
+    TWO FORMS FOR THE CROSS-SECTION, AND THEY ARE NOT INTERCHANGEABLE
+    ================================================================
+    `cross_sectional_n` is a **divisor**: use it when `freq_per_year` already
+    counts every series, so 100 names screened weekly is 5,200/yr and the
+    divisor takes it back down. `(cross_sectional_k, cross_sectional_rho)` is a
+    **multiplier** on the temporal count: use it when `freq_per_year` counts
+    episodes for the cross-section as a whole, so the question is how much the
+    other k-1 series add. Declaring both is refused, because the two would then
+    be applied to a base whose meaning is no longer determined.
     """
     n_raw = float(freq_per_year) * float(years)
     cap = max_independent_events_per_year(horizon_days)
     temporal = cap * float(years) if cap is not None else None
     after_temporal = min(n_raw, temporal) if temporal is not None else n_raw
 
-    xs = float(cross_sectional_n) if cross_sectional_n else 1.0
-    cl = float(cluster_size) if cluster_size else 1.0
-    xs = max(xs, 1.0)
-    cl = max(cl, 1.0)
-    effective = after_temporal / (xs * cl)
+    xs = max(float(cross_sectional_n), 1.0) if cross_sectional_n else 1.0
+    cl = max(float(cluster_size), 1.0) if cluster_size else 1.0
+    k = float(cross_sectional_k) if cross_sectional_k else None
+    rho = (float(cross_sectional_rho)
+           if cross_sectional_rho is not None else None)
+
+    both = (cross_sectional_n is not None and float(cross_sectional_n) > 1.0
+            and k is not None and k > 1.0)
+    xs_eff = design_effect_n(k, rho) if k else 1.0
+    effective = after_temporal * xs_eff / (xs * cl)
 
     return {
         "n_raw": n_raw,
@@ -172,6 +240,12 @@ def effective_sample(freq_per_year: float, years: float, *,
         "temporal_nonoverlap_n": temporal,
         "n_after_temporal": after_temporal,
         "cross_sectional_divisor": xs,
+        "cross_sectional_k": k,
+        "cross_sectional_rho": rho,
+        "cross_sectional_effective": xs_eff,
+        "cross_sectional_bound_1_over_rho": (
+            (1.0 / rho) if rho else None),
+        "declares_both_cross_sectional_forms": both,
         "cluster_divisor": cl,
         "n_available_effective": effective,
         "overlap_factor": (float(freq_per_year) / cap
@@ -249,7 +323,7 @@ def parse_power_fields(text: str) -> dict:
                 out["missing"].append("outcome_dispersion")
 
     for numeric in ("outcome_horizon_days", "cross_sectional_n",
-                    "cluster_size"):
+                    "cluster_size", "cross_sectional_k", "cross_sectional_rho"):
         raw = out["raw"].get(numeric)
         if raw is not None:
             n = _NUM_RE.search(raw)
@@ -273,6 +347,102 @@ def parse_power_fields(text: str) -> dict:
 
     out["missing"] = sorted(set(out["missing"]))
     return out
+
+
+#: The slice register's vocabulary, duplicated here rather than imported
+#: because the linter lives in a different repository from the register. The
+#: test `test_slice_purposes_match_the_register` pins them together.
+SLICE_PURPOSES = ("EXPLORE", "TRANSFER", "FOREIGN", "CONFIRM", "REANALYSIS",
+                  "PAIRED")
+
+#: A CONFIRM claim must identify WHICH data it is claiming. Securities and
+#: period alone are not an identity: two trials can share a price window and
+#: differ in what they were allowed to know inside it, which is why the
+#: information cutoff is required rather than implied by the end date.
+CONFIRM_IDENTITY_FIELDS = ("slice_securities", "slice_period",
+                           "information_cutoff")
+
+_SLICE_RE = {
+    f: re.compile(rf"^\s*[-*]?\s*\**{f}\**\s*[:=]\s*\**\s*(?P<v>[^\n|]+?)\**\s*$",
+                  re.IGNORECASE | re.MULTILINE)
+    for f in ("slice_purpose",) + CONFIRM_IDENTITY_FIELDS
+}
+
+_PLACEHOLDERS = ("", "n/a", "na", "none", "-", "--", "tbd", "todo", "?")
+
+
+def check_slice_declaration(text: str) -> dict:
+    """Which data does this trial claim, and for what?
+
+    WHY THIS IS A LINT AND NOT A CONVENTION (2026-08-16)
+    ====================================================
+    `research_gym.slice_register` refuses a CONFIRM on data a prior trial has
+    read. It can only refuse trials that call it. N9B was designed after
+    information from N9's confirmation slice had entered the research process
+    and consumed it a second time; nothing stopped that, because nothing was
+    asked. A register that depends on the honest party calling it protects
+    against everything except the case it exists for.
+
+    So the claim moves to registration, where it is checked by the same gate
+    that already refuses an unpowered design. `EXPLORE` is a perfectly good
+    answer and costs nothing — the point is that the answer is on the record
+    before the numbers exist, not that it is `CONFIRM`.
+    """
+    m = _SLICE_RE["slice_purpose"].search(text or "")
+    raw = (m.group("v").strip() if m else "")
+    if raw.startswith("<") or raw.strip().lower().strip(".") in _PLACEHOLDERS:
+        raw = ""
+    purpose = raw.upper().split()[0].strip(",.;") if raw else ""
+
+    if not purpose:
+        return {
+            "verdict": "UNDECLARED_SLICE_PURPOSE", "blocked": True,
+            "slice_purpose": None,
+            "why": ("Declare `slice_purpose` — one of "
+                    + " / ".join(SLICE_PURPOSES) + ". A trial that does not "
+                    "say what it intends to do with its data cannot be "
+                    "refused a slice it should not read, and the register "
+                    "only sees the trials that choose to ask it. EXPLORE is a "
+                    "fine answer; an absent answer is not."),
+        }
+    if purpose not in SLICE_PURPOSES:
+        return {
+            "verdict": "UNDECLARED_SLICE_PURPOSE", "blocked": True,
+            "slice_purpose": purpose,
+            "why": (f"`slice_purpose = {purpose}` is not one of "
+                    + " / ".join(SLICE_PURPOSES) + "."),
+        }
+
+    if purpose != "CONFIRM":
+        return {"verdict": "SLICE_DECLARED", "blocked": False,
+                "slice_purpose": purpose,
+                "why": (f"slice_purpose = {purpose}. This trial may revisit "
+                        f"data freely and may NOT later be described as an "
+                        f"independent confirmation.")}
+
+    missing = [f for f in CONFIRM_IDENTITY_FIELDS
+               if not (_SLICE_RE[f].search(text or "")
+                       and _SLICE_RE[f].search(text).group("v").strip()
+                       and not _SLICE_RE[f].search(text).group("v")
+                       .strip().startswith("<")
+                       and _SLICE_RE[f].search(text).group("v").strip().lower()
+                       .strip(".") not in _PLACEHOLDERS)]
+    if missing:
+        return {
+            "verdict": "UNIDENTIFIED_CONFIRMATION_SLICE", "blocked": True,
+            "slice_purpose": purpose, "missing": missing,
+            "why": ("A CONFIRM claim must identify the data it claims: "
+                    + ", ".join(f"`{f}`" for f in missing) + " missing. "
+                    "`information_cutoff` is required and is not implied by "
+                    "the end date — two trials can share a price window and "
+                    "differ in what they were allowed to know inside it, and "
+                    "the register's slice identity is the four-tuple "
+                    "universe x period x outcome x cutoff."),
+        }
+    return {"verdict": "SLICE_DECLARED", "blocked": False,
+            "slice_purpose": purpose,
+            "why": "CONFIRM slice identified; claim it in the register before "
+                   "the first price is fetched, not while reading the result."}
 
 
 def n_required(effect_pp: float, dispersion_pp: float) -> float | None:
@@ -320,9 +490,12 @@ def check_resolvability(text: str) -> dict:
     # in the direction that matters. The reductions are applied mechanically
     # and reported as a chain, never as one number.
     hz = f.get("outcome_horizon_days")
-    chain = effective_sample(freq, years, horizon_days=hz,
-                             cross_sectional_n=f.get("cross_sectional_n"),
-                             cluster_size=f.get("cluster_size"))
+    chain = effective_sample(
+        freq, years, horizon_days=hz,
+        cross_sectional_n=f.get("cross_sectional_n"),
+        cluster_size=f.get("cluster_size"),
+        cross_sectional_k=f.get("cross_sectional_k"),
+        cross_sectional_rho=f.get("cross_sectional_rho"))
     cap = chain["max_independent_events_per_year"]
     overlap_factor = chain["overlap_factor"]
     n_avail = chain["n_available_effective"]
@@ -340,6 +513,39 @@ def check_resolvability(text: str) -> dict:
             "dependence_chain": chain,
             "independence_assumed": cap is None,
             "smallest_resolvable_effect_pp": floor}
+
+    # ── R13d: the two cross-sectional forms answer from opposite sides ─────
+    if chain["declares_both_cross_sectional_forms"]:
+        return {
+            **base, "verdict": "AMBIGUOUS_CROSS_SECTIONAL_DECLARATION",
+            "blocked": True,
+            "why": (
+                "R13d: `cross_sectional_n` (a divisor on a count that already "
+                "includes every series) and `cross_sectional_k` (a multiplier "
+                "on a count of independent time blocks) describe the same "
+                "cross-section from opposite sides. Declaring both leaves the "
+                "base of `event_frequency_per_year` undetermined, so the chain "
+                "cannot be computed at all. Declare one."),
+        }
+
+    # ── R13d: k co-moving series with no MEASURED correlation ──────────────
+    k_declared = chain["cross_sectional_k"]
+    if (k_declared and k_declared > 1.0
+            and chain["cross_sectional_rho"] is None):
+        return {
+            **base, "verdict": "UNMEASURED_CROSS_SECTIONAL_DEPENDENCE",
+            "blocked": True,
+            "why": (
+                f"R13d: `cross_sectional_k = {k_declared:.0f}` is declared and "
+                f"`cross_sectional_rho` is not. The effective width of a "
+                f"co-moving cross-section is `k / (1 + (k-1) * rho)` and it is "
+                f"MEASURABLE — on a policy-free surrogate, before the test — "
+                f"not assumable. Measured on eight equity ETFs at a 6-month "
+                f"horizon it was 0.488, making them 1.81 series and not 8, and "
+                f"bounding any equity cross-section at about `1/rho = 2`. "
+                f"Declaring k without rho asks the gate to take the width on "
+                f"the honour system, which is the failure R13b was written for."),
+        }
 
     # ── R13c: an undeclared dependence unit blocks when it could matter ────
     if need is not None and unit is None:
@@ -390,7 +596,9 @@ def check_resolvability(text: str) -> dict:
         }
 
     caveat = ""
-    if chain["total_reduction_factor"] and chain["total_reduction_factor"] > 1.01:
+    if ((chain["total_reduction_factor"]
+         and chain["total_reduction_factor"] > 1.01)
+            or chain["cross_sectional_effective"] > 1.0):
         parts = []
         if overlap_factor is not None:
             parts.append(
@@ -400,13 +608,21 @@ def check_resolvability(text: str) -> dict:
         if chain["cross_sectional_divisor"] > 1:
             parts.append(f"a {chain['cross_sectional_divisor']:.0f}-wide "
                          "co-moving cross-section")
+        if chain["cross_sectional_effective"] > 1.0:
+            parts.append(
+                f"a cross-section of {chain['cross_sectional_k']:.0f} series "
+                f"at rho={chain['cross_sectional_rho']:.3f}, worth "
+                f"{chain['cross_sectional_effective']:.2f} independent series "
+                f"(bounded by 1/rho = "
+                f"{chain['cross_sectional_bound_1_over_rho']:.1f}) — this one "
+                f"MULTIPLIES rather than divides")
         if chain["cluster_divisor"] > 1:
             parts.append(f"clusters of {chain['cluster_divisor']:.0f} correlated "
                          "events")
         caveat = (
-            f" R13b/c: n_raw {chain['n_raw']:.0f} -> n_effective {n_avail:.0f} "
-            f"({chain['total_reduction_factor']:.1f}x reduction), from "
-            + "; ".join(parts) + ". The floor above is the reduced one.")
+            f" R13b/c/d: n_raw {chain['n_raw']:.0f} -> n_effective "
+            f"{n_avail:.0f} ({chain['total_reduction_factor']:.1f}x), from "
+            + "; ".join(parts) + ". The floor above is the adjusted one.")
     elif cap is None:
         caveat = (
             " R13b: no `outcome_horizon_days` declared, so n_available assumes "

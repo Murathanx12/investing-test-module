@@ -358,3 +358,87 @@ def test_the_declared_cross_section_can_itself_push_a_design_under():
     assert ok["verdict"] == "RESOLVABLE"
     assert bad["verdict"] == "UNPOWERED_AT_REGISTRATION"
     assert bad["n_available"] < ok["n_available"]
+
+
+# ── R13d: the cross-section is a MULTIPLIER, and rho must be measured ───────
+
+def test_the_design_effect_is_bounded_by_one_over_rho():
+    """Adding co-moving series is not a way to buy power."""
+    from aegis_brain.discipline.prereg_power import design_effect_n
+
+    assert design_effect_n(8, 0.488) == pytest.approx(1.812, abs=1e-3)
+    assert design_effect_n(100, 0.488) == pytest.approx(2.028, abs=1e-3)
+    assert design_effect_n(1_000_000, 0.488) < 1.0 / 0.488 + 1e-6
+    # ... but differencing the common factor away changes the answer by an
+    # order of magnitude, which is the whole argument for relative claims.
+    assert design_effect_n(100, 0.10) > 9.0
+
+
+def test_undeclared_rho_is_conservative_never_flattering():
+    from aegis_brain.discipline.prereg_power import design_effect_n
+
+    assert design_effect_n(50, None) == 1.0
+    assert design_effect_n(50, 0.0) == 50.0
+
+
+def test_the_cross_section_multiplies_the_temporal_count():
+    """N21's own numbers: 40 blocks x 1.81 effective securities = 72, not 1.81.
+
+    The failure this guards against was made in prose about this very design:
+    'eight equity ETFs are 1.81 observations'. They are 1.81 observations PER
+    BLOCK, and there are forty blocks.
+    """
+    from aegis_brain.discipline.prereg_power import effective_sample
+
+    ch = effective_sample(2.0, 20.0, horizon_days=126,
+                          cross_sectional_k=8, cross_sectional_rho=0.488)
+    assert ch["temporal_nonoverlap_n"] == pytest.approx(40.0)
+    assert ch["cross_sectional_effective"] == pytest.approx(1.812, abs=1e-3)
+    assert ch["n_available_effective"] == pytest.approx(72.5, abs=0.5)
+    assert ch["cross_sectional_bound_1_over_rho"] == pytest.approx(2.049, abs=1e-3)
+
+
+def test_declaring_k_without_rho_is_refused():
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    r = check_resolvability(_doc(
+        event_frequency_per_year=2.0, declared_effect_size="3.0pp",
+        outcome_dispersion="4.936pp", outcome_horizon_days=126,
+        corpus_years=20, dependence_unit="one 6-month block",
+        cross_sectional_k=8))
+    assert r["verdict"] == "UNMEASURED_CROSS_SECTIONAL_DEPENDENCE"
+    assert r["blocked"]
+
+
+def test_declaring_both_cross_sectional_forms_is_refused():
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    r = check_resolvability(_doc(
+        event_frequency_per_year=2.0, declared_effect_size="3.0pp",
+        outcome_dispersion="4.936pp", outcome_horizon_days=126,
+        corpus_years=20, dependence_unit="one 6-month block",
+        cross_sectional_n=8, cross_sectional_k=8, cross_sectional_rho=0.488))
+    assert r["verdict"] == "AMBIGUOUS_CROSS_SECTIONAL_DECLARATION"
+    assert r["blocked"]
+
+
+def test_a_measured_rho_can_rescue_a_design_the_divisor_form_would_kill():
+    """The two forms are not two spellings — they move the answer opposite ways."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    kw = dict(event_frequency_per_year=2.0, declared_effect_size="3.0pp",
+              outcome_dispersion="10.0pp", outcome_horizon_days=126,
+              corpus_years=20, dependence_unit="one 6-month block")
+    divisor = check_resolvability(_doc(**kw, cross_sectional_n=8))
+    multiplier = check_resolvability(_doc(**kw, cross_sectional_k=8,
+                                          cross_sectional_rho=0.488))
+    assert multiplier["n_available"] > divisor["n_available"] * 10
+    assert divisor["verdict"] == "UNPOWERED_AT_REGISTRATION"
+
+
+def test_r13d_verdicts_are_refusals_in_the_linter():
+    """A verdict the linter does not know about exits 0 and is a comment."""
+    import scripts.lint_prereg as L
+
+    assert "UNMEASURED_CROSS_SECTIONAL_DEPENDENCE" in L.REFUSALS
+    assert "AMBIGUOUS_CROSS_SECTIONAL_DECLARATION" in L.REFUSALS
