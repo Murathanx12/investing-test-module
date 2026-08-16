@@ -32,6 +32,7 @@ from pathlib import Path
 
 from aegis_brain.config import MODULE_ROOT
 from aegis_brain.discipline.prereg_power import (check_calendar_disjointness,
+                                                 check_hypothesis_provenance,
                                                  check_resolvability,
                                                  check_slice_declaration)
 
@@ -342,10 +343,16 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     # already used to choose what is being tested. N9 answered the first
     # correctly and was never asked the second.
     calendar = check_calendar_disjointness(proposal) if require_slice else None
+    # R13f is the third question in the same family. R13e asks whether these
+    # dates CHOSE the rule; this asks whether they were already read by the
+    # result that made the hypothesis exist. Different provenance, different
+    # claim level, and only one of them is a refusal.
+    provenance = check_hypothesis_provenance(proposal) if require_slice else None
     _common = {"corpus_size": len(corp), "matches": matches,
                "blocking": blocking, "resurrections": resurrect,
                "duplicates": dupes, "declared_resurrections": declared,
                "power": power, "slice": slice_decl, "calendar": calendar,
+               "provenance": provenance,
                "thresholds": {"block_at": block_at, "warn_at": warn_at,
                               "duplicate_at": duplicate_at,
                               "min_shared": min_shared}}
@@ -361,6 +368,12 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     # before "was that data already spent choosing what you are testing".
     if calendar is not None and calendar["blocked"]:
         return {"verdict": calendar["verdict"], "why": calendar["why"],
+                **_common}
+    # After R13e: a slice whose calendar is confounded is refused outright,
+    # so the weaker "you may run this but not call it confirmation" ruling
+    # is only reached by a design that already passed the stronger one.
+    if provenance is not None and provenance["blocked"]:
+        return {"verdict": provenance["verdict"], "why": provenance["why"],
                 **_common}
 
     # Order matters: a near-identical rerun of a REFUTED idea is a block, and

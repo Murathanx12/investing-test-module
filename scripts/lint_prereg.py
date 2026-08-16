@@ -34,7 +34,12 @@ REFUSALS = frozenset({"BLOCKED", "MISSING_POWER_FIELDS",
                       "SELECTION_WINDOW_CONTRADICTS_PARENT",
                       "UNPARSEABLE_WINDOW",
                       "CALENDAR_OVERLAPPING_CONFIRMATION",
-                      "CONFIRMATION_WINDOW_ABUTS_SELECTION"})
+                      "CONFIRMATION_WINDOW_ABUTS_SELECTION",
+                      # R13f, 2026-08-16 — provenance is not citation.
+                      # ADAPTIVE_HISTORICAL_VALIDATION is deliberately ABSENT:
+                      # it is a claim-level downgrade, not a refusal.
+                      "UNDECLARED_HYPOTHESIS_SOURCE",
+                      "UNDECLARED_HYPOTHESIS_SOURCE_WINDOW"})
 
 
 def main() -> int:
@@ -74,6 +79,16 @@ def main() -> int:
                          if cal.get("gap_days") is not None else "")
                       + (f"  OVERLAP {cal['overlap_days']}d"
                          if cal.get("overlap_days") else ""))
+            prov = res.get("provenance")
+            if prov and prov.get("verdict") not in (None, "NOT_APPLICABLE"):
+                print(f"  R13f: {prov['verdict']}"
+                      + (f"  source {prov['hypothesis_source']}"
+                         if prov.get("hypothesis_source") else "")
+                      + (f"  OVERLAP {prov['overlap'][0]}..{prov['overlap'][1]}"
+                         if prov.get("overlap") else ""))
+                if not prov.get("may_claim_independent_confirmation", True):
+                    print("        -> may NOT be written up as independent "
+                          "confirmation.")
             for m in res["matches"]:
                 mark = ("DUPLICATE" if m in res["duplicates"]
                         else "BLOCK" if m in res["blocking"]

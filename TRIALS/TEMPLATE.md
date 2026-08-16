@@ -70,7 +70,33 @@ co-move — so the coordinate is a field now, and `lint_prereg` refuses on it.>
 - parent_trial: <The trial whose data selected this, or NONE. Declaring a
   parent AND `selection_period: NONE` is refused as a contradiction.>
 
-<The gate then requires a gap, not merely zero overlap: labels run forward, so
+## Provenance — R13f (required for CONFIRM / TRANSFER)
+
+<Three different things a prior trial can be to this one, and one field for each
+because collapsing them loses the distinction that matters. **The test is
+selection, not citation.**>
+
+- benchmark_source: <A trial supplying a number this one divides by or compares
+  against, which chose nothing about the design. Its calendar is NOT spent. If
+  a citation spent a calendar, no trial could ever quote a prior measurement.>
+- parent_trial: <declared above — what was FITTED. R13e refuses an overlapping
+  confirmation outright.>
+- hypothesis_source: <The trial whose OUTCOMES are the reason this hypothesis,
+  target, threshold or architecture exists at all, or NONE. It may have selected
+  nothing and still have read these dates.>
+- hypothesis_source_period: <The window that source read. Required whenever a
+  source is named.>
+
+<If the source's window overlaps this slice, the verdict is
+`ADAPTIVE_HISTORICAL_VALIDATION`. That is **not a refusal** — the trial runs. It
+is a ceiling on what may be written: validation on dates already seen by the
+work that raised the question, never independent confirmation. Only a genuinely
+untouched security/time/forward route upgrades it. IV-ORACLE-GAP-1's Phase B is
+the case that produced this rule: `parent_trial = NONE` was true, WM0 fitted
+nothing there — and WM0 read the whole panel end to end, which is why the
+question exists.>
+
+<The calendar gate then requires a gap, not merely zero overlap: labels run forward, so
 the last rows of the selection window carry outcomes formed inside whatever
 follows it. 7/5 x horizon + 14 calendar days — 1.5x was MEASURED failing on
 15.7% of 20-bar boundaries against the real NYSE calendar. Clearing this lint

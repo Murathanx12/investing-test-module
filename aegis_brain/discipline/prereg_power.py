@@ -473,7 +473,8 @@ NO_SELECTION_WINDOW = ("NONE", "NO_PRIOR_FIT")
 CALENDAR_DAYS_PER_TRADING_DAY = 7.0 / 5.0
 HOLIDAY_BUFFER_DAYS = 14
 
-_WINDOW_FIELDS = ("selection_period", "parent_trial")
+_WINDOW_FIELDS = ("selection_period", "parent_trial",
+                  "hypothesis_source", "hypothesis_source_period")
 _WINDOW_RE = {
     f: re.compile(rf"^\s*[-*]?\s*\**{f}\**\s*[:=]\s*\**\s*(?P<v>[^\n|]+?)\**\s*$",
                   re.IGNORECASE | re.MULTILINE)
@@ -729,6 +730,127 @@ def check_calendar_disjointness(text: str) -> dict:
         f"{purpose} window {sli[0]}..{sli[1]} {direction} the selection window "
         f"{sel[0]}..{sel[1]} by {gap} calendar days. ") + (
         "The declared windows are disjoint; the derived purge still runs.")}
+
+
+#: R13f verdicts. `ADAPTIVE_HISTORICAL_VALIDATION` is the one that matters:
+#: a slice that is calendar-disjoint from SELECTION but whose outcomes were
+#: already read by the trial that made this hypothesis exist.
+ADAPTIVE_VALIDATION = "ADAPTIVE_HISTORICAL_VALIDATION"
+
+
+def check_hypothesis_provenance(text: str) -> dict:
+    """R13f — did a prior result CAUSE this hypothesis, and did it read these
+    dates?
+
+    THE DISTINCTION, AND WHY IT IS NOT PEDANTRY
+    ===========================================
+    R13e asks what SELECTED the rule. This asks what made the QUESTION exist,
+    and they are different provenances that a single `parent_trial` field
+    collapses.
+
+    The test is **selection, not citation**:
+
+    * a prior trial supplies a number this one divides by, and chose nothing
+      about it -> `benchmark_source`. Its calendar is NOT spent. Treating a
+      citation as a parent would spend the calendar of every trial that ever
+      quotes a prior measurement, and a gate that expensive gets deleted the
+      week it first costs somebody a slice.
+    * a prior trial's rules, thresholds, universe or features were fitted here
+      -> `parent_trial`, and R13e refuses an overlapping confirmation outright.
+    * a prior trial's **outcomes** are the reason this hypothesis, target,
+      threshold or architecture exists at all -> `hypothesis_source`. It
+      selected nothing, so R13e's refusal is too strong; but it read these
+      outcomes, so "independent confirmation" is too generous.
+
+    That third case had no name, and IV-ORACLE-GAP-1 is exactly it: WM0
+    produced the 21.4% oracle-scale gap, which is the only reason anyone asked
+    whether option prices can recover it. WM0 selected none of the rungs — they
+    are literature-specified — so `parent_trial = NONE` is true. But WM0 read
+    the whole panel end to end as EXPLORE. A later slice inside those dates is
+    not pristine.
+
+    So this returns `ADAPTIVE_HISTORICAL_VALIDATION` rather than a refusal. The
+    trial RUNS, and it may not be written up as independent confirmation. The
+    honest ceiling on such a result is "validated on dates whose outcomes were
+    already seen by the work that raised the question", which is worth having
+    and is not the same claim.
+
+    Silence is not `NONE` here, for the same reason it is not in R13e: the
+    design that will not say what made it exist is the one where it matters.
+    """
+    m = _SLICE_RE["slice_purpose"].search(text or "")
+    raw = (m.group("v").strip() if m else "")
+    if raw.startswith("<") or raw.strip().lower().strip(".") in _PLACEHOLDERS:
+        raw = ""
+    purpose = raw.upper().split()[0].strip(",.;") if raw else ""
+    base = {"slice_purpose": purpose or None, "verdict": "NOT_APPLICABLE",
+            "blocked": False, "may_claim_independent_confirmation": True}
+    if purpose not in TRANSFER_CLAIMING_PURPOSES:
+        return {**base, "why": (
+            f"R13f applies to {' / '.join(TRANSFER_CLAIMING_PURPOSES)}; "
+            f"slice_purpose = {purpose or 'undeclared'} claims no independent "
+            f"confirmation to qualify.")}
+
+    src = _read_field(text, "hypothesis_source")
+    if not src:
+        return {**base, "verdict": "UNDECLARED_HYPOTHESIS_SOURCE",
+                "blocked": True, "may_claim_independent_confirmation": False,
+                "why": (
+                    "R13f: declare `hypothesis_source` — the prior trial whose "
+                    "OUTCOMES are the reason this hypothesis exists, or NONE if "
+                    "the question came from theory, literature or an "
+                    "unexamined observation. This is not `parent_trial` (what "
+                    "was fitted) and not `benchmark_source` (what is merely "
+                    "quoted). A result that motivated the question read the "
+                    "data it motivated it from.")}
+
+    named = src.upper().split()[0].strip(",.;") not in NO_SELECTION_WINDOW
+    if not named:
+        return {**base, "verdict": "NO_HYPOTHESIS_SOURCE_DECLARED", "why": (
+            "no prior result declared as the origin of this hypothesis. A "
+            "claim on the record: if a measured outcome is what raised the "
+            "question, this declaration is false.")}
+
+    per_raw = _read_field(text, "hypothesis_source_period")
+    if not per_raw:
+        return {**base, "verdict": "UNDECLARED_HYPOTHESIS_SOURCE_WINDOW",
+                "blocked": True, "hypothesis_source": src,
+                "may_claim_independent_confirmation": False, "why": (
+                    f"R13f: `hypothesis_source = {src}` names a source but no "
+                    f"`hypothesis_source_period`. Which dates did it read? "
+                    f"Without that the overlap cannot be computed and the "
+                    f"claim level cannot be set.")}
+
+    src_w, sli_w = parse_window(per_raw), parse_window(
+        _read_field(text, "slice_period"))
+    if src_w is None or sli_w is None:
+        which = ("hypothesis_source_period" if src_w is None else "slice_period")
+        return {**base, "verdict": "UNPARSEABLE_WINDOW", "blocked": True,
+                "hypothesis_source": src, "why": (
+                    f"R13f: could not read two dates out of `{which}`. A window "
+                    f"nobody can parse is a window nobody checked.")}
+
+    detail = {"hypothesis_source": src, "hypothesis_source_period": src_w,
+              "slice_period": sli_w}
+    if src_w[0] <= sli_w[1] and sli_w[0] <= src_w[1]:
+        lo, hi = max(src_w[0], sli_w[0]), min(src_w[1], sli_w[1])
+        return {**base, **detail, "verdict": ADAPTIVE_VALIDATION,
+                "blocked": False,
+                "may_claim_independent_confirmation": False,
+                "overlap": (lo, hi), "why": (
+                    f"R13f: {src} — the result that made this hypothesis exist "
+                    f"— already read outcomes on {lo}..{hi}, which this slice "
+                    f"re-uses. Nothing was FITTED there, so this is not a "
+                    f"calendar confound and the trial may run. It is "
+                    f"{ADAPTIVE_VALIDATION}: report it as validation on dates "
+                    f"already seen by the work that raised the question, never "
+                    f"as independent confirmation. A truly untouched "
+                    f"security/time/forward route is what upgrades it.")}
+
+    return {**base, **detail, "verdict": "HYPOTHESIS_SOURCE_DISJOINT", "why": (
+        f"{src} raised the question but read {src_w[0]}..{src_w[1]}, disjoint "
+        f"from this slice {sli_w[0]}..{sli_w[1]}. Independent confirmation is "
+        f"available to claim.")}
 
 
 def n_required(effect_pp: float, dispersion_pp: float) -> float | None:
