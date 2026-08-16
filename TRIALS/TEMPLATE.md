@@ -13,6 +13,20 @@ exist, who is on the other side of the trade, and why can't Citadel take it?>
 ## Expected effect size
 <Honest number with units, e.g. "40–80 bps/mo gross in the microcap decile".>
 
+## R13 — resolvability, declared BEFORE compute (required; `lint_prereg` refuses without it)
+<Derive `declared_effect_size` from ECONOMICS — turnover, cost, capacity,
+expected frequency, drawdown consequence, probability of ruin — and then ask
+whether the corpus can resolve it. Never the other way round: choosing 10pp
+because 25 episodes can see 10pp is the same error inverted.>
+
+- event_frequency_per_year: <INDEPENDENT episodes of the conditioning state per
+  year, not days. Crisis regimes ~0.7/yr; insider filings ~440,000/yr.>
+- declared_effect_size: <e.g. 10pp — the smallest effect that would change a
+  portfolio decision, with the economic argument above it>
+- outcome_dispersion: <sd of the outcome in that state: a number in pp, or one
+  of the measured presets `crisis` (17.7pp), `calm` (1.5pp), `single_name` (12pp)>
+- corpus_years: <optional; defaults to 36, the N2 twelve-market span>
+
 ## Expected decay / capacity
 <Horizon over which it should fade; rough $ capacity.>
 

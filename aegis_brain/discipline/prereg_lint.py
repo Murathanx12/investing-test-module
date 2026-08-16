@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from aegis_brain.config import MODULE_ROOT
+from aegis_brain.discipline.prereg_power import check_resolvability
 
 GRAVEYARD = MODULE_ROOT / "runs" / "PF5" / "T4_graveyard_rows.csv"
 REGISTRY = MODULE_ROOT / "TRIALS" / "registry.jsonl"
@@ -270,13 +271,21 @@ def _cosine(a: Counter, b: Counter, idf: dict[str, float]) -> float:
 
 def lint(proposal: str, *, corpus: list[Corpse] | None = None,
          top_k: int = 5, block_at: float = 0.30, warn_at: float = 0.18,
-         duplicate_at: float = 0.60, min_shared: int = 8) -> dict:
+         duplicate_at: float = 0.60, min_shared: int = 8,
+         require_power: bool = True) -> dict:
     """Check one proposal against everything this programme has already tried.
 
     Returns a verdict of PASS / RESURRECTION / BLOCKED plus the matches, so the
     caller prints receipts rather than a score. Thresholds are deliberately
     loose: a false warning costs one paragraph of reading, and a false clear
     costs a night.
+
+    `require_power` adds R13 (2026-08-16): the corpse check asks whether the
+    question has been asked before, and R13 asks whether *this design could
+    ever answer it*. Both refusals are cheap; only one of them was implemented
+    until N8 measured that 273 crisis episodes are needed where 25 exist. It
+    defaults ON — a caller that wants only the wording check must say so, since
+    the failure mode this guards is precisely the one nobody remembers to check.
     """
     corp = corpus if corpus is not None else load_corpus()
     idf = _idf(corp)
@@ -321,6 +330,20 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
         elif c.clazz in ("unanswered", "harvest") and score >= block_at:
             resurrect.append(rec)
 
+    # R13 runs BEFORE the corpse verdict is chosen. An unresolvable design is
+    # not improved by being novel, and reporting "PASS" first and the power
+    # refusal second is how a reader ends up registering it anyway.
+    power = check_resolvability(proposal) if require_power else None
+    if power is not None and power["blocked"]:
+        return {"verdict": power["verdict"], "why": power["why"],
+                "corpus_size": len(corp), "matches": matches,
+                "blocking": blocking, "resurrections": resurrect,
+                "duplicates": dupes, "declared_resurrections": declared,
+                "power": power,
+                "thresholds": {"block_at": block_at, "warn_at": warn_at,
+                               "duplicate_at": duplicate_at,
+                               "min_shared": min_shared}}
+
     # Order matters: a near-identical rerun of a REFUTED idea is a block, and
     # "duplicate" would be the weaker, less useful thing to say about it.
     if blocking:
@@ -353,7 +376,7 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     return {"verdict": verdict, "why": why, "corpus_size": len(corp),
             "matches": matches, "blocking": blocking,
             "resurrections": resurrect, "duplicates": dupes,
-            "declared_resurrections": declared,
+            "declared_resurrections": declared, "power": power,
             "thresholds": {"block_at": block_at, "warn_at": warn_at,
                            "duplicate_at": duplicate_at,
                            "min_shared": min_shared}}

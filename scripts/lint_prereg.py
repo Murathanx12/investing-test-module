@@ -17,6 +17,12 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from aegis_brain.config import MODULE_ROOT
 from aegis_brain.discipline.prereg_lint import lint, load_corpus
 
+#: Every verdict that means "do not register this yet". BLOCKED is the corpse
+#: check; the other two are R13. Listed here rather than inline so adding a
+#: fourth verdict cannot silently fail to gate.
+REFUSALS = frozenset({"BLOCKED", "MISSING_POWER_FIELDS",
+                      "UNPOWERED_AT_REGISTRATION"})
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -37,6 +43,13 @@ def main() -> int:
             print(f"\n{p.name}: {res['verdict']}  "
                   f"(vs {res['corpus_size']} prior experiments)")
             print(f"  {res['why']}")
+            pw = res.get("power")
+            if pw and pw.get("n_required") is not None:
+                floor = pw.get("smallest_resolvable_effect_pp")
+                print(f"  R13: n_required {pw['n_required']:.0f}  "
+                      f"n_available {pw['n_available']:.0f}  "
+                      f"smallest resolvable effect "
+                      + ("-" if floor is None else f"{floor:.2g}pp"))
             for m in res["matches"]:
                 mark = ("DUPLICATE" if m in res["duplicates"]
                         else "BLOCK" if m in res["blocking"]
@@ -51,7 +64,10 @@ def main() -> int:
                     or (m.get("detail") or {}).get("hypothesis")
                 if why:
                     print(f"               {str(why)[:150]}")
-        worst = max(worst, 1 if res["verdict"] == "BLOCKED" else 0)
+        # R13's refusals must exit non-zero too. The exit code IS the guard —
+        # a hook or CI step reads nothing else, and a linter that prints
+        # UNPOWERED_AT_REGISTRATION and returns 0 is a comment.
+        worst = max(worst, 1 if res["verdict"] in REFUSALS else 0)
     return worst
 
 

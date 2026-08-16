@@ -9,8 +9,21 @@ from collections import Counter
 
 import pytest
 
-from aegis_brain.discipline.prereg_lint import (Corpse, lint, load_corpus,
-                                                _tokens)
+from aegis_brain.discipline import prereg_lint as _pl
+from aegis_brain.discipline.prereg_lint import Corpse, load_corpus, _tokens
+
+
+def lint(proposal, **kw):
+    """The WORDING check alone — R13's resolvability gate is off in this file.
+
+    `prereg_lint.lint` runs both checks and defaults R13 ON, which is right for
+    every real caller. These tests are about the corpse check specifically, and
+    leaving R13 armed here would make all of them fail on missing declarations
+    rather than on the thing under test. R13 has its own file,
+    `test_prereg_power.py`, and the default is asserted there.
+    """
+    kw.setdefault("require_power", False)
+    return _pl.lint(proposal, **kw)
 
 
 def corpse(ident, verdict, text, source="graveyard") -> Corpse:
