@@ -54,11 +54,28 @@ claim, which is the point of saying it out loud before the numbers exist.>
   trials can share a price window and differ in what they were allowed to know
   inside it.>
 
-<And if the held-out coordinate is the UNIVERSE rather than the PERIOD, say so
-here and expect to be asked why that is enough. N9 confirmed on six securities
-in no prior slice over a calendar that overlapped its own selection window; the
-lift was 1.46 on the overlapping half and 0.77 on the disjoint half. Holding
-out securities is not holding out data when the securities co-move.>
+## Calendar disjointness — R13e (required for CONFIRM / TRANSFER / FOREIGN)
+<The paragraph that used to sit here asked you to "say so and expect to be
+asked why". Nobody asks a paragraph. N9 confirmed on six securities in no prior
+slice over a calendar that overlapped its own selection window: lift 1.464
+(p=0.010) on the overlapping half, 0.765 (p=0.771) on the disjoint half, both
+horizons. Holding out securities is not holding out data when the securities
+co-move — so the coordinate is a field now, and `lint_prereg` refuses on it.>
+
+- selection_period: <The window the thing being tested was CHOSEN, fitted or
+  tuned on — INCLUDING the window a parent was selected on, since a descendant
+  inherits it. `YYYY-MM-DD .. YYYY-MM-DD`, or `NONE` if the rule came from
+  theory or literature rather than from a window of this corpus. `NONE` is a
+  claim on the record, not a way past the field.>
+- parent_trial: <The trial whose data selected this, or NONE. Declaring a
+  parent AND `selection_period: NONE` is refused as a contradiction.>
+
+<The gate then requires a gap, not merely zero overlap: labels run forward, so
+the last rows of the selection window carry outcomes formed inside whatever
+follows it. 7/5 x horizon + 14 calendar days — 1.5x was MEASURED failing on
+15.7% of 20-bar boundaries against the real NYSE calendar. Clearing this lint
+does not replace the purge `research_gym.lineage` derives from the index at run
+time; it is the cheap check that runs before the compute, not instead of it.>
 
 ## Null specification (required whenever a p-value comes from a placebo)
 <Which properties of the real treatment does your null hold fixed? Name them:

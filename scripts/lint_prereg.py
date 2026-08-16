@@ -28,7 +28,13 @@ REFUSALS = frozenset({"BLOCKED", "MISSING_POWER_FIELDS",
                       "AMBIGUOUS_CROSS_SECTIONAL_DECLARATION",
                       # the slice claim, moved to registration 2026-08-16
                       "UNDECLARED_SLICE_PURPOSE",
-                      "UNIDENTIFIED_CONFIRMATION_SLICE"})
+                      "UNIDENTIFIED_CONFIRMATION_SLICE",
+                      # R13e, 2026-08-16 — the axis N9 died on
+                      "UNDECLARED_SELECTION_WINDOW",
+                      "SELECTION_WINDOW_CONTRADICTS_PARENT",
+                      "UNPARSEABLE_WINDOW",
+                      "CALENDAR_OVERLAPPING_CONFIRMATION",
+                      "CONFIRMATION_WINDOW_ABUTS_SELECTION"})
 
 
 def main() -> int:
@@ -57,6 +63,17 @@ def main() -> int:
                       f"n_available {pw['n_available']:.0f}  "
                       f"smallest resolvable effect "
                       + ("-" if floor is None else f"{floor:.2g}pp"))
+            cal = res.get("calendar")
+            if cal and cal.get("verdict") not in (None, "NOT_APPLICABLE"):
+                sel, sli = cal.get("selection_period"), cal.get("slice_period")
+                span = (f"  selection {sel[0]}..{sel[1]}  slice "
+                        f"{sli[0]}..{sli[1]}" if sel and sli else "")
+                print(f"  R13e: {cal['verdict']}{span}"
+                      + (f"  gap {cal['gap_days']}d "
+                         f"(need {cal['required_gap_days']}d)"
+                         if cal.get("gap_days") is not None else "")
+                      + (f"  OVERLAP {cal['overlap_days']}d"
+                         if cal.get("overlap_days") else ""))
             for m in res["matches"]:
                 mark = ("DUPLICATE" if m in res["duplicates"]
                         else "BLOCK" if m in res["blocking"]

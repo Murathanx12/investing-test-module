@@ -445,6 +445,292 @@ def check_slice_declaration(text: str) -> dict:
                    "the first price is fetched, not while reading the result."}
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# R13e — calendar-disjointness, declared at registration
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: The purposes that assert a rule survived contact with data it was not built
+#: on. These must be calendar-disjoint from the selection window or the claim
+#: is about the same market states under different tickers.
+TRANSFER_CLAIMING_PURPOSES = ("CONFIRM", "TRANSFER")
+
+#: FOREIGN is "still looking" — it does not claim transfer, so an overlap does
+#: not block it. It is still recorded, so the result is born labelled instead
+#: of being called a transfer three sessions later.
+LINEAGE_DECLARING_PURPOSES = TRANSFER_CLAIMING_PURPOSES + ("FOREIGN",)
+
+#: The literal a first-generation hypothesis declares when nothing was fitted:
+#: the rule came from theory or literature, not from a window of this corpus.
+NO_SELECTION_WINDOW = ("NONE", "NO_PRIOR_FIT")
+
+#: Trading days -> calendar days, plus a holiday/weekend buffer.
+#:
+#: NOT a taste. `audit_temporal_lineage` measured the 1.5x calendar heuristic
+#: failing on **15.7%** of 20-bar boundaries against the real NYSE calendar:
+#: 20 trading days can span 28 calendar days before a single holiday, and the
+#: heuristic allows 30. 7/5 is the exact weekend ratio and the 14-day buffer
+#: covers the worst holiday cluster in the sample (Thanksgiving->New Year).
+CALENDAR_DAYS_PER_TRADING_DAY = 7.0 / 5.0
+HOLIDAY_BUFFER_DAYS = 14
+
+_WINDOW_FIELDS = ("selection_period", "parent_trial")
+_WINDOW_RE = {
+    f: re.compile(rf"^\s*[-*]?\s*\**{f}\**\s*[:=]\s*\**\s*(?P<v>[^\n|]+?)\**\s*$",
+                  re.IGNORECASE | re.MULTILINE)
+    for f in _WINDOW_FIELDS + ("slice_period", "outcome_horizon_days")
+}
+
+#: ISO first, because a bare year is ambiguous about which end of it is meant
+#: and the expansion below has to know which end it is filling in.
+_ISO_RE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+_YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")
+
+
+def _read_field(text: str, field: str) -> str:
+    """Read a declared field, treating unfilled placeholders as absent.
+
+    `selection_period` and `parent_trial` keep `none`, because there NONE is
+    the answer — "nothing was fitted" — and mapping it to silence would refuse
+    the one honest declaration a first-generation hypothesis can make. Every
+    other evasion (`n/a`, `-`, `TBD`) still reads as unanswered.
+    """
+    m = _WINDOW_RE[field].search(text or "")
+    if not m:
+        return ""
+    v = m.group("v").strip()
+    blanks = _PLACEHOLDERS
+    if field in _WINDOW_FIELDS:
+        blanks = tuple(p for p in _PLACEHOLDERS if p != "none")
+    if v.startswith("<") or v.lower().strip(".") in blanks:
+        return ""
+    return v
+
+
+def parse_window(raw: str) -> tuple[str, str] | None:
+    """Pull `(start, end)` as ISO dates out of a declared period.
+
+    Accepts `1999-01-01 .. 2015-12-31`, `1999-01-01 to 2015-12-31`, and the
+    year-only `1999-2015`, which expands to the WIDEST reading (Jan 1 of the
+    first year to Dec 31 of the last). Widest on purpose: a declaration that
+    is ambiguous about its edges should fail the disjointness test, not scrape
+    past it on the narrow reading.
+
+    Returns None when two dates cannot be found — the caller refuses rather
+    than assuming, because a window nobody can parse is a window nobody
+    checked.
+    """
+    if not raw:
+        return None
+    iso = _ISO_RE.findall(raw)
+    if len(iso) >= 2:
+        a = "-".join(iso[0])
+        b = "-".join(iso[-1])
+        return (a, b) if a <= b else (b, a)
+    years = _YEAR_RE.findall(raw)
+    if len(iso) == 1 and years:
+        # One ISO date and a year: e.g. "1999-01-01 .. 2015".
+        a = "-".join(iso[0])
+        cand = [y for y in years if not a.startswith(y)] or years
+        b = f"{max(cand)}-12-31"
+        return (a, b) if a <= b else (b, a)
+    if len(years) >= 2:
+        return (f"{min(years)}-01-01", f"{max(years)}-12-31")
+    if len(years) == 1:
+        return (f"{years[0]}-01-01", f"{years[0]}-12-31")
+    return None
+
+
+def _days_between(a: str, b: str) -> int:
+    """Calendar days from ISO date `a` to ISO date `b`, `a` <= `b`."""
+    from datetime import date
+
+    ya, ma, da = (int(x) for x in a.split("-"))
+    yb, mb, db = (int(x) for x in b.split("-"))
+    return (date(yb, mb, db) - date(ya, ma, da)).days
+
+
+def required_gap_days(horizon_days: float | None) -> int:
+    """Calendar days a confirmation window must start AFTER selection ends.
+
+    Zero overlap is necessary and not sufficient: a confirmation beginning the
+    day after selection ends still scores rules whose labels were formed from
+    the same forward window. This is the registration-time version of what
+    `research_gym.lineage` derives exactly from the index at run time, and it
+    is deliberately the conservative one — clearing this lint does NOT excuse
+    a design from the derived purge.
+    """
+    if not horizon_days or horizon_days <= 0:
+        return 0
+    return int(math.ceil(float(horizon_days) * CALENDAR_DAYS_PER_TRADING_DAY)
+               + HOLIDAY_BUFFER_DAYS)
+
+
+def check_calendar_disjointness(text: str) -> dict:
+    """R13e. Does the confirmation window overlap the selection window?
+
+    WHY THIS EXISTS (2026-08-16, from N9)
+    =====================================
+    N9 froze a rule set selected on SPY/XLF/XLE through 2015, then confirmed it
+    on six securities *no prior slice had read* — over **1999-2026**. Different
+    tickers, the same 2008, the same 2011, the same 2015. Split at the
+    selection boundary with nothing else changed, the confirmation reads
+
+        1999-2015, calendar-OVERLAPPING : lift 1.464, p = 0.010
+        2016+,     calendar-disjoint    : lift 0.765, p = 0.771
+
+    at H=20, and the same shape at H=60. The registered 1.271 is the average of
+    a period that shares its market states with the selection window and a
+    period that does not.
+
+    `slice_register` stored the period all along and `check_slice_declaration`
+    required it to be declared — but the identity that decides reuse is
+    `shared securities AND overlapping period`, so a confirmation on fresh
+    tickers over the same calendar was clean by construction. The register was
+    built to stop securities being reused. **The binding axis was the
+    calendar.**
+
+    So the axis moves to registration, where it costs one line and one lint
+    instead of three sessions and a withdrawn headline:
+
+        holding out SECURITIES is not holding out DATA when they co-move.
+    """
+    m = _SLICE_RE["slice_purpose"].search(text or "")
+    raw = (m.group("v").strip() if m else "")
+    if raw.startswith("<") or raw.strip().lower().strip(".") in _PLACEHOLDERS:
+        raw = ""
+    purpose = raw.upper().split()[0].strip(",.;") if raw else ""
+
+    base = {"slice_purpose": purpose or None, "verdict": "NOT_APPLICABLE",
+            "blocked": False}
+    if purpose not in LINEAGE_DECLARING_PURPOSES:
+        return {**base, "why": (
+            f"R13e applies to {' / '.join(LINEAGE_DECLARING_PURPOSES)}; "
+            f"slice_purpose = {purpose or 'undeclared'} makes no transfer "
+            f"claim to confound.")}
+
+    claims_transfer = purpose in TRANSFER_CLAIMING_PURPOSES
+    sel_raw = _read_field(text, "selection_period")
+    parent = _read_field(text, "parent_trial")
+    parent_named = bool(parent) and parent.upper().split()[0].strip(",.;") \
+        not in NO_SELECTION_WINDOW
+
+    if not sel_raw:
+        return {**base, "verdict": "UNDECLARED_SELECTION_WINDOW",
+                "blocked": True, "why": (
+                    "R13e: declare `selection_period` — the calendar window the "
+                    "thing being tested was chosen, fitted or tuned on, "
+                    "INCLUDING the window its parent was selected on. N9's "
+                    "confirmation held out six untouched securities over a "
+                    "calendar that overlapped its own selection window; the "
+                    "lift was 1.464 on the overlapping half and 0.765 on the "
+                    "disjoint half. Nothing in the design said which coordinate "
+                    "was being varied, so nothing could refuse it. Declare "
+                    "`NONE` if the rule came from theory or literature rather "
+                    "than a window of this corpus.")}
+
+    declared_none = sel_raw.upper().split()[0].strip(",.;") in NO_SELECTION_WINDOW
+    if declared_none:
+        if parent_named:
+            return {**base, "verdict": "SELECTION_WINDOW_CONTRADICTS_PARENT",
+                    "blocked": True, "parent_trial": parent, "why": (
+                        f"R13e: `selection_period = {sel_raw}` but "
+                        f"`parent_trial = {parent}`. A descendant inherits its "
+                        f"parent's selection window — that is what makes it a "
+                        f"descendant. Declare the parent's window, or drop the "
+                        f"parent claim.")}
+        return {**base, "verdict": "CALENDAR_DISJOINT_BY_CONSTRUCTION",
+                "why": (
+                    "no prior fit declared, so there is no selection window to "
+                    "overlap. This is a claim ON THE RECORD: if the rule, its "
+                    "thresholds or its universe were in fact chosen after "
+                    "looking at this corpus, the declaration is false and the "
+                    "result is not a transfer.")}
+
+    sel = parse_window(sel_raw)
+    slice_raw = _read_field(text, "slice_period")
+    sli = parse_window(slice_raw)
+    if sel is None or sli is None:
+        which = ("selection_period" if sel is None else "slice_period")
+        return {**base, "verdict": "UNPARSEABLE_WINDOW", "blocked": True,
+                "why": (
+                    f"R13e: `{which}` does not yield two dates. Write it as "
+                    f"`YYYY-MM-DD .. YYYY-MM-DD`. A window that cannot be "
+                    f"parsed cannot be checked, and a guard that waves through "
+                    f"what it could not read is not a guard.")}
+
+    hz = _read_field(text, "outcome_horizon_days")
+    hz_n = _NUM_RE.search(hz) if hz else None
+    horizon = float(hz_n.group(1)) if hz_n else None
+    need_gap = required_gap_days(horizon)
+
+    lo, hi = max(sel[0], sli[0]), min(sel[1], sli[1])
+    overlaps = lo <= hi
+    detail = {"selection_period": sel, "slice_period": sli,
+              "outcome_horizon_days": horizon,
+              "required_gap_days": need_gap,
+              "overlap_start": lo if overlaps else None,
+              "overlap_end": hi if overlaps else None,
+              "overlap_days": (_days_between(lo, hi) + 1) if overlaps else 0}
+
+    if overlaps:
+        if not claims_transfer:
+            return {**base, **detail,
+                    "verdict": "CALENDAR_OVERLAPPING_FOREIGN_SLICE",
+                    "may_claim_transfer": False, "why": (
+                        f"FOREIGN slice {sli[0]}..{sli[1]} overlaps the "
+                        f"selection window {sel[0]}..{sel[1]} on "
+                        f"{detail['overlap_days']} calendar days. Not blocked "
+                        f"— FOREIGN is still looking — but this result may NOT "
+                        f"be reported as transfer evidence, whatever it says.")}
+        return {**base, **detail, "verdict": "CALENDAR_OVERLAPPING_CONFIRMATION",
+                "blocked": True, "why": (
+                    f"R13e: the {purpose} window {sli[0]}..{sli[1]} overlaps "
+                    f"the selection window {sel[0]}..{sel[1]} on "
+                    f"{detail['overlap_days']} calendar days. Holding out "
+                    f"SECURITIES is not holding out DATA when the securities "
+                    f"co-move: a rule chosen in 2008 and scored on other "
+                    f"tickers through the same 2008 is being asked whether it "
+                    f"fits the states it was chosen from. N9 answered 1.464 "
+                    f"(p=0.010) that way and 0.765 (p=0.771) on the disjoint "
+                    f"half. Either move the window past "
+                    f"{sel[1]} + {need_gap}d, or declare the trial FOREIGN / "
+                    f"REANALYSIS and give up the transfer claim.")}
+
+    # Disjoint. Ordering matters: a window BEFORE the selection window is not
+    # automatically safe either — labels run forward, so a confirmation that
+    # ends inside the parent's forward-label reach shares outcome data with it.
+    if sli[1] < sel[0]:
+        gap = _days_between(sli[1], sel[0])
+        direction = "precedes"
+    else:
+        gap = _days_between(sel[1], sli[0])
+        direction = "follows"
+    detail["gap_days"] = gap
+    detail["direction"] = direction
+
+    if gap < need_gap:
+        return {**base, **detail, "verdict": "CONFIRMATION_WINDOW_ABUTS_SELECTION",
+                "blocked": True, "why": (
+                    f"R13e: the windows do not overlap, but the {purpose} "
+                    f"window {direction} selection by only {gap} calendar days "
+                    f"against a {horizon:.0f}-day outcome horizon, which needs "
+                    f"{need_gap}. Labels run forward: the last selection rows "
+                    f"carry outcomes formed inside the confirmation window. "
+                    f"1.5x calendar days was measured failing on 15.7% of "
+                    f"20-bar boundaries against the real NYSE calendar, so this "
+                    f"gate uses 7/5 + {HOLIDAY_BUFFER_DAYS}d and STILL does not "
+                    f"replace the purge `research_gym.lineage` derives from the "
+                    f"index at run time.")}
+
+    return {**base, **detail, "verdict": "CALENDAR_DISJOINT", "why": (
+        f"{purpose} window {sli[0]}..{sli[1]} {direction} the selection window "
+        f"{sel[0]}..{sel[1]} by {gap} calendar days (>= {need_gap} required at "
+        f"H={horizon:.0f}). " if horizon else
+        f"{purpose} window {sli[0]}..{sli[1]} {direction} the selection window "
+        f"{sel[0]}..{sel[1]} by {gap} calendar days. ") + (
+        "The declared windows are disjoint; the derived purge still runs.")}
+
+
 def n_required(effect_pp: float, dispersion_pp: float) -> float | None:
     """Independent observations needed to detect `effect_pp` at 80% power."""
     if not effect_pp or not dispersion_pp or dispersion_pp <= 0:

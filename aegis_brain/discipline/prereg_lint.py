@@ -31,7 +31,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from aegis_brain.config import MODULE_ROOT
-from aegis_brain.discipline.prereg_power import (check_resolvability,
+from aegis_brain.discipline.prereg_power import (check_calendar_disjointness,
+                                                 check_resolvability,
                                                  check_slice_declaration)
 
 GRAVEYARD = MODULE_ROOT / "runs" / "PF5" / "T4_graveyard_rows.csv"
@@ -336,10 +337,15 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     # refusal second is how a reader ends up registering it anyway.
     power = check_resolvability(proposal) if require_power else None
     slice_decl = check_slice_declaration(proposal) if require_slice else None
+    # R13e runs with the slice claim because it is the second half of the same
+    # question: the claim says WHICH data, this says whether that data was
+    # already used to choose what is being tested. N9 answered the first
+    # correctly and was never asked the second.
+    calendar = check_calendar_disjointness(proposal) if require_slice else None
     _common = {"corpus_size": len(corp), "matches": matches,
                "blocking": blocking, "resurrections": resurrect,
                "duplicates": dupes, "declared_resurrections": declared,
-               "power": power, "slice": slice_decl,
+               "power": power, "slice": slice_decl, "calendar": calendar,
                "thresholds": {"block_at": block_at, "warn_at": warn_at,
                               "duplicate_at": duplicate_at,
                               "min_shared": min_shared}}
@@ -350,6 +356,11 @@ def lint(proposal: str, *, corpus: list[Corpse] | None = None,
     # not call it is the one that needs refusing.
     if slice_decl is not None and slice_decl["blocked"]:
         return {"verdict": slice_decl["verdict"], "why": slice_decl["why"],
+                **_common}
+    # After the slice claim, never before it: "which data" has to be answerable
+    # before "was that data already spent choosing what you are testing".
+    if calendar is not None and calendar["blocked"]:
+        return {"verdict": calendar["verdict"], "why": calendar["why"],
                 **_common}
 
     # Order matters: a near-identical rerun of a REFUTED idea is a block, and
