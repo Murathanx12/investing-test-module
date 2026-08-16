@@ -38,6 +38,9 @@ RESOLVABLE_CRISIS = """
 - event_frequency_per_year: 0.7
 - declared_effect_size: 10pp
 - outcome_dispersion: crisis
+- dependence_unit: one globally distinct crisis episode, counted once no
+  matter how many markets it touches
+- cross_sectional_n: 1
 """
 
 #: R14's point, expressed as arithmetic: the same 3pp claim conditioned on an
@@ -197,31 +200,42 @@ def test_r13b_refuses_the_exact_design_that_fooled_r13():
 def test_the_same_design_passes_without_the_horizon_which_is_the_defect():
     """Pins the hole R13b closes, so it cannot silently reopen.
 
-    This asserts the OLD behaviour on purpose: omit the horizon and the gate
-    still assumes independence. It is the reason the field is announced in the
-    PASS text rather than left silent.
+    This asserts the OLD behaviour on purpose: omit the horizon and R13b's
+    calendar cap cannot see the overlap, so `n_available` stays the declared
+    count and the floor stays optimistic. That hole is real and this path does
+    not close it.
+
+    R13c closes the same design by a SECOND route — 1451 available against
+    ~734 required is under 20x headroom, so silence about the dependence unit
+    refuses it whatever the horizon says. Both facts are pinned: the R13b hole
+    is still open, and the design no longer gets through it.
     """
     res = PP.check_resolvability(
         "declared_effect_size = 0.642pp\n"
         "event_frequency_per_year = 40.3\n"
         "outcome_dispersion = 6.20pp\n")
-    assert res["verdict"] == "RESOLVABLE"
     assert res["independence_assumed"] is True
-    assert res["smallest_resolvable_effect_pp"] < 0.5
-    assert "assumes" in res["why"] and "INDEPENDENT" in res["why"]
+    assert res["n_available"] == res["n_declared"]      # the R13b hole, open
+    assert res["smallest_resolvable_effect_pp"] < 0.5   # the optimistic floor
+    assert res["verdict"] == "UNDECLARED_DEPENDENCE_UNIT"    # caught anyway
+    assert res["blocked"] is True
 
 
 def test_a_genuinely_non_overlapping_declaration_is_not_capped():
     """The cap must not punish designs that declared honestly.
 
     Twelve 20-day episodes a year do not overlap, so nothing is capped and the
-    guard is silent.
+    guard is silent. R13c's declaration is supplied because the design is thin
+    enough for a cross-section to matter — which is the point of R13c, not an
+    exception to it.
     """
     res = PP.check_resolvability(
         "declared_effect_size = 3pp\n"
         "event_frequency_per_year = 12\n"
         "outcome_dispersion = 6.20pp\n"
-        "outcome_horizon_days = 20\n")
+        "outcome_horizon_days = 20\n"
+        "dependence_unit = one 20-day window on a single index\n"
+        "cross_sectional_n = 1\n")
     assert res["overlap_factor"] is None
     assert res["n_available"] == res["n_declared"]
     assert res["verdict"] == "RESOLVABLE"
@@ -236,3 +250,111 @@ def test_the_cap_reports_itself_in_the_refusal_text():
         "outcome_horizon_days = 20\n")
     assert "R13b" in res["why"]
     assert "1451" in res["why"] and "454" in res["why"]
+
+
+# ── R13c: temporal non-overlap is necessary, not sufficient ────────────────
+
+def _doc(**kw) -> str:
+    """A minimal prereg body with the declared fields substituted in."""
+    lines = "\n".join(f"{k} = {v}" for k, v in kw.items())
+    return f"# PREREG — synthetic\n\n```\n{lines}\n```\n"
+
+
+def test_a_cross_section_reduces_the_effective_sample():
+    """100 securities on one window are 100 rows and not 100 events."""
+    from aegis_brain.discipline.prereg_power import effective_sample
+
+    alone = effective_sample(12.0, 20.0, horizon_days=20)
+    pooled = effective_sample(12.0, 20.0, horizon_days=20,
+                              cross_sectional_n=18)
+    assert pooled["n_available_effective"] == pytest.approx(
+        alone["n_available_effective"] / 18.0)
+    assert pooled["total_reduction_factor"] > alone["total_reduction_factor"]
+
+
+def test_clusters_reduce_it_too_and_the_reductions_compose():
+    from aegis_brain.discipline.prereg_power import effective_sample
+
+    ch = effective_sample(50.0, 10.0, horizon_days=20,
+                          cross_sectional_n=6, cluster_size=5)
+    # temporal cap first: 252/20 = 12.6/yr over 10 years = 126
+    assert ch["temporal_nonoverlap_n"] == pytest.approx(126.0)
+    assert ch["n_after_temporal"] == pytest.approx(126.0)
+    assert ch["n_available_effective"] == pytest.approx(126.0 / 30.0)
+    assert ch["n_raw"] == pytest.approx(500.0)
+
+
+def test_effective_sample_never_inflates_a_declaration():
+    """Divisors below 1 must not be usable to manufacture sample."""
+    from aegis_brain.discipline.prereg_power import effective_sample
+
+    ch = effective_sample(10.0, 10.0, cross_sectional_n=0.1, cluster_size=0.0)
+    assert ch["n_available_effective"] == pytest.approx(100.0)
+
+
+def test_a_thin_design_without_a_declared_dependence_unit_is_refused():
+    """The R13c block: below 20x headroom, silence is not a declaration."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    # 12.6/yr at a 20d horizon over 36y = 453 available; a 2.0pp effect at
+    # 6.2pp dispersion needs ~76 => ~6x headroom, under the threshold
+    r = check_resolvability(_doc(
+        event_frequency_per_year=12.6, declared_effect_size="2.0pp",
+        outcome_dispersion="6.2pp", outcome_horizon_days=20))
+    assert r["verdict"] == "UNDECLARED_DEPENDENCE_UNIT"
+    assert r["blocked"] is True
+    assert "NECESSARY, NOT SUFFICIENT" in r["why"]
+
+
+def test_declaring_the_unit_unblocks_the_same_design():
+    """The mutation control for the block above — one field is the difference."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    r = check_resolvability(_doc(
+        event_frequency_per_year=12.6, declared_effect_size="2.0pp",
+        outcome_dispersion="6.2pp", outcome_horizon_days=20,
+        dependence_unit="one non-overlapping 20-day window on a single index",
+        cross_sectional_n=1, cluster_size=1))
+    assert r["verdict"] == "RESOLVABLE"
+    assert r["blocked"] is False
+    assert r["dependence_unit"]
+
+
+def test_a_placeholder_is_not_a_declaration():
+    """'n/a' is how a required field gets satisfied without being answered."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    for junk in ("n/a", "TBD", "-", "?"):
+        r = check_resolvability(_doc(
+            event_frequency_per_year=12.6, declared_effect_size="2.0pp",
+            outcome_dispersion="6.2pp", outcome_horizon_days=20,
+            dependence_unit=junk))
+        assert r["verdict"] == "UNDECLARED_DEPENDENCE_UNIT", junk
+
+
+def test_an_enormous_design_is_not_blocked_for_silence():
+    """Do not manufacture a crisis: 20x headroom cannot be flipped by an
+    undeclared cross-section this programme has ever pooled."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    r = check_resolvability(_doc(
+        event_frequency_per_year=252, declared_effect_size="10pp",
+        outcome_dispersion="6.2pp", outcome_horizon_days=1,
+        corpus_years=36))
+    assert r["verdict"] == "RESOLVABLE"
+    assert r["headroom"] >= 20.0
+
+
+def test_the_declared_cross_section_can_itself_push_a_design_under():
+    """Declaring dependence honestly must be able to REFUSE the design, or the
+    field is decorative."""
+    from aegis_brain.discipline.prereg_power import check_resolvability
+
+    kw = dict(event_frequency_per_year=12.6, declared_effect_size="2.0pp",
+              outcome_dispersion="6.2pp", outcome_horizon_days=20,
+              dependence_unit="one 20-day window across the whole panel")
+    ok = check_resolvability(_doc(**kw, cross_sectional_n=1))
+    bad = check_resolvability(_doc(**kw, cross_sectional_n=18))
+    assert ok["verdict"] == "RESOLVABLE"
+    assert bad["verdict"] == "UNPOWERED_AT_REGISTRATION"
+    assert bad["n_available"] < ok["n_available"]

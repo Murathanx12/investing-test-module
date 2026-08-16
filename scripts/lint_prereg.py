@@ -21,7 +21,8 @@ from aegis_brain.discipline.prereg_lint import lint, load_corpus
 #: check; the other two are R13. Listed here rather than inline so adding a
 #: fourth verdict cannot silently fail to gate.
 REFUSALS = frozenset({"BLOCKED", "MISSING_POWER_FIELDS",
-                      "UNPOWERED_AT_REGISTRATION"})
+                      "UNPOWERED_AT_REGISTRATION",
+                      "UNDECLARED_DEPENDENCE_UNIT"})
 
 
 def main() -> int:

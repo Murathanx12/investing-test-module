@@ -78,11 +78,27 @@ REQUIRED_FIELDS = ("event_frequency_per_year", "declared_effect_size",
 #: `outcome_horizon_days` is quoted in them everywhere in this programme.
 TRADING_DAYS_PER_YEAR = 252.0
 
-#: Optional. Declaring it turns on the overlap check (R13b) — see
-#: `max_independent_events_per_year`. It is optional rather than required so
-#: that registrations predating this check still lint; a proposal that omits it
-#: is told, in the PASS text, that its `n_available` is assuming independence.
-OPTIONAL_FIELDS = ("outcome_horizon_days",)
+#: Optional. Declaring them turns on the dependence checks (R13b/R13c) — see
+#: `effective_sample`. Optional rather than required so registrations predating
+#: the checks still lint; a proposal that omits them is told, in the PASS text,
+#: what its `n_available` is assuming.
+#:
+#: `dependence_unit`  — one sentence naming what ONE independent observation is.
+#: `cross_sectional_n`— how many co-moving series contribute per episode.
+#: `cluster_size`     — how many correlated events arrive per independent shock.
+OPTIONAL_FIELDS = ("outcome_horizon_days", "dependence_unit",
+                   "cross_sectional_n", "cluster_size")
+
+#: R13c. Below this ratio of available-to-required sample, an undeclared
+#: dependence unit BLOCKS rather than warns.
+#:
+#: Rationale, and it is not a taste: the widest cross-section this programme has
+#: pooled is 18 (WM0's ETF panel), and event clusters run 2-5. So an undeclared
+#: dependence can plausibly cost about 20x. A design with more headroom than
+#: that cannot be flipped by one, and blocking it would be manufacturing a
+#: crisis; a design with less can be flipped, and passing it is how N20 got
+#: through. The threshold is where those two errors meet.
+DEPENDENCE_DECLARATION_HEADROOM = 20.0
 
 _FIELD_RE = {
     f: re.compile(rf"^\s*[-*]?\s*\**{f}\**\s*[:=]\s*\**\s*(?P<v>[^\n|]+?)\**\s*$",
@@ -114,6 +130,55 @@ def max_independent_events_per_year(horizon_days: float) -> float | None:
     if not horizon_days or float(horizon_days) <= 0:
         return None
     return TRADING_DAYS_PER_YEAR / float(horizon_days)
+
+
+def effective_sample(freq_per_year: float, years: float, *,
+                     horizon_days: float | None = None,
+                     cross_sectional_n: float | None = None,
+                     cluster_size: float | None = None) -> dict:
+    """Reduce a declared event rate to independent observations, step by step.
+
+    R13c, added 2026-08-16. **Temporal non-overlap is necessary, not
+    sufficient.** R13b caps by `252/H` and stops there, which is correct about
+    calendar overlap and silent about everything else:
+
+    * 100 securities screened on the same 20-day window are 100 rows and
+      nowhere near 100 independent events.
+    * Ten insider filings from one company on one day are one disclosure.
+    * Six ETFs through one macro shock are closer to one observation than six.
+
+    Hardcoding `n_effective = n_nonoverlap` would build SS41 into R13 a second
+    time — the same mistake at a different level, which is precisely the shape
+    this programme keeps repeating. So each reduction is **declared** and
+    applied separately, and the result is the product of all of them.
+
+    Every intermediate count is returned rather than just the final one,
+    because a single number cannot be argued with and a chain can.
+    """
+    n_raw = float(freq_per_year) * float(years)
+    cap = max_independent_events_per_year(horizon_days)
+    temporal = cap * float(years) if cap is not None else None
+    after_temporal = min(n_raw, temporal) if temporal is not None else n_raw
+
+    xs = float(cross_sectional_n) if cross_sectional_n else 1.0
+    cl = float(cluster_size) if cluster_size else 1.0
+    xs = max(xs, 1.0)
+    cl = max(cl, 1.0)
+    effective = after_temporal / (xs * cl)
+
+    return {
+        "n_raw": n_raw,
+        "max_independent_events_per_year": cap,
+        "temporal_nonoverlap_n": temporal,
+        "n_after_temporal": after_temporal,
+        "cross_sectional_divisor": xs,
+        "cluster_divisor": cl,
+        "n_available_effective": effective,
+        "overlap_factor": (float(freq_per_year) / cap
+                           if cap is not None and float(freq_per_year) > cap
+                           else None),
+        "total_reduction_factor": (n_raw / effective) if effective > 0 else None,
+    }
 
 #: "3pp", "3 pp", "0.03", "3%", "300bps" all mean the same thing and a linter
 #: that accepts only one of them will be routed around within a week.
@@ -183,10 +248,20 @@ def parse_power_fields(text: str) -> dict:
             if out["outcome_dispersion_pp"] is None:
                 out["missing"].append("outcome_dispersion")
 
-    hz = out["raw"].get("outcome_horizon_days")
-    if hz is not None:
-        n = _NUM_RE.search(hz)
-        out["outcome_horizon_days"] = float(n.group(1)) if n else None
+    for numeric in ("outcome_horizon_days", "cross_sectional_n",
+                    "cluster_size"):
+        raw = out["raw"].get(numeric)
+        if raw is not None:
+            n = _NUM_RE.search(raw)
+            out[numeric] = float(n.group(1)) if n else None
+
+    du = out["raw"].get("dependence_unit")
+    # A declaration must say something. "n/a", "-", "TBD" are the ways an
+    # author satisfies a required field without answering it, and a guard that
+    # accepts them is a guard that has been routed around.
+    if du is not None and du.strip().lower().strip(".") not in (
+            "", "n/a", "na", "none", "-", "--", "tbd", "todo", "?"):
+        out["dependence_unit"] = du.strip()
 
     yrs = out["raw"].get("corpus_years")
     if yrs is not None:
@@ -240,20 +315,18 @@ def check_resolvability(text: str) -> dict:
     years = f["corpus_years"]
     n_declared = float(freq) * float(years)
 
-    # ── R13b: the overlap cap ──────────────────────────────────────────────
-    # `freq` is supposed to count INDEPENDENT episodes. Whether it does is on
-    # the honour system, and N20 showed the honour system failing in the
-    # direction that matters. When the outcome horizon is declared, a year
-    # cannot hold more than 252/horizon non-overlapping episodes, so a declared
-    # frequency above that is arithmetic proof of overlap.
+    # ── R13b/R13c: reduce the declared rate to independent observations ────
+    # `freq` is on the honour system and N20 showed the honour system failing
+    # in the direction that matters. The reductions are applied mechanically
+    # and reported as a chain, never as one number.
     hz = f.get("outcome_horizon_days")
-    cap = max_independent_events_per_year(hz)
-    overlap_factor = None
-    if cap is not None and float(freq) > cap:
-        overlap_factor = float(freq) / cap
-        n_avail = cap * float(years)
-    else:
-        n_avail = n_declared
+    chain = effective_sample(freq, years, horizon_days=hz,
+                             cross_sectional_n=f.get("cross_sectional_n"),
+                             cluster_size=f.get("cluster_size"))
+    cap = chain["max_independent_events_per_year"]
+    overlap_factor = chain["overlap_factor"]
+    n_avail = chain["n_available_effective"]
+    unit = f.get("dependence_unit")
 
     need = n_required(eff, sd)
     floor = resolvable_effect(n_avail, sd)
@@ -263,8 +336,32 @@ def check_resolvability(text: str) -> dict:
             "outcome_horizon_days": hz,
             "max_independent_events_per_year": cap,
             "overlap_factor": overlap_factor,
+            "dependence_unit": unit,
+            "dependence_chain": chain,
             "independence_assumed": cap is None,
             "smallest_resolvable_effect_pp": floor}
+
+    # ── R13c: an undeclared dependence unit blocks when it could matter ────
+    if need is not None and unit is None:
+        headroom = (n_avail / need) if need > 0 else float("inf")
+        base["headroom"] = headroom
+        if headroom < DEPENDENCE_DECLARATION_HEADROOM and need <= n_avail:
+            return {
+                **base, "verdict": "UNDECLARED_DEPENDENCE_UNIT", "blocked": True,
+                "why": (
+                    f"R13c: this design has {n_avail:.0f} available against "
+                    f"{need:.0f} required — {headroom:.1f}x headroom. Below "
+                    f"{DEPENDENCE_DECLARATION_HEADROOM:.0f}x, an undeclared "
+                    "dependence can flip the answer on its own: pooling an "
+                    "18-wide cross-section or a 5-event cluster costs an order "
+                    "of magnitude, and R13b's calendar cap does not see either. "
+                    "Declare `dependence_unit` — one sentence naming what ONE "
+                    "independent observation is — plus `cross_sectional_n` and "
+                    "`cluster_size` where they are above 1. If they genuinely "
+                    "are 1, say so and say why; that is a claim the design has "
+                    "to own rather than inherit by silence. "
+                    "Temporal non-overlap is NECESSARY, NOT SUFFICIENT."),
+            }
 
     if need is None:
         return {**base, "verdict": "MISSING_POWER_FIELDS", "blocked": True,
@@ -293,13 +390,23 @@ def check_resolvability(text: str) -> dict:
         }
 
     caveat = ""
-    if overlap_factor is not None:
+    if chain["total_reduction_factor"] and chain["total_reduction_factor"] > 1.01:
+        parts = []
+        if overlap_factor is not None:
+            parts.append(
+                f"only {cap:.1f} non-overlapping {hz:.0f}-day windows fit in a "
+                f"year against your declared {freq:.3g}/yr ({overlap_factor:.1f}x "
+                "overlap)")
+        if chain["cross_sectional_divisor"] > 1:
+            parts.append(f"a {chain['cross_sectional_divisor']:.0f}-wide "
+                         "co-moving cross-section")
+        if chain["cluster_divisor"] > 1:
+            parts.append(f"clusters of {chain['cluster_divisor']:.0f} correlated "
+                         "events")
         caveat = (
-            f" R13b: you declared {freq:.3g} events/yr against a {hz:.0f}-day "
-            f"outcome, but only {cap:.1f} non-overlapping {hz:.0f}-day windows "
-            f"fit in a year — the declared episodes overlap by {overlap_factor:.1f}x, "
-            f"so n_available was CAPPED at {n_avail:.0f} (declared "
-            f"{n_declared:.0f}). The floor above is the capped one.")
+            f" R13b/c: n_raw {chain['n_raw']:.0f} -> n_effective {n_avail:.0f} "
+            f"({chain['total_reduction_factor']:.1f}x reduction), from "
+            + "; ".join(parts) + ". The floor above is the reduced one.")
     elif cap is None:
         caveat = (
             " R13b: no `outcome_horizon_days` declared, so n_available assumes "
