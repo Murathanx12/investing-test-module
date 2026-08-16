@@ -15,6 +15,7 @@ from __future__ import annotations
 import pytest
 
 from aegis_brain.discipline import prereg_lint as PL
+from aegis_brain.discipline import prereg_power as PP
 from aegis_brain.discipline.prereg_power import (DISPERSION_PRESETS_PP,
                                                  check_resolvability,
                                                  n_required,
@@ -157,3 +158,81 @@ def test_an_unresolvable_design_is_refused_even_when_the_wording_is_novel():
         "- outcome_dispersion: crisis\n", corpus=corpus)
     assert res["verdict"] == "UNPOWERED_AT_REGISTRATION"
     assert res["power"]["n_required"] > res["power"]["n_available"]
+
+
+# ── R13b: the overlap cap (added 2026-08-16, from N20) ─────────────────────
+# These tests exist because R13 passed N20 — declared effect 0.642pp, claimed
+# floor 0.46pp — and the block bootstrap then measured an honest MDE of
+# 0.895-1.306pp. The design was unpowered and the gate said it was fine.
+
+
+def test_max_independent_events_is_the_non_overlapping_window_count():
+    assert PP.max_independent_events_per_year(20) == pytest.approx(12.6)
+    assert PP.max_independent_events_per_year(252) == pytest.approx(1.0)
+    assert PP.max_independent_events_per_year(0) is None
+    assert PP.max_independent_events_per_year(None) is None
+
+
+def test_r13b_refuses_the_exact_design_that_fooled_r13():
+    """N20, as actually registered. The regression this guard exists for.
+
+    Without the horizon the gate returned RESOLVABLE at a 0.46pp floor. With
+    it, n_available is capped 1451 -> 454 and the design is refused.
+    """
+    res = PP.check_resolvability(
+        "declared_effect_size = 0.642pp\n"
+        "event_frequency_per_year = 40.3\n"
+        "outcome_dispersion = 6.20pp\n"
+        "outcome_horizon_days = 20\n")
+    assert res["verdict"] == "UNPOWERED_AT_REGISTRATION"
+    assert res["blocked"] is True
+    assert res["n_declared"] == pytest.approx(1451, abs=1)
+    assert res["n_available"] == pytest.approx(454, abs=1)
+    assert res["overlap_factor"] == pytest.approx(3.2, abs=0.05)
+    # the capped floor must land near the bootstrap's measured 0.895-1.306pp,
+    # not near R13's original 0.46pp
+    assert 0.7 < res["smallest_resolvable_effect_pp"] < 1.0
+
+
+def test_the_same_design_passes_without_the_horizon_which_is_the_defect():
+    """Pins the hole R13b closes, so it cannot silently reopen.
+
+    This asserts the OLD behaviour on purpose: omit the horizon and the gate
+    still assumes independence. It is the reason the field is announced in the
+    PASS text rather than left silent.
+    """
+    res = PP.check_resolvability(
+        "declared_effect_size = 0.642pp\n"
+        "event_frequency_per_year = 40.3\n"
+        "outcome_dispersion = 6.20pp\n")
+    assert res["verdict"] == "RESOLVABLE"
+    assert res["independence_assumed"] is True
+    assert res["smallest_resolvable_effect_pp"] < 0.5
+    assert "assumes" in res["why"] and "INDEPENDENT" in res["why"]
+
+
+def test_a_genuinely_non_overlapping_declaration_is_not_capped():
+    """The cap must not punish designs that declared honestly.
+
+    Twelve 20-day episodes a year do not overlap, so nothing is capped and the
+    guard is silent.
+    """
+    res = PP.check_resolvability(
+        "declared_effect_size = 3pp\n"
+        "event_frequency_per_year = 12\n"
+        "outcome_dispersion = 6.20pp\n"
+        "outcome_horizon_days = 20\n")
+    assert res["overlap_factor"] is None
+    assert res["n_available"] == res["n_declared"]
+    assert res["verdict"] == "RESOLVABLE"
+
+
+def test_the_cap_reports_itself_in_the_refusal_text():
+    """A cap the reader cannot see is a cap that gets argued with."""
+    res = PP.check_resolvability(
+        "declared_effect_size = 0.642pp\n"
+        "event_frequency_per_year = 40.3\n"
+        "outcome_dispersion = 6.20pp\n"
+        "outcome_horizon_days = 20\n")
+    assert "R13b" in res["why"]
+    assert "1451" in res["why"] and "454" in res["why"]

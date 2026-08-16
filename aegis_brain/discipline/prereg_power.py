@@ -74,11 +74,46 @@ DEFAULT_CORPUS_YEARS = 36.0
 REQUIRED_FIELDS = ("event_frequency_per_year", "declared_effect_size",
                    "outcome_dispersion")
 
+#: Trading days per year. The overlap check below is in trading days because
+#: `outcome_horizon_days` is quoted in them everywhere in this programme.
+TRADING_DAYS_PER_YEAR = 252.0
+
+#: Optional. Declaring it turns on the overlap check (R13b) — see
+#: `max_independent_events_per_year`. It is optional rather than required so
+#: that registrations predating this check still lint; a proposal that omits it
+#: is told, in the PASS text, that its `n_available` is assuming independence.
+OPTIONAL_FIELDS = ("outcome_horizon_days",)
+
 _FIELD_RE = {
     f: re.compile(rf"^\s*[-*]?\s*\**{f}\**\s*[:=]\s*\**\s*(?P<v>[^\n|]+?)\**\s*$",
                   re.IGNORECASE | re.MULTILINE)
-    for f in REQUIRED_FIELDS + ("corpus_years",)
+    for f in REQUIRED_FIELDS + OPTIONAL_FIELDS + ("corpus_years",)
 }
+
+
+def max_independent_events_per_year(horizon_days: float) -> float | None:
+    """How many NON-OVERLAPPING `horizon_days` windows fit in a year.
+
+    R13b, added 2026-08-16 after N20. R13's docstring asks for
+    `event_frequency_per_year` "counted as INDEPENDENT episodes, not days", and
+    then trusts the author to have done that. N20 declared 40.3/yr — the rate
+    the precursor fires on DAYS — for a 20-day outcome, and R13 passed it:
+    claimed floor 0.46pp against a declared 0.642pp, while the block
+    bootstrap's honest MDE was 0.895-1.306pp. The design was unpowered and the
+    gate said it was fine.
+
+    The declaration was wrong and the gate could not see it. This is the
+    arithmetic that can: at a 20-day horizon a year holds at most 252/20 = 12.6
+    non-overlapping episodes, so a declared 40.3 is *proof* the episodes
+    overlap, with no knowledge of the data required. `n_available` is then
+    capped at the non-overlapping count rather than taken on trust.
+
+    This is SS41 (`n_effective = n`) in the gate built to prevent SS41 — and
+    inverted: there it manufactured false kills, here false passes.
+    """
+    if not horizon_days or float(horizon_days) <= 0:
+        return None
+    return TRADING_DAYS_PER_YEAR / float(horizon_days)
 
 #: "3pp", "3 pp", "0.03", "3%", "300bps" all mean the same thing and a linter
 #: that accepts only one of them will be routed around within a week.
@@ -106,7 +141,7 @@ def _to_pp(raw: str) -> float | None:
 def parse_power_fields(text: str) -> dict:
     """Pull R13's declared fields out of a pre-registration document."""
     out: dict = {"missing": [], "raw": {}}
-    for f in REQUIRED_FIELDS + ("corpus_years",):
+    for f in REQUIRED_FIELDS + OPTIONAL_FIELDS + ("corpus_years",):
         m = _FIELD_RE[f].search(text or "")
         if not m:
             if f in REQUIRED_FIELDS:
@@ -147,6 +182,11 @@ def parse_power_fields(text: str) -> dict:
             out["dispersion_source"] = "declared"
             if out["outcome_dispersion_pp"] is None:
                 out["missing"].append("outcome_dispersion")
+
+    hz = out["raw"].get("outcome_horizon_days")
+    if hz is not None:
+        n = _NUM_RE.search(hz)
+        out["outcome_horizon_days"] = float(n.group(1)) if n else None
 
     yrs = out["raw"].get("corpus_years")
     if yrs is not None:
@@ -198,11 +238,32 @@ def check_resolvability(text: str) -> dict:
     eff = f["declared_effect_size_pp"]
     sd = f["outcome_dispersion_pp"]
     years = f["corpus_years"]
-    n_avail = float(freq) * float(years)
+    n_declared = float(freq) * float(years)
+
+    # ── R13b: the overlap cap ──────────────────────────────────────────────
+    # `freq` is supposed to count INDEPENDENT episodes. Whether it does is on
+    # the honour system, and N20 showed the honour system failing in the
+    # direction that matters. When the outcome horizon is declared, a year
+    # cannot hold more than 252/horizon non-overlapping episodes, so a declared
+    # frequency above that is arithmetic proof of overlap.
+    hz = f.get("outcome_horizon_days")
+    cap = max_independent_events_per_year(hz)
+    overlap_factor = None
+    if cap is not None and float(freq) > cap:
+        overlap_factor = float(freq) / cap
+        n_avail = cap * float(years)
+    else:
+        n_avail = n_declared
+
     need = n_required(eff, sd)
     floor = resolvable_effect(n_avail, sd)
 
-    base = {"fields": f, "n_available": n_avail, "n_required": need,
+    base = {"fields": f, "n_available": n_avail,
+            "n_declared": n_declared, "n_required": need,
+            "outcome_horizon_days": hz,
+            "max_independent_events_per_year": cap,
+            "overlap_factor": overlap_factor,
+            "independence_assumed": cap is None,
             "smallest_resolvable_effect_pp": floor}
 
     if need is None:
@@ -216,7 +277,12 @@ def check_resolvability(text: str) -> dict:
                 f"R13: resolving a {eff:.3g}pp effect at dispersion "
                 f"{sd:.3g}pp needs **{need:.0f}** independent observations. "
                 f"At {freq:.3g} per year over {years:.0f} years the corpus can "
-                f"ever supply **{n_avail:.0f}**. This design cannot resolve "
+                f"ever supply **{n_avail:.0f}**"
+                + (f" (R13b: capped from {n_declared:.0f} — your "
+                   f"{freq:.3g} events/yr overlap {overlap_factor:.1f}x at a "
+                   f"{hz:.0f}-day horizon, where only {cap:.1f} independent "
+                   f"windows fit in a year)" if overlap_factor else "")
+                + ". This design cannot resolve "
                 f"this claim, and running it would produce a NOT_DETECTABLE "
                 f"that says nothing about the world. The smallest effect this "
                 f"corpus could resolve is "
@@ -226,11 +292,27 @@ def check_resolvability(text: str) -> dict:
                 "change the conditioning unit (R14: events, not regimes)."),
         }
 
+    caveat = ""
+    if overlap_factor is not None:
+        caveat = (
+            f" R13b: you declared {freq:.3g} events/yr against a {hz:.0f}-day "
+            f"outcome, but only {cap:.1f} non-overlapping {hz:.0f}-day windows "
+            f"fit in a year — the declared episodes overlap by {overlap_factor:.1f}x, "
+            f"so n_available was CAPPED at {n_avail:.0f} (declared "
+            f"{n_declared:.0f}). The floor above is the capped one.")
+    elif cap is None:
+        caveat = (
+            " R13b: no `outcome_horizon_days` declared, so n_available assumes "
+            "every episode is INDEPENDENT. If the outcome window overlaps or "
+            "the cross-section co-moves, this floor is optimistic — N20 was "
+            "passed at 0.46pp against a true MDE of 0.895-1.306pp for exactly "
+            "this reason. Declare the horizon and the check runs.")
+
     return {
         **base, "verdict": "RESOLVABLE", "blocked": False,
         "why": (f"R13: {need:.0f} independent observations required, "
                 f"{n_avail:.0f} available. Registrable. Note this says the "
                 f"design CAN resolve the declared effect — it says nothing "
                 f"about whether {eff:.3g}pp is the right effect to have "
-                f"declared, which is an economic question."),
+                f"declared, which is an economic question." + caveat),
     }
