@@ -89,10 +89,17 @@ divergence share) are reported, never deciding.
   accrual to 300 contract-days.
 - Earliest decision: 2026-11-21. Crash-event override: SPY −20%
   peak-to-trough defers decisions to ≥ 6 months past trough.
-- Contamination clause: snapshots with `pages_truncated > 0` on either
-  venue, or matched pairs whose contract terms are found to differ in
-  resolution criteria (recorded at matching time), are excluded — exclusion
-  recorded per pair, never silently.
+- Contamination clause: a matched pair whose contract terms differ in
+  resolution criteria (recorded at matching time) is excluded. Truncation
+  semantics, measured before inception (2026-08-21 live smoke): Polymarket's
+  API refuses offsets past ~2000, so its liquidity-ordered snapshot is
+  STRUCTURALLY truncated on most days — a captured contract's price is valid
+  regardless of what the un-captured tail contained, so structural
+  truncation does NOT exclude captured contracts. What truncation does
+  forbid is any claim about ABSENCE ("no divergent contracts existed that
+  day"). Kalshi-side truncation (unexpected, cap 60 pages) excludes that
+  day's Kalshi snapshot as originally written. Exclusions recorded per pair,
+  never silently.
 
 ## What this rule may NOT do
 
