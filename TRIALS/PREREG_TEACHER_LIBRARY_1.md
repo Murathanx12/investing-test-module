@@ -1,9 +1,21 @@
 # PREREG — TEACHER-LIBRARY-1 (Track E): conditional structure in observed expert trades, not mean-actor skill
 
-**DRAFT FOR SIGNATURE — UNSIGNED. Drafted 2026-08-22, before any subgroup
-feature is computed and before any forward observation accrues to this
-trial.** Registration is the signature (attended, Murat). Until signed: no
-arm runs, nothing surfaces beyond labeled descriptive context.
+**REGISTERED — SIGNED 2026-08-22.**
+SIGNED-BY: Murat Abdullaev — in-session approval 2026-08-22 ("All three
+now" on the signature question), recorded by the working session. Drafted
+and signed the same day, before any subgroup feature was computed and
+before any forward observation accrued.
+
+**§64 RESERVATION RECEIPT (computed at signature, from PROD stores):**
+`pi_ownership_collect` prod receipts show ~1,741 events written per filing
+day (2026-08-14: 1,746; 2026-08-17: 1,741) ≈ 430,000 events/yr; at the
+local corpus's ~5.8% BUY fraction, S2-eligible purchases accrue in the
+THOUSANDS per year against the 349 required — **S2 is powered with an
+order of magnitude to spare; the 12-month window stands.** The congress
+store exposes no count surface today, so **S3 and S4 remain
+RESERVATION-GATED and MAY NOT RUN** until a session counts the prod
+congress store and appends its §64 receipt beneath this line; if that
+count fails the gate they are SHELF at birth, recorded.
 
 **Family:** conditional-heterogeneity screen over disclosed actor trades.
 **Grade:** SCREEN on forward accrual; any surviving subgroup earns a FORWARD
